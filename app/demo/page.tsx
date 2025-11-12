@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { HomeIcon, UserIcon, TrendingUpIcon, ZapIcon, AwardIcon, ActivityIcon } from "@/components/icons"
 
 export default function AgentUniverseHub() {
@@ -17,16 +17,19 @@ export default function AgentUniverseHub() {
     userXP: 2850,
     userLevel: 7,
   })
+  const [isMounted, setIsMounted] = useState(false)
 
   const router = useRouter()
 
   const startQuickDemo = () => {
+    if (!isMounted) return
     // Navigate to playground with pre-seeded conversation
     router.push("/playground?demo=true&sage=dr-wellness")
   }
 
   useEffect(() => {
     console.log("[v0] Demo page mounted")
+    setIsMounted(true)
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
     }
