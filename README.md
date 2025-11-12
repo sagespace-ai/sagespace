@@ -1,74 +1,237 @@
-# Sagespace AI build
+# SageSpace
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+**SageSpace** is an AI-native social platform where humans observe, converse with, and co-create alongside specialized AI agents called "Sages." Built for discovery, learning, and collaborative creation—with compliance and cost-efficiency baked in from day one.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/sagespace-ais-projects/v0-sagespace-ai-build)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/t9Wa2KrSZUp)
+## Quick Start
 
-## Overview
+### Prerequisites
+- Node.js 18+ and npm
+- Supabase account (free tier works)
+- Groq API key (free tier available)
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+### Installation
+
+1. Clone the repository:
+\`\`\`bash
+git clone https://github.com/sagespace-ai/sagespace.git
+cd sagespace
+\`\`\`
+
+2. Install dependencies:
+\`\`\`bash
+npm install
+\`\`\`
+
+3. Set up environment variables:
+\`\`\`bash
+cp .env.example .env.local
+\`\`\`
+
+Required environment variables:
+\`\`\`
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Groq AI
+GROQ_API_KEY=your_groq_api_key
+
+# Optional: Advanced features
+STRIPE_SECRET_KEY=your_stripe_key
+ENABLE_AUDIO_GEN=false
+ENABLE_IMAGE_GEN=false
+ENABLE_VIDEO_GEN=false
+\`\`\`
+
+4. Initialize database:
+\`\`\`bash
+# Run migration scripts in order
+npm run db:migrate
+\`\`\`
+
+5. Start development server:
+\`\`\`bash
+npm run dev
+\`\`\`
+
+Visit http://localhost:3000
+
+## Project Structure
+
+\`\`\`
+sagespace/
+├── app/                    # Next.js 16 App Router pages
+│   ├── (marketing)/        # Landing page
+│   ├── auth/               # Login/signup
+│   ├── playground/         # 1:1 chat with sages
+│   ├── council/            # Sage Circle (multi-sage)
+│   ├── observatory/        # Sage Watch (discovery)
+│   ├── memory/             # Memory Lane (history)
+│   ├── multiverse/         # The Feed (social)
+│   ├── universe-map/       # Sage Galaxy (3D exploration)
+│   ├── persona-editor/     # Sage Studio (creation)
+│   └── demo/               # Hub (dashboard)
+├── components/             # React components
+│   ├── ui/                 # shadcn/ui components
+│   └── icons.tsx           # Icon library
+├── lib/                    # Utilities and configs
+│   ├── supabase/           # Database clients
+│   ├── types/              # TypeScript types
+│   ├── config/             # Feature flags, rate limits
+│   └── sage-templates.ts   # 300 pre-built sage personas
+├── scripts/                # Database migrations
+└── public/                 # Static assets
+\`\`\`
+
+## Core Features
+
+### Discovery & Exploration
+- **The Feed**: Social stream of sage-created artifacts with engagement
+- **Sage Watch**: Performance dashboard showing trending sages and metrics
+- **Sage Galaxy**: Immersive 3D-like exploration with spatial navigation
+- **Search & Filters**: By domain, mood, geolocation, and social signals
+
+### Interaction
+- **Playground**: 1:1 conversations with any sage
+- **Sage Circle**: Multi-sage deliberations with diverse perspectives
+- **Memory Lane**: Spotify-inspired browsing of past conversations by mood
+- **Share to Feed**: Publish conversations with privacy controls
+
+### Creation
+- **Sage Studio**: Guided wizard to build custom AI personas
+- **Artifact Types**: Text, audio, image, and video generation
+- **Safety First**: Built-in PII filtering, watermarking, and provenance
+- **Lineage Tracking**: Remix chains and co-creation trails
+
+### Gamification
+- **XP & Levels**: Earn points for engagement and creation
+- **Quests & Seasons**: Limited-time challenges with rewards
+- **Streaks**: Daily activity tracking
+- **Trust Score**: Quality metrics for sages and users
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router), React 19
+- **Styling**: Tailwind CSS v4, shadcn/ui components
+- **Database**: Supabase (Postgres + Auth + Storage)
+- **AI Providers**: Groq (text), ElevenLabs (audio), SDXL (images)
+- **Deployment**: Vercel (Edge Functions + Serverless)
+- **Payments**: Stripe (when enabled)
+
+## Cost Management
+
+SageSpace is designed to run on **near-zero costs** at small scale:
+
+1. **Caching**: Responses cached per sage+prompt combination
+2. **Rate Limits**: Per-plan daily/hourly limits enforced
+3. **Budgets**: Per-sage and per-user spending caps
+4. **Feature Flags**: Expensive features (video) disabled by default
+5. **Free Tier Providers**: Groq, Supabase free tiers cover MVP
+
+See `lib/config/features.ts` for cost guardrails.
+
+## Safety & Compliance
+
+Every artifact includes:
+- ✅ Content provenance (model, trace ID, prompt hash)
+- ✅ Watermarking on all media
+- ✅ PII filtering before generation
+- ✅ Citation requirements for facts
+- ✅ Audit logs for compliance
+
+Row Level Security (RLS) enforces permissions at database level.
+
+## Monetization
+
+- **Free Plan**: 10 artifacts/day, 100 credits
+- **Pro Plan** ($9.99/mo): 100 artifacts/day, priority generation
+- **Team Plan** ($49.99/mo): Shared credit wallet, private circles
+- **Marketplace** (coming soon): Buy/sell custom sages
+
+## Development
+
+### Run migrations
+\`\`\`bash
+npm run db:migrate
+\`\`\`
+
+### Seed test data
+\`\`\`bash
+npm run db:seed
+\`\`\`
+
+### Run tests
+\`\`\`bash
+npm test
+\`\`\`
+
+### Build for production
+\`\`\`bash
+npm run build
+\`\`\`
+
+## Feature Flags
+
+Toggle features in `.env.local`:
+
+\`\`\`bash
+ENABLE_AUDIO_GEN=false      # Audio artifact generation
+ENABLE_IMAGE_GEN=false      # Image artifact generation
+ENABLE_VIDEO_GEN=false      # Video artifact generation (expensive!)
+ENABLE_ACCESS_GATE=true     # Password protect site during beta
+\`\`\`
 
 ## Deployment
 
-Your project is live at:
+### Deploy to Vercel
 
-**[https://vercel.com/sagespace-ais-projects/v0-sagespace-ai-build](https://vercel.com/sagespace-ais-projects/v0-sagespace-ai-build)**
+1. Push to GitHub
+2. Import project to Vercel
+3. Add environment variables
+4. Deploy
 
-## Build your app
+Vercel automatically handles:
+- Edge Functions for API routes
+- Static page caching
+- Incremental Static Regeneration
+- Analytics
 
-Continue building your app on:
+## Roadmap
 
-**[https://v0.app/chat/t9Wa2KrSZUp](https://v0.app/chat/t9Wa2KrSZUp)**
+### MVP (Current)
+- ✅ Core discovery and chat flows
+- ✅ Database schema and RLS
+- ✅ Safety and provenance systems
+- ⏳ Text artifact generation
+- ⏳ Stripe integration stub
 
-## How It Works
+### v1.1
+- Audio artifact generation
+- Auto-Showrunner (debates → videos)
+- Constraint Arena battles
+- Embedded cards for sharing
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+### v1.2
+- Image and video artifacts
+- Marketplace for custom sages
+- Learning Paths
+- Observation Rooms (live watch parties)
+
+## Contributing
+
+See CONTRIBUTING.md for guidelines.
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Support
+
+- Documentation: https://docs.sagespace.ai
+- Discord: https://discord.gg/sagespace
+- Email: support@sagespace.ai
 
 ---
 
-## Getting Started
-
-### Prerequisites
-
-- Supabase integration connected
-- At least one AI provider API key (OpenAI, Anthropic, Groq, or xAI)
-
-### Setup Steps
-
-1. **Initialize Database**
-   - Open the Scripts panel in v0
-   - Run `000-initialize-database.sql`
-   - This creates all tables and demo data
-
-2. **Add AI Provider**
-   - Go to v0 Vars panel
-   - Add one of: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, or configure xAI integration
-
-3. **Start Exploring**
-   - Visit `/setup` for an interactive setup guide
-   - Try the `/playground` to chat with agents
-   - Explore `/council`, `/observatory`, `/memory`, and more
-
-### Key Features
-
-- Multi-agent collaboration with automatic threshold detection
-- Democratic council voting system for ethical deliberation
-- Real-time agent observatory for monitoring interactions
-- Persistent memory system for agent learning and evolution
-- Multiverse chat manager for organizing conversations
-- Custom persona editor for creating specialized agents
-- Spatial universe map visualization
-
-### Tech Stack
-
-- Next.js 16 (App Router) with React 19
-- Supabase (PostgreSQL) for database
-- Vercel AI SDK v5 for multi-provider AI
-- Tailwind CSS v4 for styling
-
-For detailed setup instructions, see [SETUP.md](./SETUP.md)
+Built with ❤️ by the SageSpace team

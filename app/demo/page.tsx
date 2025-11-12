@@ -3,19 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
-import {
-  EyeIcon,
-  ScaleIcon,
-  BrainIcon,
-  MessageSquareIcon,
-  SparklesIcon,
-  HomeIcon,
-  UserIcon,
-  TrendingUpIcon,
-  ZapIcon,
-  AwardIcon,
-  ActivityIcon,
-} from "@/components/icons"
+import { HomeIcon, UserIcon, TrendingUpIcon, ZapIcon, AwardIcon, ActivityIcon } from "@/components/icons"
 
 export default function AgentUniverseHub() {
   console.log("[v0] Demo page rendering...")
@@ -55,91 +43,226 @@ export default function AgentUniverseHub() {
   const features = [
     {
       href: "/playground",
-      icon: MessageSquareIcon,
       title: "Playground",
-      description: "Chat with 300+ specialized sages",
+      description: "Chat with specialized AI companions in real-time",
       gradient: "from-cyan-500 to-blue-500",
       hoverGradient: "from-cyan-400 to-blue-400",
       stats: "Active Chats: 47",
-      emoji: "💬",
       delay: "0s",
+      animatedIcon: (
+        <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
+          <div className="relative">
+            <div
+              className="w-10 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl rounded-br-none animate-bounce"
+              style={{ animationDuration: "2s" }}
+            >
+              <div className="absolute top-2 left-2 flex gap-1">
+                <div className="w-1 h-1 bg-white/80 rounded-full" />
+                <div className="w-1 h-1 bg-white/80 rounded-full" />
+                <div className="w-1 h-1 bg-white/80 rounded-full" />
+              </div>
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-br from-cyan-300 to-blue-400 rotate-45" />
+          </div>
+        </div>
+      ),
     },
     {
       href: "/observatory",
-      icon: EyeIcon,
       title: "Sage Watch",
-      description: "Monitor real-time agent interactions",
+      description: "Discover trending sages and see what's popular",
       gradient: "from-purple-500 to-pink-500",
       hoverGradient: "from-purple-400 to-pink-400",
-      stats: "Live Agents: 300",
-      emoji: "🔭",
+      stats: "Live Now: 300",
       delay: "0.1s",
+      animatedIcon: (
+        <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
+          <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
+            <path
+              d="M6 36 L12 28 L18 32 L30 16 L42 22"
+              stroke="url(#grad1)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="animate-pulse"
+            />
+            <defs>
+              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#a855f7" />
+                <stop offset="100%" stopColor="#ec4899" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div className="absolute top-2 right-2 w-2 h-2 bg-pink-400 rounded-full animate-ping" />
+        </div>
+      ),
     },
     {
       href: "/council",
-      icon: ScaleIcon,
       title: "Sage Circle",
-      description: "Multi-agent deliberation & voting",
+      description: "Get diverse perspectives from multiple sages",
       gradient: "from-emerald-500 to-teal-500",
       hoverGradient: "from-emerald-400 to-teal-400",
-      stats: "Deliberations: 89",
-      emoji: "⚖️",
+      stats: "Circles: 89",
       delay: "0.2s",
+      animatedIcon: (
+        <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
+          <div className="relative w-14 h-10">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-5 h-5 bg-emerald-400 rounded-full border-2 border-emerald-300 animate-bounce" />
+            <div
+              className="absolute bottom-0 left-2 w-5 h-5 bg-teal-400 rounded-full border-2 border-teal-300 animate-bounce"
+              style={{ animationDelay: "0.3s" }}
+            />
+            <div
+              className="absolute bottom-0 right-2 w-5 h-5 bg-emerald-500 rounded-full border-2 border-emerald-400 animate-bounce"
+              style={{ animationDelay: "0.6s" }}
+            />
+          </div>
+        </div>
+      ),
     },
     {
       href: "/memory",
-      icon: BrainIcon,
       title: "Memory Lane",
-      description: "Agent learning & evolution dashboard",
+      description: "Revisit your favorite conversations and insights",
       gradient: "from-orange-500 to-red-500",
       hoverGradient: "from-orange-400 to-red-400",
       stats: "Memories: 12.4K",
-      emoji: "🧠",
       delay: "0.3s",
+      animatedIcon: (
+        <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
+          <div className="relative">
+            <div className="w-10 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded shadow-lg">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-14 bg-gradient-to-b from-yellow-300 to-orange-300" />
+              <div className="absolute top-3 left-2 right-2 space-y-1">
+                <div className="h-0.5 bg-white/40 rounded" />
+                <div className="h-0.5 bg-white/40 rounded w-3/4" />
+                <div className="h-0.5 bg-white/40 rounded w-1/2" />
+              </div>
+            </div>
+            <div className="absolute inset-0 animate-pulse" style={{ animationDuration: "3s" }} />
+          </div>
+        </div>
+      ),
     },
     {
       href: "/multiverse",
-      icon: SparklesIcon,
-      title: "Multiverse",
-      description: "Persistent conversations across realities",
+      title: "The Feed",
+      description: "Explore trending sage conversations and discoveries",
       gradient: "from-indigo-500 to-purple-500",
       hoverGradient: "from-indigo-400 to-purple-400",
-      stats: "Saved: 34",
-      emoji: "🌌",
+      stats: "Trending: 34",
       delay: "0.4s",
+      animatedIcon: (
+        <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center overflow-hidden">
+          <div className="relative w-12 h-14">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="absolute left-0 right-0 h-10 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-lg border border-purple-300/30 shadow-lg"
+                style={{
+                  top: `${i * 4}px`,
+                  zIndex: 3 - i,
+                  opacity: 1 - i * 0.2,
+                  animation: "slide-up 3s ease-in-out infinite",
+                  animationDelay: `${i * 0.5}s`,
+                }}
+              >
+                <div className="p-2 space-y-1">
+                  <div className="h-0.5 bg-white/60 rounded w-3/4" />
+                  <div className="h-0.5 bg-white/40 rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
     },
     {
       href: "/universe-map",
-      icon: ActivityIcon,
-      title: "Universe Map",
-      description: "3D spatial agent visualization",
+      title: "Sage Galaxy",
+      description: "Navigate through an immersive universe of sages",
       gradient: "from-pink-500 to-rose-500",
       hoverGradient: "from-pink-400 to-rose-400",
-      stats: "Connections: 892",
-      emoji: "🗺️",
+      stats: "Exploring: 892",
       delay: "0.5s",
+      animatedIcon: (
+        <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
+          <div className="relative w-14 h-14">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full animate-pulse" />
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white rounded-full"
+                style={{
+                  transform: `rotate(${i * 60}deg) translateY(-20px) translateX(-50%)`,
+                  transformOrigin: "0 0",
+                  animation: "spin 8s linear infinite",
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              />
+            ))}
+            <div
+              className="absolute inset-0 border-2 border-pink-400/30 rounded-full"
+              style={{ width: "120%", height: "120%", top: "-10%", left: "-10%" }}
+            />
+          </div>
+        </div>
+      ),
     },
     {
       href: "/persona-editor",
-      icon: UserIcon,
-      title: "Persona Forge",
-      description: "Design & deploy custom AI agents",
+      title: "Sage Studio",
+      description: "Create your own custom AI companions with unique personalities",
       gradient: "from-yellow-500 to-amber-500",
       hoverGradient: "from-yellow-400 to-amber-400",
-      stats: "Custom Sages: 12",
-      emoji: "⚡",
+      stats: "Your Sages: 12",
       delay: "0.6s",
+      animatedIcon: (
+        <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
+          <div className="relative w-12 h-12 rotate-45">
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-10 bg-gradient-to-t from-amber-500 to-yellow-300 rounded-full" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-yellow-300 rounded-full animate-pulse" />
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="absolute w-1 h-1 bg-yellow-200 rounded-full"
+                style={{
+                  top: `${10 + i * 8}px`,
+                  left: `${12 + i * 6}px`,
+                  animation: "twinkle 2s ease-in-out infinite",
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      ),
     },
     {
-      href: "/marketplace",
-      icon: SparklesIcon,
-      title: "Sage Marketplace",
-      description: "Browse 300 specialized AI companions",
+      href: "/multiverse",
+      title: "Browse Sages",
+      description: "Discover 300+ specialized AI companions by expertise",
       gradient: "from-cyan-500 to-purple-500",
       hoverGradient: "from-cyan-400 to-purple-400",
       stats: "Available: 300",
-      emoji: "✨",
       delay: "0.7s",
+      animatedIcon: (
+        <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
+          <div className="grid grid-cols-3 gap-1.5">
+            {[...Array(9)].map((_, i) => (
+              <div
+                key={i}
+                className="w-3.5 h-3.5 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full animate-pulse"
+                style={{
+                  animationDelay: `${i * 0.1}s`,
+                  animationDuration: "2s",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      ),
     },
   ]
 
@@ -198,7 +321,6 @@ export default function AgentUniverseHub() {
                     style={{ backgroundSize: "300% 300%" }}
                   >
                     Hub
-                    {/* Animated particle dots within the text */}
                     <span className="absolute -top-1 left-0 w-1 h-1 bg-cyan-400 rounded-full animate-ping opacity-75"></span>
                     <span
                       className="absolute -top-1 right-2 w-1 h-1 bg-purple-400 rounded-full animate-ping opacity-75"
@@ -208,10 +330,8 @@ export default function AgentUniverseHub() {
                       className="absolute -bottom-1 left-6 w-1 h-1 bg-pink-400 rounded-full animate-ping opacity-75"
                       style={{ animationDelay: "1s" }}
                     ></span>
-                    {/* Glowing underline that pulses */}
                     <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 rounded-full animate-pulse-slow blur-sm"></span>
                   </span>
-                  {/* Orbiting particles around the title */}
                   <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 pointer-events-none">
                     <span
                       className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full blur-sm animate-spin-slow"
@@ -268,18 +388,18 @@ export default function AgentUniverseHub() {
                 className="block bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient"
                 style={{ backgroundSize: "300% 300%" }}
               >
-                Welcome to Your
+                Welcome to
               </span>
               <span
                 className="block bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent animate-gradient-reverse mt-2"
                 style={{ backgroundSize: "300% 300%" }}
               >
-                Agent Universe
+                SageSpace
               </span>
             </h2>
             <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-8 leading-relaxed">
-              Command <span className="text-cyan-400 font-semibold">{stats.totalAgents} specialized AI sages</span>,
-              orchestrate multi-agent collaboration, and shape the future of human-AI synergy
+              Connect with <span className="text-cyan-400 font-semibold">{stats.totalAgents} specialized AI sages</span>
+              , get collaborative wisdom from sage circles, and discover insights shared by the community
             </p>
             <div className="flex flex-wrap items-center justify-center gap-6 mb-12">
               <div className="px-6 py-3 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl backdrop-blur">
@@ -330,21 +450,21 @@ export default function AgentUniverseHub() {
               {features.map((feature, index) => (
                 <Link key={index} href={feature.href}>
                   <div
-                    className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-purple-500/20 rounded-2xl p-6 hover:border-cyan-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/30 cursor-pointer animate-slide-up overflow-hidden"
+                    className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-purple-500/20 rounded-2xl p-6 hover:border-cyan-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/30 cursor-pointer animate-slide-up overflow-hidden h-[280px] flex flex-col"
                     style={{ animationDelay: feature.delay }}
                   >
                     <div
                       className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
                     />
-                    <div className="relative z-10">
-                      <div className="text-6xl mb-4 group-hover:scale-110 group-hover:animate-bounce transition-transform duration-300">
-                        {feature.emoji}
+                    <div className="relative z-10 flex-1 flex flex-col">
+                      <div className="group-hover:scale-110 transition-transform duration-300">
+                        {feature.animatedIcon}
                       </div>
                       <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
                         {feature.title}
                       </h3>
-                      <p className="text-sm text-slate-400 mb-4 leading-relaxed">{feature.description}</p>
-                      <div className="flex items-center justify-between">
+                      <p className="text-sm text-slate-400 mb-4 leading-relaxed flex-1">{feature.description}</p>
+                      <div className="flex items-center justify-between mt-auto">
                         <div
                           className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r ${feature.gradient} bg-opacity-20 border border-cyan-500/30 rounded-full text-xs font-medium text-white`}
                         >
@@ -369,43 +489,43 @@ export default function AgentUniverseHub() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-full blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <SparklesIcon className="w-8 h-8 text-yellow-400 animate-pulse" />
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Pro Tips to Level Up</h3>
+                  <AwardIcon className="w-8 h-8 text-yellow-400 animate-pulse" />
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Pro Tips to Get Started</h3>
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="flex gap-3">
-                    <div className="text-2xl">💡</div>
+                    <div className="text-2xl">💬</div>
                     <div>
-                      <h4 className="font-semibold text-white mb-1">Combine Sages</h4>
+                      <h4 className="font-semibold text-white mb-1">Start a Conversation</h4>
                       <p className="text-sm text-slate-300">
-                        Use the Playground to chat with multiple sages at once for deeper insights
+                        Head to the Playground and chat with any sage that fits your needs
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="text-2xl">🎯</div>
+                    <div className="text-2xl">🤝</div>
                     <div>
-                      <h4 className="font-semibold text-white mb-1">Track Your Growth</h4>
+                      <h4 className="font-semibold text-white mb-1">Get Multiple Perspectives</h4>
                       <p className="text-sm text-slate-300">
-                        Earn XP and level up by engaging with sages and completing conversations
+                        Use Sage Circle to consult multiple experts and get well-rounded advice
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="text-2xl">🔬</div>
+                    <div className="text-2xl">🌊</div>
                     <div>
-                      <h4 className="font-semibold text-white mb-1">Watch Them Collaborate</h4>
+                      <h4 className="font-semibold text-white mb-1">Explore The Feed</h4>
                       <p className="text-sm text-slate-300">
-                        Use the Observatory to see how sages work together in real-time
+                        See what conversations others are having and discover new insights
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="text-2xl">⚡</div>
                     <div>
-                      <h4 className="font-semibold text-white mb-1">Create Your Own</h4>
+                      <h4 className="font-semibold text-white mb-1">Create Your Own Sage</h4>
                       <p className="text-sm text-slate-300">
-                        Design custom sages in the Persona Forge tailored to your unique needs
+                        Design a custom AI companion in Sage Studio tailored to your unique needs
                       </p>
                     </div>
                   </div>
@@ -421,7 +541,7 @@ export default function AgentUniverseHub() {
                 </span>
               </h3>
               <p className="text-xl text-slate-300 mb-8">
-                The universe awaits. Choose your first adventure and begin earning XP.
+                Your journey to wisdom begins here. Choose your first experience and start exploring.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/playground">
@@ -430,21 +550,21 @@ export default function AgentUniverseHub() {
                     className="text-lg px-10 py-6 relative group overflow-hidden bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/50 border-0 hover:scale-105"
                   >
                     <span className="relative z-10 flex items-center gap-3">
-                      <span>Launch Playground</span>
-                      <span className="text-xl">🚀</span>
+                      <span>Start Chatting</span>
+                      <span className="text-xl">💬</span>
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
                   </Button>
                 </Link>
-                <Link href="/marketplace">
+                <Link href="/universe-map">
                   <Button
                     size="lg"
                     variant="outline"
                     className="text-lg px-10 py-6 relative group overflow-hidden bg-black/50 backdrop-blur border-2 border-purple-500/50 hover:border-cyan-400 text-white transition-all duration-500 shadow-xl hover:shadow-purple-500/50 hover:scale-105"
                   >
                     <span className="relative z-10 flex items-center gap-3">
-                      <span>Explore Sages</span>
-                      <span className="text-xl">✨</span>
+                      <span>Explore Sage Galaxy</span>
+                      <span className="text-xl">🌌</span>
                     </span>
                   </Button>
                 </Link>

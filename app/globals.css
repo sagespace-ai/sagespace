@@ -299,4 +299,33 @@
   animation: ping-slow 2s ease-in-out infinite;
 }
 
+/* Adding slide-right animation for The Feed icon */
+@keyframes slide-right {
+  0%,
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(0);
+  }
+}
+
+/* Adding twinkle animation for Sage Studio icon sparkles */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
 /* Removed problematic escaped percent class, use inline style instead */

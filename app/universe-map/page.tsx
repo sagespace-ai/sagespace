@@ -50,6 +50,7 @@ export default function UniverseMapPage() {
   )
   const [selectedConstellation, setSelectedConstellation] = useState<string | null>(null)
   const [showNavigationPanel, setShowNavigationPanel] = useState(false)
+  const [selectedNavigationSage, setSelectedNavigationSage] = useState<FloatingSage | null>(null) // Added state for selected sage in navigation
   const [zoomLevel, setZoomLevel] = useState(1)
   const [centerPosition, setCenterPosition] = useState({ x: 50, y: 50 })
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null)
@@ -434,7 +435,7 @@ export default function UniverseMapPage() {
                       <button
                         key={constellation}
                         onClick={() => setSelectedConstellation(constellation)}
-                        className={`w-full p-3 rounded-lg text-left text-sm transition-all ${
+                        className={`w-full p-3 rounded-lg text-sm transition-all ${
                           selectedConstellation === constellation
                             ? "bg-cyan-500 text-white font-semibold"
                             : "bg-slate-800 text-slate-300 hover:bg-slate-700"
@@ -630,53 +631,173 @@ export default function UniverseMapPage() {
               </div>
             </div>
 
-            <div className="flex justify-center gap-4 mt-4">
-              <div className="flex items-center gap-2 bg-slate-900/80 border border-purple-500/30 rounded-xl px-4 py-2">
-                <span className="text-sm text-slate-400">Zoom:</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setZoomLevel((prev) => Math.max(0.5, prev - 0.2))}
-                  className="text-cyan-400 hover:text-cyan-300"
-                >
-                  −
-                </Button>
-                <span className="text-white font-mono">{Math.round(zoomLevel * 100)}%</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setZoomLevel((prev) => Math.min(2, prev + 0.2))}
-                  className="text-cyan-400 hover:text-cyan-300"
-                >
-                  +
-                </Button>
-              </div>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setZoomLevel(1)
-                  setCenterPosition({ x: 50, y: 50 })
-                }}
-                className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
-              >
-                Reset View
-              </Button>
-
-              {userLocation && (
-                <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm text-green-400">Location Active</span>
-                </div>
-              )}
-            </div>
-
             <div
               ref={canvasRef}
               className="relative w-full h-[600px] bg-gradient-to-b from-purple-950/20 to-black/40 rounded-3xl border-2 border-purple-500/20 overflow-hidden mb-8 cursor-move"
               style={{ perspective: "1000px" }}
             >
+              {/* Navigate Button - Futuristic floating control */}
+              <button
+                onClick={() => setShowNavigationPanel(!showNavigationPanel)}
+                className="absolute left-6 top-6 z-40 group"
+              >
+                <div className="relative">
+                  {/* Outer glow ring */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity animate-pulse" />
+
+                  {/* Main button */}
+                  <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-cyan-500/50 rounded-2xl p-4 hover:scale-110 transition-all duration-300 shadow-2xl">
+                    <div className="flex flex-col items-center gap-2">
+                      <SparklesIcon className="w-6 h-6 text-cyan-400 animate-spin-slow" />
+                      <span className="text-xs font-bold text-white whitespace-nowrap">Navigate</span>
+                    </div>
+
+                    {/* Orbiting particles */}
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-400 rounded-full animate-ping" />
+                    <div
+                      className="absolute -bottom-1 -left-1 w-2 h-2 bg-purple-400 rounded-full animate-ping"
+                      style={{ animationDelay: "0.5s" }}
+                    />
+                  </div>
+
+                  {/* Connection lines */}
+                  {showNavigationPanel && (
+                    <div className="absolute top-1/2 left-full w-8 h-0.5 bg-gradient-to-r from-cyan-500 to-transparent animate-pulse" />
+                  )}
+                </div>
+              </button>
+
+              {/* Who's Here Button - Social presence indicator */}
+              <button
+                onClick={() => setShowSocialPanel(!showSocialPanel)}
+                className="absolute right-6 top-6 z-40 group"
+              >
+                <div className="relative">
+                  {/* Outer glow ring */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity animate-pulse" />
+
+                  {/* Main button */}
+                  <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-pink-500/50 rounded-2xl p-4 hover:scale-110 transition-all duration-300 shadow-2xl">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="relative">
+                        <UserIcon className="w-6 h-6 text-pink-400" />
+                        {/* Live indicator pulse */}
+                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold text-white whitespace-nowrap">Who's Here</span>
+                      <span className="text-xs text-pink-400 font-mono">{liveHumans.length} live</span>
+                    </div>
+
+                    {/* Floating human avatars */}
+                    <div className="absolute -top-2 -left-2 text-lg animate-bounce" style={{ animationDelay: "0.2s" }}>
+                      👤
+                    </div>
+                    <div className="absolute -top-3 -right-2 text-lg animate-bounce" style={{ animationDelay: "0.4s" }}>
+                      👤
+                    </div>
+                  </div>
+
+                  {/* Connection lines */}
+                  {showSocialPanel && (
+                    <div className="absolute top-1/2 right-full w-8 h-0.5 bg-gradient-to-l from-pink-500 to-transparent animate-pulse" />
+                  )}
+                </div>
+              </button>
+
+              {/* Start Chat Button - Prominent action button */}
+              <Link href="/playground">
+                <button className="absolute left-1/2 -translate-x-1/2 bottom-8 z-40 group">
+                  <div className="relative">
+                    {/* Outer glow ring - extra large for prominence */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-2xl opacity-60 group-hover:opacity-100 transition-opacity animate-pulse" />
+
+                    {/* Main button - larger and more prominent */}
+                    <div className="relative bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-2xl p-1 hover:scale-110 transition-all duration-300 shadow-2xl">
+                      <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl px-8 py-4 backdrop-blur-xl">
+                        <div className="flex items-center gap-3">
+                          <MessageCircleIcon className="w-6 h-6 text-cyan-400 animate-pulse" />
+                          <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent whitespace-nowrap">
+                            Start Chat
+                          </span>
+                          <SparklesIcon className="w-5 h-5 text-purple-400 animate-spin-slow" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Energy particles emanating from button */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full">
+                      <div className="flex gap-1">
+                        <div className="w-1 h-1 bg-cyan-400 rounded-full animate-ping" />
+                        <div
+                          className="w-1 h-1 bg-purple-400 rounded-full animate-ping"
+                          style={{ animationDelay: "0.3s" }}
+                        />
+                        <div
+                          className="w-1 h-1 bg-pink-400 rounded-full animate-ping"
+                          style={{ animationDelay: "0.6s" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </Link>
+
+              {/* Zoom controls - Sleek integrated design */}
+              <div className="absolute left-6 bottom-6 z-40">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-2xl blur-lg opacity-30" />
+                  <div className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-3 shadow-2xl">
+                    <div className="flex flex-col gap-2 items-center">
+                      <button
+                        onClick={() => setZoomLevel((prev) => Math.min(2, prev + 0.2))}
+                        className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/50 flex items-center justify-center text-cyan-400 hover:bg-cyan-500/30 transition-all hover:scale-110 font-bold text-xl"
+                      >
+                        +
+                      </button>
+                      <div className="text-xs text-white font-mono bg-slate-800/50 px-2 py-1 rounded">
+                        {Math.round(zoomLevel * 100)}%
+                      </div>
+                      <button
+                        onClick={() => setZoomLevel((prev) => Math.max(0.5, prev - 0.2))}
+                        className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/50 flex items-center justify-center text-purple-400 hover:bg-purple-500/30 transition-all hover:scale-110 font-bold text-xl"
+                      >
+                        −
+                      </button>
+                      <button
+                        onClick={() => {
+                          setZoomLevel(1)
+                          setCenterPosition({ x: 50, y: 50 })
+                        }}
+                        className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-700/50 to-slate-600/50 border border-slate-500/50 flex items-center justify-center text-slate-300 hover:text-white hover:border-white/50 transition-all hover:scale-110 text-xs"
+                      >
+                        ⟲
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location indicator - When active */}
+              {userLocation && (
+                <div className="absolute right-6 bottom-6 z-40">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-green-500 rounded-2xl blur-lg opacity-50 animate-pulse" />
+                    <div className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border-2 border-green-500/50 rounded-2xl p-3 shadow-2xl">
+                      <div className="flex items-center gap-2">
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span className="text-xs font-bold text-green-400">Location Active</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div
                 style={{
                   transform: `scale(${zoomLevel})`,
