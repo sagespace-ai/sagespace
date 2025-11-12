@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Send, Star, Archive, Share2 } from "@/components/icons"
 import Link from "next/link"
-import { useChat } from "ai/react"
+import { useChat } from "ai"
 import ReactMarkdown from "react-markdown"
 
 interface Message {
