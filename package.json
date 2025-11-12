@@ -12,6 +12,7 @@
     "@ai-sdk/anthropic": "latest",
     "@ai-sdk/groq": "latest",
     "@ai-sdk/openai": "latest",
+    "@ai-sdk/react": "latest",
     "@ai-sdk/xai": "latest",
     "@hookform/resolvers": "^3.10.0",
     "@langchain/core": "latest",

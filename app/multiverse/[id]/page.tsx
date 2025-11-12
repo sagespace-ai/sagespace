@@ -10,14 +10,14 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Send, Star, Archive, Share2 } from "@/components/icons"
 import Link from "next/link"
-import { useChat } from "ai"
+import { useChat } from "@ai-sdk/react"
+import { DefaultChatTransport } from "ai"
 import ReactMarkdown from "react-markdown"
 
 interface Message {
   id: string
   role: "user" | "assistant"
-  content: string
-  created_at: string
+  parts: Array<{ type: string; text?: string }>
 }
 
 interface Conversation {
@@ -36,20 +36,23 @@ export default function ConversationPage() {
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [expandedReasonings, setExpandedReasonings] = useState<Set<string>>(new Set())
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [input, setInput] = useState("")
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
-    api: "/api/chat",
-    body: {
-      agentRole: conversation?.agent_role,
-      agentName: conversation?.agent_role,
-    },
-    onFinish: async (message) => {
+  const { messages, sendMessage, status, setMessages } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      body: () => ({
+        agentRole: conversation?.agent_role,
+        agentName: conversation?.agent_role,
+      }),
+    }),
+    onFinish: async ({ message }) => {
       await fetch(`/api/conversations/${conversationId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           role: "assistant",
-          content: message.content,
+          content: message.parts.find((p) => p.type === "text")?.text || "",
         }),
       })
     },
@@ -82,7 +85,7 @@ export default function ConversationPage() {
         data.messages.map((msg: Message) => ({
           id: msg.id,
           role: msg.role,
-          content: msg.content,
+          parts: msg.parts,
         })),
       )
     } catch (error) {
@@ -103,7 +106,8 @@ export default function ConversationPage() {
       }),
     })
 
-    handleSubmit(e)
+    sendMessage({ text: input })
+    setInput("")
   }
 
   const toggleReasoning = (messageId: string) => {
@@ -172,13 +176,15 @@ export default function ConversationPage() {
                 <div className="text-2xl">{message.role === "user" ? "👤" : conversation.agent_avatar || "🤖"}</div>
                 <div className="flex-1">
                   <div className="prose prose-invert prose-sm max-w-none">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                    {message.parts.map((part, index) =>
+                      part.type === "text" ? <ReactMarkdown key={index}>{part.text}</ReactMarkdown> : null,
+                    )}
                   </div>
                 </div>
               </div>
             </Card>
           ))}
-          {isLoading && (
+          {(status === "submitted" || status === "streaming") && (
             <Card className="p-4 bg-slate-900/50 border-slate-700 mr-12">
               <div className="flex items-center gap-3">
                 <div className="text-2xl">{conversation.agent_avatar || "🤖"}</div>
@@ -205,14 +211,14 @@ export default function ConversationPage() {
         <form onSubmit={onSubmit} className="flex gap-2">
           <Input
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             placeholder={`Chat with ${conversation.agent_role}...`}
             className="flex-1 bg-slate-900/50 border-slate-700"
-            disabled={isLoading}
+            disabled={status !== "ready"}
           />
           <Button
             type="submit"
-            disabled={isLoading || !input.trim()}
+            disabled={status !== "ready" || !input.trim()}
             className="bg-gradient-to-r from-cyan-500 to-purple-500"
           >
             <Send className="w-4 h-4" />
