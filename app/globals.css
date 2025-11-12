@@ -1,92 +1,82 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
-/* Removed light theme :root colors and made dark cosmic theme the default */
 :root {
-  /* Cutting-edge cosmic color palette with vibrant accents */
-  --background: #030610;
-  --foreground: #e8eaed;
-  --card: #0f1420;
-  --card-foreground: #e8eaed;
-  --popover: #1a1f35;
-  --popover-foreground: #e8eaed;
-  --primary: #7c5dff;
-  --primary-foreground: #ffffff;
-  --secondary: #2a2f50;
-  --secondary-foreground: #e8eaed;
-  --muted: #1a1f35;
-  --muted-foreground: #a0aec0;
-  --accent: #00f0ff;
-  --accent-foreground: #030610;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #2a2f50;
-  --input: #2a2f50;
-  --ring: #7c5dff;
-  --chart-1: #7c5dff;
-  --chart-2: #00f0ff;
-  --chart-3: #10b981;
-  --chart-4: #f59e0b;
-  --chart-5: #ff006e;
-  --radius: 0.5rem;
-  --sidebar: #0f1420;
-  --sidebar-foreground: #e8eaed;
-  --sidebar-primary: #7c5dff;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1a1f35;
-  --sidebar-accent-foreground: #e8eaed;
-  --sidebar-border: #2a2f50;
-  --sidebar-ring: #7c5dff;
-  /* Added surface color for glass-morphism effects */
-  --surface: #0f1420;
-  --surface-light: #1a1f35;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* Keep dark class for compatibility but use same cosmic colors */
 .dark {
-  --background: #030610;
-  --foreground: #e8eaed;
-  --card: #0f1420;
-  --card-foreground: #e8eaed;
-  --popover: #1a1f35;
-  --popover-foreground: #e8eaed;
-  --primary: #7c5dff;
-  --primary-foreground: #ffffff;
-  --secondary: #2a2f50;
-  --secondary-foreground: #e8eaed;
-  --muted: #1a1f35;
-  --muted-foreground: #a0aec0;
-  --accent: #00f0ff;
-  --accent-foreground: #030610;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #2a2f50;
-  --input: #2a2f50;
-  --ring: #7c5dff;
-  --chart-1: #7c5dff;
-  --chart-2: #00f0ff;
-  --chart-3: #10b981;
-  --chart-4: #f59e0b;
-  --chart-5: #ff006e;
-  --sidebar: #0f1420;
-  --sidebar-foreground: #e8eaed;
-  --sidebar-primary: #7c5dff;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1a1f35;
-  --sidebar-accent-foreground: #e8eaed;
-  --sidebar-border: #2a2f50;
-  --sidebar-ring: #7c5dff;
-  /* Added surface color for glass-morphism effects */
-  --surface: #0f1420;
-  --surface-light: #1a1f35;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
 }
 
 @theme inline {
-  --font-sans: "Geist", system-ui, -apple-system, sans-serif;
-  --font-mono: "Geist Mono", monospace;
-
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -123,9 +113,6 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* Added surface colors to Tailwind theme */
-  --color-surface: var(--surface);
-  --color-surface-light: var(--surface-light);
 }
 
 @layer base {
@@ -134,142 +121,5 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-/* Glass-morphism and cosmic background effects */
-@supports (backdrop-filter: blur(1px)) {
-  .glass {
-    /* Replaced bg-surface with bg-card for Tailwind compatibility */
-    @apply bg-card/40 backdrop-blur-xl;
-  }
-
-  .glass-sm {
-    /* Replaced bg-surface with bg-card for Tailwind compatibility */
-    @apply bg-card/60 backdrop-blur-lg;
-  }
-}
-
-/* Cosmic gradient backgrounds */
-.cosmic-gradient {
-  background: linear-gradient(135deg, rgba(124, 93, 255, 0.1) 0%, rgba(0, 240, 255, 0.05) 100%);
-}
-
-.cosmic-glow {
-  box-shadow: 0 0 40px rgba(124, 93, 255, 0.15), inset 0 0 40px rgba(0, 240, 255, 0.05);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  @apply w-2 h-2;
-}
-
-::-webkit-scrollbar-track {
-  /* Replaced bg-surface with bg-card */
-  @apply bg-card;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full hover:bg-primary;
-}
-
-/* Smooth transitions */
-@layer utilities {
-  .transition-subtle {
-    @apply transition-all duration-300 ease-out;
-  }
-
-  .transition-smooth {
-    @apply transition-all duration-500 ease-in-out;
-  }
-
-  /* Add orbital animations for universe particles */
-  @keyframes orbital-float {
-    0% {
-      opacity: 0.6;
-      transform: translate(var(--tx), var(--ty)) scale(1);
-    }
-    50% {
-      opacity: 0.3;
-    }
-    100% {
-      opacity: 0.6;
-      transform: translate(var(--tx), var(--ty)) scale(1);
-    }
-  }
-
-  /* Enhanced animations for icon components with smoother, more sophisticated effects */
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes glow {
-    0%,
-    100% {
-      opacity: 0.6;
-      filter: drop-shadow(0 0 8px rgba(124, 93, 255, 0.4));
-    }
-    50% {
-      opacity: 1;
-      filter: drop-shadow(0 0 16px rgba(124, 93, 255, 0.8));
-    }
-  }
-
-  @keyframes bob {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-6px);
-    }
-  }
-
-  @keyframes balance {
-    0%,
-    100% {
-      transform: rotateZ(-3deg);
-    }
-    50% {
-      transform: rotateZ(3deg);
-    }
-  }
-
-  .animate-spin {
-    animation: spin 3s linear infinite;
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-
-  .animate-bob {
-    animation: bob 2.5s ease-in-out infinite;
-  }
-
-  .animate-balance {
-    animation: balance 3s ease-in-out infinite;
-  }
-
-  /* Added animation utilities for SageSpace logo */
-  .animate-spin-slow {
-    animation: spin 20s linear infinite;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  .delay-100 {
-    animation-delay: 0.1s;
-  }
-
-  .delay-200 {
-    animation-delay: 0.2s;
   }
 }

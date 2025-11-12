@@ -1,48 +1,43 @@
+import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
+  // Password protection check
   const isAccessGateEnabled = process.env.ENABLE_ACCESS_GATE === "true"
-  const hasAccess = request.cookies.get("site-access")?.value === "granted"
-  const isAccessGatePath = request.nextUrl.pathname.startsWith("/access-gate")
-  const isApiPath = request.nextUrl.pathname.startsWith("/api")
+  const isAccessGatePage = request.nextUrl.pathname === "/access-gate"
+  const hasAccessCookie = request.cookies.has("site_access_granted")
 
-  // If access gate is enabled and user doesn't have access, redirect to gate
-  if (isAccessGateEnabled && !hasAccess && !isAccessGatePath && !isApiPath) {
-    const url = new URL("/access-gate", request.url)
-    url.searchParams.set("redirect", request.nextUrl.pathname)
-    return NextResponse.redirect(url)
+  if (isAccessGateEnabled && !hasAccessCookie && !isAccessGatePage) {
+    return NextResponse.redirect(new URL("/access-gate", request.url))
   }
 
-  try {
-    const { createServerClient } = await import("@supabase/ssr")
+  // Supabase auth
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
 
-    let supabaseResponse = NextResponse.next({ request })
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-            supabaseResponse = NextResponse.next({ request })
-            cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
-          },
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
         },
       },
-    )
+    },
+  )
 
-    // Refresh session if expired
-    await supabase.auth.getUser()
+  await supabase.auth.getUser()
 
-    return supabaseResponse
-  } catch (error) {
-    console.log("[v0] Middleware: Supabase not available, proceeding without auth:", error)
-    return NextResponse.next({ request })
-  }
+  return supabaseResponse
 }
 
 export const config = {

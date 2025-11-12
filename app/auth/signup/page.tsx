@@ -5,168 +5,130 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SparklesIcon } from "@/components/icons"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const router = useRouter()
+  const [loading, setLoading] = useState(false)
   const supabase = createClient()
 
-  async function handleSignup(e: React.FormEvent) {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setLoading(true)
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      setLoading(false)
-      return
-    }
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/demo`,
+        },
+      })
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters")
-      setLoading(false)
-      return
-    }
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/demo`,
-      },
-    })
-
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
+      if (error) throw error
       setSuccess(true)
+    } catch (err: any) {
+      setError(err.message || "Failed to sign up")
+    } finally {
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-card to-background p-4">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center">
-            <Link href="/">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-accent via-primary to-accent bg-clip-text text-transparent mb-2">
-                SageSpace
-              </h1>
-            </Link>
-          </div>
-
-          <div className="glass rounded-2xl p-8 border border-border shadow-xl text-center space-y-4">
-            <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto">
-              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-foreground">Check your email</h2>
-            <p className="text-text-secondary">
-              We&apos;ve sent you a confirmation link to <strong>{email}</strong>. Please check your email to verify
-              your account.
-            </p>
-            <Button onClick={() => router.push("/auth/login")} className="w-full">
-              Go to Login
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-card to-background p-4">
-      <div className="w-full max-w-md space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <Link href="/">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-accent via-primary to-accent bg-clip-text text-transparent mb-2">
-              SageSpace
-            </h1>
-          </Link>
-          <p className="text-text-secondary">Multi-Agent AI Collaboration Platform</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-900 to-black flex items-center justify-center p-4">
+      {/* Animated stars */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              opacity: Math.random() * 0.7 + 0.3,
+            }}
+          />
+        ))}
+      </div>
 
-        {/* Signup Card */}
-        <div className="glass rounded-2xl p-8 border border-border shadow-xl">
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-3xl font-bold text-foreground">Create an account</h2>
-              <p className="text-text-secondary mt-2">Enter your details below to create your account</p>
+      <Card className="relative w-full max-w-md bg-slate-900/80 border-purple-500/20 backdrop-blur-sm">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <SparklesIcon className="w-12 h-12 text-cyan-400" />
+          </div>
+          <CardTitle className="text-2xl bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            Join SageSpace
+          </CardTitle>
+          <CardDescription className="text-slate-400">Create your account to start building</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {success ? (
+            <div className="text-center space-y-4">
+              <p className="text-green-400">Success! Check your email to confirm your account.</p>
+              <Link href="/auth/login">
+                <Button className="w-full bg-gradient-to-r from-cyan-500 to-purple-500">Go to Login</Button>
+              </Link>
             </div>
-
+          ) : (
             <form onSubmit={handleSignup} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-white">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-background/50"
+                  className="bg-slate-800 border-slate-700 text-white"
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-white">
+                  Password
+                </Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Min. 6 characters"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-background/50"
+                  minLength={6}
+                  className="bg-slate-800 border-slate-700 text-white"
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm Password</Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  placeholder="Confirm your password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className="bg-background/50"
-                />
-              </div>
-
-              {error && <p className="text-sm text-destructive">{error}</p>}
-
+              {error && <p className="text-red-400 text-sm">{error}</p>}
               <Button
                 type="submit"
-                className="w-full bg-foreground text-background hover:bg-foreground/90"
+                className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"
                 disabled={loading}
               >
-                {loading ? "Creating account..." : "Create Account"}
+                {loading ? "Creating account..." : "Sign Up"}
               </Button>
             </form>
-
-            <p className="text-center text-sm text-text-secondary">
+          )}
+          {!success && (
+            <div className="mt-4 text-center text-slate-400 text-sm">
               Already have an account?{" "}
-              <Link href="/auth/login" className="text-foreground underline hover:text-primary">
-                Login
+              <Link href="/auth/login" className="text-cyan-400 hover:text-cyan-300">
+                Log in
               </Link>
-            </p>
-          </div>
-        </div>
-      </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

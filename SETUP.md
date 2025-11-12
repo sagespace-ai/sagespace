@@ -1,117 +1,74 @@
 # SageSpace Setup Guide
 
-Welcome to SageSpace! Follow these steps to get your prototype up and running.
+## Quick Start
 
-## Prerequisites
+### 1. Initialize the Database
 
-- Node.js 18+ installed
-- A Vercel account (for deployment)
-- Supabase project connected (already done!)
+Run the SQL initialization script in your Supabase project:
 
-## Step 1: Initialize the Database
+**From v0:**
+1. Open the Scripts panel (bottom of the screen)
+2. Find `scripts/000-initialize-database.sql`
+3. Click "Run Script"
+4. Wait for confirmation
 
-The database is already connected via Supabase integration. Now you need to run the initialization script:
+**From Supabase Dashboard:**
+1. Go to your Supabase project
+2. Navigate to SQL Editor
+3. Copy the contents of `scripts/000-initialize-database.sql`
+4. Run the script
 
-1. Open the Scripts panel in v0 (bottom left corner)
-2. Find and run: `000-initialize-database.sql`
-3. Wait for "Script executed successfully"
+This will:
+- Create all necessary tables (agents, conversations, messages)
+- Enable Row Level Security with anonymous access for demo mode
+- Insert 5 demo agents
 
-This creates all tables and inserts demo agents!
+### 2. Configure AI Provider (Optional)
 
-## Step 2: Get an AI API Key
+Add at least ONE of these environment variables in Vercel:
 
-SageSpace needs at least one AI provider to work. Choose ONE of these options:
+- `API_KEY_GROQ_API_KEY` - Groq (recommended, free tier available)
+- `OPENAI_API_KEY` - OpenAI
+- `ANTHROPIC_API_KEY` - Anthropic
 
-### Option A: OpenAI (Recommended for testing)
-1. Go to https://platform.openai.com/api-keys
-2. Create a new API key
-3. Add to v0 environment variables:
-   - Key: `OPENAI_API_KEY`
-   - Value: `sk-...` (your key)
+**In Vercel:**
+1. Go to your project settings
+2. Navigate to "Environment Variables"
+3. Add your chosen API key
+4. Redeploy
 
-### Option B: Anthropic Claude
-1. Go to https://console.anthropic.com/
-2. Get an API key
-3. Add to v0 environment variables:
-   - Key: `ANTHROPIC_API_KEY`
-   - Value: `sk-ant-...` (your key)
+### 3. Password Protection (Optional)
 
-### Option C: xAI Grok (Already configured!)
-1. Get a key from https://console.x.ai/
-2. Add the `xAI` integration in v0
-3. No additional setup needed!
+To lock the site from public view:
 
-### Option D: Groq (Free, Fast!)
-1. Go to https://console.groq.com/
-2. Get an API key
-3. Add the `Groq` integration in v0
+1. Add these environment variables in Vercel:
+   - `ENABLE_ACCESS_GATE=true`
+   - `SITE_ACCESS_PASSWORD=your-secure-password`
+2. Redeploy
+3. Site will now require password at `/access-gate`
 
-## Step 3: Test the Prototype
+### 4. Deploy
 
-Now everything should work! Try these features:
+Push to GitHub and Vercel will automatically deploy!
 
-1. **Playground** (`/playground`)
-   - Chat with different AI models
-   - Enable "Auto-Collaborate" to see multi-agent interactions
+## Features Ready to Use
 
-2. **Council** (`/council`)
-   - Submit a complex ethical query
-   - Watch multiple agents deliberate and vote
-
-3. **Observatory** (`/observatory`)
-   - Monitor agent interactions in real-time
-   - Intervene in conversations
-
-4. **Memory** (`/memory`)
-   - View what agents have learned
-   - Track agent evolution over time
-
-5. **Multiverse** (`/multiverse`)
-   - Create and manage multiple conversations
-   - Each can have different agent roles
-
-6. **Persona Editor** (`/persona-editor`)
-   - Create custom AI agents
-   - Configure tone, capabilities, and prompts
-
-## Troubleshooting
-
-### "Error fetching agents"
-- Make sure you ran the database initialization script
-- Check that Supabase is connected in the integrations panel
-
-### "AI model not responding"
-- Verify you added at least one AI API key
-- Check the key is correct in environment variables
-- Try a different model from the dropdown
-
-### "RLS policy violation"
-- The demo uses anonymous access (no auth required)
-- If you added authentication, you may need to adjust RLS policies
+- **Marketing Landing Page** - `/`
+- **Demo Hub** - `/demo`
+- **AI Playground** - `/playground`
+- **Agent Observatory** - `/observatory`
+- **Council Voting** - `/council`
+- **Memory Dashboard** - `/memory`
+- **Auth System** - `/auth/login` and `/auth/signup`
 
 ## Next Steps
 
-Once the prototype works:
+1. Customize the Five Laws in your agent prompts
+2. Add more agents through the Observatory
+3. Create custom agent templates
+4. Build out the Multiverse conversations
+5. Implement advanced features (agent collaboration, learning, etc.)
 
-1. **Add Authentication** - Enable Supabase auth for user accounts
-2. **Customize Agents** - Create your own specialized agents
-3. **Configure Policies** - Define custom governance rules
-4. **Deploy to Production** - Click "Publish" to deploy on Vercel
+## Support
 
-## Architecture Overview
-
-- **Frontend**: Next.js 16 with React 19
-- **Database**: Supabase (PostgreSQL)
-- **AI**: AI SDK v5 with multiple providers
-- **Styling**: Tailwind CSS v4 with custom design system
-
-## Key Features
-
-- Multi-agent collaboration with threshold detection
-- Democratic council voting system
-- Real-time agent observatory
-- Persistent memory and learning
-- Spatial universe visualization
-- Custom agent creation
-
-Need help? Check the documentation in the `/docs` folder or reach out to the community!
+Questions? Check the README.md or open an issue on GitHub.

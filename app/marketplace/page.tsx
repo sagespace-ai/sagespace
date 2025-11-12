@@ -1,186 +1,111 @@
 "use client"
 
-import { useState } from "react"
-import { sageTemplates, domainInfo, type SageDomain } from "@/lib/sage-templates"
-import { AppHeader } from "@/components/app-header"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { SearchIcon as Search, SparklesIcon as Sparkles } from "@/components/icons"
 import Link from "next/link"
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { HomeIcon } from "@/components/icons"
+import { SAGE_TEMPLATES, getAllDomains, getSagesByDomain } from "@/lib/sage-templates"
 
 export default function MarketplacePage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedDomain, setSelectedDomain] = useState<SageDomain | "all">("all")
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(null)
+  const domains = getAllDomains()
 
-  const filteredTemplates = sageTemplates.filter((template) => {
-    const matchesSearch =
-      template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesDomain = selectedDomain === "all" || template.domain === selectedDomain
-
-    return matchesSearch && matchesDomain
-  })
-
-  const templatesByDomain = Object.keys(domainInfo).reduce(
-    (acc, domain) => {
-      acc[domain as SageDomain] = sageTemplates.filter((t) => t.domain === domain)
-      return acc
-    },
-    {} as Record<SageDomain, typeof sageTemplates>,
-  )
+  const displaySages = selectedDomain ? getSagesByDomain(selectedDomain) : SAGE_TEMPLATES
 
   return (
-    <div className="min-h-screen bg-background cosmic-gradient">
-      <AppHeader />
+    <div className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-900 to-black relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              opacity: Math.random() * 0.7 + 0.3,
+            }}
+          />
+        ))}
+      </div>
+      {/* </CHANGE> */}
 
-      <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/30 mb-4">
-            <Sparkles className="w-4 h-4 text-accent" />
-            <span className="text-sm font-medium text-foreground">50 Sage Templates</span>
+      <div className="container mx-auto px-4 py-6 relative z-10">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+              Add a Sage to your Universe
+            </h1>
+            <p className="text-slate-400 mt-1">Your Agents Have Logic. Give Them Wisdom</p>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-balance">
-            <span className="bg-gradient-to-r from-accent via-primary to-accent-secondary bg-clip-text text-transparent">
-              Sage Marketplace
-            </span>
-          </h1>
-          <p className="text-xl text-text-secondary max-w-3xl mx-auto">
-            Pre-built intelligent agents for every domain. Choose a template, customize it, and bring your sage to life
-            in minutes.
-          </p>
+          <Link href="/demo">
+            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
+              <HomeIcon className="w-5 h-5" />
+            </Button>
+          </Link>
         </div>
+        {/* </CHANGE> */}
 
-        {/* Search and Filter */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
-            <Input
-              placeholder="Search templates by name, role, or capability..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 glass border-border/30 focus:border-primary/50"
-            />
-          </div>
-          <div className="flex gap-2">
-            <select
-              value={selectedDomain}
-              onChange={(e) => setSelectedDomain(e.target.value as SageDomain | "all")}
-              className="px-4 py-2 rounded-lg glass border border-border/30 focus:border-primary/50 text-foreground bg-background"
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            onClick={() => setSelectedDomain(null)}
+            variant={selectedDomain === null ? "default" : "outline"}
+            size="sm"
+            className={
+              selectedDomain === null
+                ? "bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700"
+                : "border-purple-500/30 text-slate-300 hover:border-purple-500/50"
+            }
+          >
+            All ({SAGE_TEMPLATES.length})
+          </Button>
+          {domains.map((domain) => (
+            <Button
+              key={domain}
+              onClick={() => setSelectedDomain(domain)}
+              variant={selectedDomain === domain ? "default" : "outline"}
+              size="sm"
+              className={
+                selectedDomain === domain
+                  ? "bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700"
+                  : "border-purple-500/30 text-slate-300 hover:border-purple-500/50"
+              }
             >
-              <option value="all">All Domains</option>
-              {Object.entries(domainInfo).map(([key, info]) => (
-                <option key={key} value={key}>
-                  {info.icon} {info.name}
-                </option>
-              ))}
-            </select>
-          </div>
+              {domain} ({getSagesByDomain(domain).length})
+            </Button>
+          ))}
         </div>
+        {/* </CHANGE> */}
 
-        {/* Domain Overview Cards */}
-        {selectedDomain === "all" && !searchQuery && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {Object.entries(domainInfo).map(([key, info]) => (
-              <button
-                key={key}
-                onClick={() => setSelectedDomain(key as SageDomain)}
-                className="glass-sm border border-border/30 rounded-xl p-6 hover:border-primary/50 transition-subtle hover:scale-105 text-left group"
-              >
-                <div className="text-4xl mb-3">{info.icon}</div>
-                <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{info.name}</h3>
-                <p className="text-sm text-text-secondary mb-3">{info.description}</p>
-                <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30">
-                  {templatesByDomain[key as SageDomain]?.length || 0} templates
-                </Badge>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Template Grid */}
-        <div className="space-y-8">
-          {selectedDomain === "all" && !searchQuery ? (
-            Object.entries(domainInfo).map(([domain, info]) => (
-              <div key={domain} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="text-3xl">{info.icon}</div>
-                    <div>
-                      <h2 className="text-2xl font-bold">{info.name}</h2>
-                      <p className="text-sm text-text-secondary">{info.description}</p>
-                    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {displaySages.map((sage) => (
+            <Card
+              key={sage.id}
+              className="bg-slate-900/50 border-purple-500/20 backdrop-blur-sm p-4 hover:border-purple-500/50 transition-all hover:scale-105 cursor-pointer group"
+            >
+              <div className="flex items-start gap-3">
+                <div className="text-4xl">{sage.avatar}</div>
+                <div className="flex-1">
+                  <h3 className="text-white font-semibold group-hover:text-purple-400 transition-colors">
+                    {sage.name}
+                  </h3>
+                  <p className="text-xs text-cyan-400 mb-1">{sage.role}</p>
+                  <p className="text-sm text-slate-400 mb-2">{sage.description}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {sage.capabilities.map((cap, idx) => (
+                      <span key={idx} className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full">
+                        {cap}
+                      </span>
+                    ))}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedDomain(domain as SageDomain)}
-                    className="text-primary hover:text-primary/80"
-                  >
-                    View All →
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {templatesByDomain[domain as SageDomain]?.slice(0, 3).map((template) => (
-                    <TemplateCard key={template.id} template={template} />
-                  ))}
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTemplates.map((template) => (
-                <TemplateCard key={template.id} template={template} />
-              ))}
-            </div>
-          )}
+            </Card>
+          ))}
         </div>
-
-        {filteredTemplates.length === 0 && (
-          <div className="text-center py-20 text-text-secondary">
-            <p className="text-lg">No templates found matching your criteria</p>
-          </div>
-        )}
+        {/* </CHANGE> */}
       </div>
     </div>
-  )
-}
-
-function TemplateCard({ template }: { template: (typeof sageTemplates)[0] }) {
-  const domainColor = domainInfo[template.domain].color
-
-  return (
-    <Link href={`/marketplace/${template.id}`}>
-      <div className="group glass-sm border border-border/30 rounded-xl overflow-hidden hover:border-primary/50 transition-subtle hover:cosmic-glow cursor-pointer h-full">
-        <div className={`h-2 bg-gradient-to-r ${domainColor}`} />
-        <div className="p-6 space-y-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="text-3xl">{template.icon}</div>
-            <Badge variant="outline" className="bg-accent/20 text-accent border-accent/30 text-xs capitalize">
-              {template.modality}
-            </Badge>
-          </div>
-          <div>
-            <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{template.title}</h3>
-            <p className="text-sm text-text-secondary mb-2">{template.description}</p>
-            <p className="text-xs text-accent font-medium">{template.role}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {template.capabilities.slice(0, 3).map((cap) => (
-              <Badge key={cap} variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                {cap.replace(/-/g, " ")}
-              </Badge>
-            ))}
-            {template.capabilities.length > 3 && (
-              <Badge variant="outline" className="text-xs bg-muted text-text-muted border-border/30">
-                +{template.capabilities.length - 3}
-              </Badge>
-            )}
-          </div>
-        </div>
-      </div>
-    </Link>
   )
 }
