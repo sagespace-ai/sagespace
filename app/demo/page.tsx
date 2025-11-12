@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/router"
 import { HomeIcon, UserIcon, TrendingUpIcon, ZapIcon, AwardIcon, ActivityIcon } from "@/components/icons"
 
 export default function AgentUniverseHub() {
@@ -16,6 +17,13 @@ export default function AgentUniverseHub() {
     userXP: 2850,
     userLevel: 7,
   })
+
+  const router = useRouter()
+
+  const startQuickDemo = () => {
+    // Navigate to playground with pre-seeded conversation
+    router.push("/playground?demo=true&sage=dr-wellness")
+  }
 
   useEffect(() => {
     console.log("[v0] Demo page mounted")
@@ -544,6 +552,17 @@ export default function AgentUniverseHub() {
                 Your journey to wisdom begins here. Choose your first experience and start exploring.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button
+                  onClick={startQuickDemo}
+                  size="lg"
+                  className="text-lg px-10 py-6 relative group overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 transition-all duration-500 shadow-2xl hover:shadow-emerald-500/50 border-0 hover:scale-105"
+                >
+                  <span className="relative z-10 flex items-center gap-3">
+                    <span>Try Demo (2s)</span>
+                    <span className="text-xl">⚡</span>
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
+                </Button>
                 <Link href="/playground">
                   <Button
                     size="lg"

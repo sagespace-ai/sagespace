@@ -84,7 +84,7 @@ export default function MarketplacePage() {
               size="sm"
               className={
                 selectedDomain === domain
-                  ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 border-0 shadow-lg shadow-cyan-500/50"
+                  ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 border-0 shadow-lg shadow-purple-500/50"
                   : "border-2 border-cyan-400/50 text-cyan-300 hover:border-cyan-400 hover:bg-cyan-400/10 bg-slate-800/50 backdrop-blur-sm"
               }
             >
@@ -95,34 +95,35 @@ export default function MarketplacePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
           {paginatedSages.map((sage, idx) => (
-            <Card
-              key={sage.id}
-              className="bg-slate-900/50 border-purple-500/20 backdrop-blur-sm p-4 hover:border-purple-500/50 transition-all hover:scale-105 cursor-pointer group animate-fade-in"
-              style={{
-                animationDelay: `${idx * 0.05}s`,
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <div className="text-4xl group-hover:scale-110 transition-transform">{sage.avatar}</div>
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold group-hover:text-purple-400 transition-colors">
-                    {sage.name}
-                  </h3>
-                  <p className="text-xs text-cyan-400 mb-1">{sage.role}</p>
-                  <p className="text-sm text-slate-400 mb-2 line-clamp-2">{sage.description}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {sage.capabilities.slice(0, 3).map((cap, idx) => (
-                      <span key={idx} className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full">
-                        {cap}
-                      </span>
-                    ))}
-                    {sage.capabilities.length > 3 && (
-                      <span className="text-xs px-2 py-0.5 text-slate-400">+{sage.capabilities.length - 3}</span>
-                    )}
+            <Link key={sage.id} href={`/marketplace/${sage.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+              <Card
+                className="bg-slate-900/50 border-purple-500/20 backdrop-blur-sm p-4 hover:border-purple-500/50 transition-all hover:scale-105 cursor-pointer group animate-fade-in"
+                style={{
+                  animationDelay: `${idx * 0.05}s`,
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="text-4xl group-hover:scale-110 transition-transform">{sage.avatar}</div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold group-hover:text-purple-400 transition-colors">
+                      {sage.name}
+                    </h3>
+                    <p className="text-xs text-cyan-400 mb-1">{sage.role}</p>
+                    <p className="text-sm text-slate-400 mb-2 line-clamp-2">{sage.description}</p>
+                    <div className="flex flex-wrap gap-1">
+                      {sage.capabilities.slice(0, 3).map((cap, idx) => (
+                        <span key={idx} className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full">
+                          {cap}
+                        </span>
+                      ))}
+                      {sage.capabilities.length > 3 && (
+                        <span className="text-xs px-2 py-0.5 text-slate-400">+{sage.capabilities.length - 3}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           ))}
         </div>
 

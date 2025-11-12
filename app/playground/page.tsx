@@ -22,8 +22,14 @@ import {
   ShareIcon,
   XIcon,
 } from "@/components/icons"
+import { demoConversation, seedSages } from "@/lib/seed-data"
+import { useSearchParams } from "next/navigation"
 
 export default function PlaygroundPage() {
+  const searchParams = useSearchParams()
+  const isDemoMode = searchParams?.get("demo") === "true"
+  const demoSage = searchParams?.get("sage")
+
   const [messages, setMessages] = useState<Array<{ role: string; content: string; timestamp: Date }>>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
@@ -47,11 +53,29 @@ export default function PlaygroundPage() {
   const router = useRouter()
 
   const sages = [
-    { name: "Dr. Wellness", emoji: "🧘", specialty: "Health & Mindfulness", color: "from-emerald-500 to-teal-500" },
-    { name: "Prof. Einstein", emoji: "🔬", specialty: "Science & Research", color: "from-blue-500 to-cyan-500" },
-    { name: "Chef Gourmet", emoji: "👨‍🍳", specialty: "Culinary Arts", color: "from-orange-500 to-red-500" },
-    { name: "Coach Alpha", emoji: "💪", specialty: "Fitness & Athletics", color: "from-purple-500 to-pink-500" },
-    { name: "Sage Harmony", emoji: "🎨", specialty: "Creative Arts", color: "from-yellow-500 to-amber-500" },
+    {
+      name: "Dr. Wellness",
+      emoji: "🧘",
+      specialty: "Health & Mindfulness",
+      color: "from-emerald-500 to-teal-500",
+      id: "1",
+    },
+    {
+      name: "Prof. Einstein",
+      emoji: "🔬",
+      specialty: "Science & Research",
+      color: "from-blue-500 to-cyan-500",
+      id: "2",
+    },
+    { name: "Chef Gourmet", emoji: "👨‍🍳", specialty: "Culinary Arts", color: "from-orange-500 to-red-500", id: "3" },
+    {
+      name: "Coach Alpha",
+      emoji: "💪",
+      specialty: "Fitness & Athletics",
+      color: "from-purple-500 to-pink-500",
+      id: "4",
+    },
+    { name: "Sage Harmony", emoji: "🎨", specialty: "Creative Arts", color: "from-yellow-500 to-amber-500", id: "5" },
   ]
 
   useEffect(() => {
@@ -65,6 +89,23 @@ export default function PlaygroundPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
+
+  useEffect(() => {
+    if (isDemoMode && demoSage && messages.length === 0) {
+      console.log("[v0] Loading demo conversation...")
+      const demoMessages = demoConversation.messages.map((msg) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }))
+      setMessages(demoMessages)
+      setSelectedSage(seedSages.find((s) => s.id === demoSage)?.name || "Dr. Wellness")
+      setStats((prev) => ({
+        ...prev,
+        messagesSent: demoMessages.filter((m) => m.role === "user").length,
+        xpEarned: 30,
+      }))
+    }
+  }, [isDemoMode, demoSage, messages.length])
 
   const consultCircle = () => {
     const lastMessage = messages[messages.length - 1]?.content || input

@@ -50,15 +50,14 @@ export default function UniverseMapPage() {
   )
   const [selectedConstellation, setSelectedConstellation] = useState<string | null>(null)
   const [showNavigationPanel, setShowNavigationPanel] = useState(false)
-  const [selectedNavigationSage, setSelectedNavigationSage] = useState<FloatingSage | null>(null) // Added state for selected sage in navigation
   const [zoomLevel, setZoomLevel] = useState(1)
   const [centerPosition, setCenterPosition] = useState({ x: 50, y: 50 })
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null)
-  const [nearbyHumans, setNearbyHumans] = useState<any[]>([])
   const [liveHumans, setLiveHumans] = useState<any[]>([])
   const [showSocialPanel, setShowSocialPanel] = useState(false)
   const [friendsUsing, setFriendsUsing] = useState<any[]>([])
   const [trendingNearYou, setTrendingNearYou] = useState<any[]>([])
+  const [isPanning, setIsPanning] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number>()
 
@@ -184,11 +183,14 @@ export default function UniverseMapPage() {
         e.preventDefault()
         setZoomLevel((prev) => Math.max(0.5, Math.min(2, prev + (e.deltaY > 0 ? -0.1 : 0.1))))
       } else {
-        // Scroll to pan
+        // Smoother scroll to pan with boundaries
+        e.preventDefault()
+        setIsPanning(true)
         setCenterPosition((prev) => ({
-          x: Math.max(0, Math.min(100, prev.x + e.deltaX * 0.05)),
-          y: Math.max(0, Math.min(100, prev.y + e.deltaY * 0.05)),
+          x: Math.max(20, Math.min(80, prev.x + e.deltaX * 0.03)),
+          y: Math.max(20, Math.min(80, prev.y + e.deltaY * 0.03)),
         }))
+        setTimeout(() => setIsPanning(false), 100)
       }
     }
 
@@ -212,7 +214,7 @@ export default function UniverseMapPage() {
   }
 
   const getFilteredSages = () => {
-    let filtered = sages
+    let filtered = [...sages]
 
     if (navigationMode === "constellation" && selectedConstellation) {
       const domains = constellations[selectedConstellation as keyof typeof constellations] || []
@@ -220,25 +222,32 @@ export default function UniverseMapPage() {
     }
 
     if (navigationMode === "proximity") {
+      // More intuitive proximity based on visible area
       filtered = filtered.filter((sage) => {
-        const distance = Math.sqrt(Math.pow(sage.x - 50, 2) + Math.pow(sage.y - 50, 2))
-        return distance < 30
+        const dx = sage.x - centerPosition.x
+        const dy = sage.y - centerPosition.y
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        return distance < 35 / zoomLevel
       })
     }
 
     if (navigationMode === "discovery") {
-      filtered = filtered.slice(0, 10)
+      // Shuffle for true discovery
+      filtered = filtered.sort(() => Math.random() - 0.5).slice(0, 10)
     }
 
     if (filter === "favorites") filtered = filtered.filter((s) => s.favorited)
     if (filter === "trending") filtered = filtered.filter((s) => s.trending)
     if (filter === "yours") filtered = filtered.filter((s) => s.yourInteractions > 0)
-    if (searchQuery)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
         (s) =>
-          s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          s.domain.toLowerCase().includes(searchQuery.toLowerCase()),
+          s.name.toLowerCase().includes(query) ||
+          s.domain.toLowerCase().includes(query) ||
+          s.role.toLowerCase().includes(query),
       )
+    }
 
     return filtered
   }
@@ -246,11 +255,15 @@ export default function UniverseMapPage() {
   const filteredSages = getFilteredSages()
 
   const getSageScale = (z: number) => {
-    return 0.5 + (z / 100) * 1.5
+    return (0.5 + (z / 100) * 1.5) * zoomLevel
   }
 
   const getSageOpacity = (z: number) => {
     return 0.4 + (z / 100) * 0.6
+  }
+
+  const getSageViewerCount = (sageName: string) => {
+    return liveHumans.filter((h) => h.viewingSage === sageName).length
   }
 
   return (
@@ -297,43 +310,14 @@ export default function UniverseMapPage() {
                 </Link>
                 <div className="h-6 w-px bg-white/10" />
                 <h1
-                  className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient-x"
-                  style={{ backgroundSize: "300% 300%" }}
+                  className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+                  style={{ backgroundSize: "300% 300%", animation: "gradient 6s ease infinite" }}
                 >
                   Sage Galaxy
                 </h1>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => setShowNavigationPanel(!showNavigationPanel)}
-                  size="sm"
-                  variant="outline"
-                  className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
-                >
-                  <SparklesIcon className="w-4 h-4 mr-2" />
-                  Navigate
-                </Button>
-                <Button
-                  onClick={() => setShowSocialPanel(!showSocialPanel)}
-                  size="sm"
-                  variant="outline"
-                  className="border-pink-500/50 text-pink-400 hover:bg-pink-500/10 relative"
-                >
-                  <UserIcon className="w-4 h-4 mr-2" />
-                  Who's Here ({liveHumans.length})
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                </Button>
-                <Link href="/playground">
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white"
-                  >
-                    <SparklesIcon className="w-4 h-4 mr-2" />
-                    Start Chat
-                  </Button>
-                </Link>
-              </div>
+              {/* These should only appear as immersive floating buttons within the map */}
             </div>
           </div>
         </header>
@@ -562,8 +546,8 @@ export default function UniverseMapPage() {
         <div className="relative z-10">
           <div className="container mx-auto px-4 py-6">
             <div className="text-center mb-8 animate-fade-in">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">Float Through the Sage Universe</h2>
-              <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-6">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">Float Through the Sage Universe</h2>
+              <p className="text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-6">
                 {navigationMode === "explore" &&
                   "Discover sages floating in cosmic space. See who's trending, who you've connected with, and explore new wisdom guides."}
                 {navigationMode === "constellation" &&
@@ -579,11 +563,19 @@ export default function UniverseMapPage() {
                   <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Search for sages by name..."
+                    placeholder="Search sages by name, role, or domain..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-900/80 border-2 border-purple-500/30 rounded-xl text-white placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 transition-colors"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-900/80 border-2 border-purple-500/30 rounded-xl text-white placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 transition-colors text-sm md:text-base"
                   />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      <XIcon className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -633,117 +625,98 @@ export default function UniverseMapPage() {
 
             <div
               ref={canvasRef}
-              className="relative w-full h-[600px] bg-gradient-to-b from-purple-950/20 to-black/40 rounded-3xl border-2 border-purple-500/20 overflow-hidden mb-8 cursor-move"
-              style={{ perspective: "1000px" }}
+              className={`relative w-full h-[500px] md:h-[600px] bg-gradient-to-b from-purple-950/20 to-black/40 rounded-3xl border-2 border-purple-500/20 overflow-hidden mb-8 ${
+                isPanning ? "cursor-grabbing" : "cursor-grab"
+              }`}
+              style={{ perspective: "1000px", touchAction: "none" }}
             >
-              {/* Navigate Button - Futuristic floating control */}
+              {/* Navigate Button - Left side with spinning sparkles */}
               <button
                 onClick={() => setShowNavigationPanel(!showNavigationPanel)}
                 className="absolute left-6 top-6 z-40 group"
               >
                 <div className="relative">
-                  {/* Outer glow ring */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity animate-pulse" />
-
-                  {/* Main button */}
-                  <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-cyan-500/50 rounded-2xl p-4 hover:scale-110 transition-all duration-300 shadow-2xl">
-                    <div className="flex flex-col items-center gap-2">
-                      <SparklesIcon className="w-6 h-6 text-cyan-400 animate-spin-slow" />
-                      <span className="text-xs font-bold text-white whitespace-nowrap">Navigate</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                  <div className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border-2 border-cyan-500/50 rounded-2xl px-6 py-3 shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center gap-3">
+                      <SparklesIcon className="w-5 h-5 text-cyan-400 animate-spin-slow" />
+                      <span className="font-bold text-white">Navigate</span>
                     </div>
-
-                    {/* Orbiting particles */}
-                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-400 rounded-full animate-ping" />
-                    <div
-                      className="absolute -bottom-1 -left-1 w-2 h-2 bg-purple-400 rounded-full animate-ping"
-                      style={{ animationDelay: "0.5s" }}
-                    />
                   </div>
-
-                  {/* Connection lines */}
-                  {showNavigationPanel && (
-                    <div className="absolute top-1/2 left-full w-8 h-0.5 bg-gradient-to-r from-cyan-500 to-transparent animate-pulse" />
-                  )}
+                  {/* Orbiting particles */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 pointer-events-none">
+                    <div className="absolute w-2 h-2 bg-cyan-400 rounded-full animate-orbit" />
+                    <div className="absolute w-2 h-2 bg-purple-400 rounded-full animate-orbit-reverse" />
+                  </div>
                 </div>
               </button>
 
-              {/* Who's Here Button - Social presence indicator */}
+              {/* Who's Here Button - Right side with live avatars */}
               <button
                 onClick={() => setShowSocialPanel(!showSocialPanel)}
                 className="absolute right-6 top-6 z-40 group"
               >
                 <div className="relative">
-                  {/* Outer glow ring */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity animate-pulse" />
-
-                  {/* Main button */}
-                  <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-pink-500/50 rounded-2xl p-4 hover:scale-110 transition-all duration-300 shadow-2xl">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="relative">
-                        <UserIcon className="w-6 h-6 text-pink-400" />
-                        {/* Live indicator pulse */}
-                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-orange-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity animate-pulse" />
+                  <div className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border-2 border-pink-500/50 rounded-2xl px-6 py-3 shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center gap-3">
+                      <div className="flex -space-x-2">
+                        <div
+                          className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-400 to-purple-400 border-2 border-slate-900 animate-bounce"
+                          style={{ animationDelay: "0s" }}
+                        />
+                        <div
+                          className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-blue-400 border-2 border-slate-900 animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        />
+                        <div
+                          className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 border-2 border-slate-900 animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <span className="font-bold text-white">Who's Here</span>
+                        <span className="text-xs text-pink-400 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                          {liveHumans.length} online
                         </span>
                       </div>
-                      <span className="text-xs font-bold text-white whitespace-nowrap">Who's Here</span>
-                      <span className="text-xs text-pink-400 font-mono">{liveHumans.length} live</span>
-                    </div>
-
-                    {/* Floating human avatars */}
-                    <div className="absolute -top-2 -left-2 text-lg animate-bounce" style={{ animationDelay: "0.2s" }}>
-                      👤
-                    </div>
-                    <div className="absolute -top-3 -right-2 text-lg animate-bounce" style={{ animationDelay: "0.4s" }}>
-                      👤
                     </div>
                   </div>
-
-                  {/* Connection lines */}
-                  {showSocialPanel && (
-                    <div className="absolute top-1/2 right-full w-8 h-0.5 bg-gradient-to-l from-pink-500 to-transparent animate-pulse" />
-                  )}
                 </div>
               </button>
 
-              {/* Start Chat Button - Prominent action button */}
-              <Link href="/playground">
-                <button className="absolute left-1/2 -translate-x-1/2 bottom-8 z-40 group">
-                  <div className="relative">
-                    {/* Outer glow ring - extra large for prominence */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-2xl opacity-60 group-hover:opacity-100 transition-opacity animate-pulse" />
-
-                    {/* Main button - larger and more prominent */}
-                    <div className="relative bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-2xl p-1 hover:scale-110 transition-all duration-300 shadow-2xl">
-                      <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl px-8 py-4 backdrop-blur-xl">
-                        <div className="flex items-center gap-3">
-                          <MessageCircleIcon className="w-6 h-6 text-cyan-400 animate-pulse" />
-                          <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent whitespace-nowrap">
-                            Start Chat
-                          </span>
-                          <SparklesIcon className="w-5 h-5 text-purple-400 animate-spin-slow" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Energy particles emanating from button */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full">
-                      <div className="flex gap-1">
-                        <div className="w-1 h-1 bg-cyan-400 rounded-full animate-ping" />
-                        <div
-                          className="w-1 h-1 bg-purple-400 rounded-full animate-ping"
-                          style={{ animationDelay: "0.3s" }}
-                        />
-                        <div
-                          className="w-1 h-1 bg-pink-400 rounded-full animate-ping"
-                          style={{ animationDelay: "0.6s" }}
-                        />
-                      </div>
+              {/* Start Chat Button - Bottom center with energy particles */}
+              <button
+                onClick={() => router.push("/playground")}
+                className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 group"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl blur-2xl opacity-60 group-hover:opacity-90 transition-opacity animate-pulse" />
+                  <div className="relative bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 backdrop-blur-xl rounded-3xl px-8 py-4 shadow-2xl hover:scale-110 transition-all duration-300">
+                    <div className="flex items-center gap-3">
+                      <MessageCircleIcon className="w-6 h-6 text-white" />
+                      <span className="font-bold text-white text-lg">Start Chat</span>
+                      <ZapIcon className="w-5 h-5 text-yellow-300 animate-pulse" />
                     </div>
                   </div>
-                </button>
-              </Link>
+                  {/* Energy particles */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 pointer-events-none">
+                    <div
+                      className="absolute w-1 h-1 bg-yellow-300 rounded-full animate-ping"
+                      style={{ top: "20%", left: "30%" }}
+                    />
+                    <div
+                      className="absolute w-1 h-1 bg-cyan-300 rounded-full animate-ping"
+                      style={{ top: "70%", right: "25%", animationDelay: "0.5s" }}
+                    />
+                    <div
+                      className="absolute w-1 h-1 bg-pink-300 rounded-full animate-ping"
+                      style={{ bottom: "20%", left: "40%", animationDelay: "1s" }}
+                    />
+                  </div>
+                </div>
+              </button>
 
               {/* Zoom controls - Sleek integrated design */}
               <div className="absolute left-6 bottom-6 z-40">
@@ -798,29 +771,39 @@ export default function UniverseMapPage() {
                 </div>
               )}
 
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40">
+                <div className="bg-slate-900/90 backdrop-blur border border-purple-500/30 rounded-xl px-4 py-2 text-xs flex items-center gap-3">
+                  <span className="text-white">
+                    <strong>{filteredSages.length}</strong> sages visible
+                  </span>
+                  <div className="h-4 w-px bg-slate-600" />
+                  <span className="text-cyan-400 font-mono">{Math.round(zoomLevel * 100)}% zoom</span>
+                </div>
+              </div>
+
               <div
                 style={{
                   transform: `scale(${zoomLevel})`,
                   transformOrigin: "center center",
                   width: "100%",
                   height: "100%",
-                  transition: "transform 0.2s ease-out",
+                  transition: isPanning ? "none" : "transform 0.2s ease-out",
                 }}
               >
                 {filteredSages.map((sage) => {
                   const scale = getSageScale(sage.z)
                   const opacity = getSageOpacity(sage.z)
 
-                  // Calculate position relative to center
                   const relativeX = sage.x - centerPosition.x
                   const relativeY = sage.y - centerPosition.y
                   const adjustedX = 50 + relativeX
                   const adjustedY = 50 + relativeY
 
-                  // Check if in view bounds
                   if (adjustedX < -10 || adjustedX > 110 || adjustedY < -10 || adjustedY > 110) {
                     return null
                   }
+
+                  const viewerCount = getSageViewerCount(sage.name)
 
                   return (
                     <button
@@ -837,21 +820,17 @@ export default function UniverseMapPage() {
                     >
                       <div className="relative">
                         <div
-                          className={`text-5xl transition-all duration-300 group-hover:scale-110 ${
+                          className={`text-4xl md:text-5xl transition-all duration-300 group-hover:scale-110 ${
                             sage.trending ? "animate-pulse" : ""
                           }`}
                         >
                           {sage.avatar}
                         </div>
 
-                        {Math.random() > 0.7 && (
-                          <div className="absolute -top-1 -right-1 flex -space-x-2">
-                            <div className="w-4 h-4 bg-pink-500 rounded-full border-2 border-black text-xs flex items-center justify-center">
-                              👤
-                            </div>
-                            <div className="w-4 h-4 bg-purple-500 rounded-full border-2 border-black text-xs flex items-center justify-center">
-                              {Math.floor(Math.random() * 9) + 1}
-                            </div>
+                        {viewerCount > 0 && (
+                          <div className="absolute -top-1 -right-1 flex items-center gap-1 bg-pink-500 rounded-full px-2 py-0.5 border-2 border-black text-xs font-bold text-white animate-pulse">
+                            <span>👁️</span>
+                            <span>{viewerCount}</span>
                           </div>
                         )}
 
@@ -862,7 +841,7 @@ export default function UniverseMapPage() {
                         />
 
                         {sage.trending && (
-                          <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
                             🔥
                           </div>
                         )}
@@ -877,17 +856,18 @@ export default function UniverseMapPage() {
                           </div>
                         )}
 
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                          <div className="bg-slate-900 border border-cyan-500/50 rounded-lg px-3 py-1">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                          <div className="bg-slate-900 border border-cyan-500/50 rounded-lg px-3 py-2">
                             <p className="text-sm font-semibold text-white">{sage.name}</p>
                             <p className="text-xs text-cyan-400">{sage.role}</p>
+                            {viewerCount > 0 && <p className="text-xs text-pink-400 mt-1">{viewerCount} viewing now</p>}
                           </div>
                         </div>
                       </div>
 
                       {sage.yourInteractions > 0 && (
                         <div
-                          className="absolute top-1/2 left-1/2 w-24 h-0.5 bg-gradient-to-r from-cyan-500/50 to-transparent"
+                          className="absolute top-1/2 left-1/2 w-24 h-0.5 bg-gradient-to-r from-cyan-500/50 to-transparent pointer-events-none"
                           style={{ transformOrigin: "left center" }}
                         />
                       )}
@@ -912,6 +892,7 @@ export default function UniverseMapPage() {
                 </div>
               </div>
 
+              {/* ... existing legend and navigation hints ... */}
               <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur border border-purple-500/30 rounded-xl p-4 text-xs">
                 <p className="font-semibold text-white mb-2">Legend</p>
                 <div className="space-y-1 text-slate-300">
@@ -943,7 +924,7 @@ export default function UniverseMapPage() {
                 onClick={() => setSelectedSage(null)}
               >
                 <Card
-                  className="bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-cyan-500/50 rounded-2xl p-8 max-w-2xl w-full relative overflow-hidden animate-scale-in"
+                  className="bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-cyan-500/50 rounded-2xl p-6 md:p-8 max-w-2xl w-full relative overflow-hidden animate-scale-in"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 blur-3xl" />
@@ -951,9 +932,9 @@ export default function UniverseMapPage() {
                   <div className="relative z-10">
                     <button
                       onClick={() => setSelectedSage(null)}
-                      className="absolute top-0 right-0 text-slate-400 hover:text-white transition-colors"
+                      className="absolute top-0 right-0 text-slate-400 hover:text-white transition-colors p-2"
                     >
-                      <span className="text-2xl">×</span>
+                      <XIcon className="w-6 h-6" />
                     </button>
 
                     <div className="flex items-start gap-6 mb-6">
@@ -982,6 +963,22 @@ export default function UniverseMapPage() {
                           <span className="text-sm font-semibold text-cyan-400">Recent Activity</span>
                         </div>
                         <p className="text-slate-300 text-sm">{selectedSage.recentInsight}</p>
+                      </div>
+                    )}
+
+                    {getSageViewerCount(selectedSage.name) > 0 && (
+                      <div className="mb-6 p-4 bg-pink-500/10 border border-pink-500/30 rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-pink-500"></span>
+                          </span>
+                          <span className="text-sm font-semibold text-pink-400">
+                            {getSageViewerCount(selectedSage.name)}{" "}
+                            {getSageViewerCount(selectedSage.name) === 1 ? "person is" : "people are"} chatting with
+                            this sage right now
+                          </span>
+                        </div>
                       </div>
                     )}
 
@@ -1058,7 +1055,10 @@ export default function UniverseMapPage() {
                 </div>
                 <div className="flex gap-2">
                   <span>🔍</span>
-                  <span className="text-slate-300">Scroll to navigate, Ctrl+Scroll to zoom like a map</span>
+                  <span className="text-slate-300">
+                    <span className="hidden md:inline">Scroll to navigate, Ctrl+Scroll to zoom like a map</span>
+                    <span className="md:hidden">Pinch to zoom, swipe to navigate</span>
+                  </span>
                 </div>
               </div>
             </div>
