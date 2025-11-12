@@ -98,19 +98,40 @@ export default function MarketingPage() {
             SageSpace
           </Link>
           <nav className="flex items-center gap-4">
-            <Link href="/demo">
-              <Button variant="ghost" className="text-white hover:text-cyan-400 transition-colors">
-                Demo
+            <Link href="/demo" className="relative group">
+              <Button
+                variant="ghost"
+                className="text-white hover:text-cyan-400 transition-colors relative overflow-visible"
+              >
+                <span className="relative inline-flex items-center gap-2">
+                  <span
+                    className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient font-semibold"
+                    style={{ backgroundSize: "300% 300%" }}
+                  >
+                    Hub
+                  </span>
+
+                  {/* Orbiting particles */}
+                  <span className="absolute -top-1 left-0 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping-slow opacity-75" />
+                  <span
+                    className="absolute -top-1 left-0 w-1.5 h-1.5 bg-purple-400 rounded-full animate-orbit-1"
+                    style={{ animationDelay: "0.5s" }}
+                  />
+                  <span
+                    className="absolute -top-1 left-0 w-1.5 h-1.5 bg-pink-400 rounded-full animate-orbit-2"
+                    style={{ animationDelay: "1s" }}
+                  />
+                </span>
               </Button>
             </Link>
+
             <Link href="/auth/login">
-              <Button variant="ghost" className="text-white hover:text-purple-400 transition-colors">
-                Login
-              </Button>
-            </Link>
-            <Link href="/auth/signup">
-              <Button className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 border-0 shadow-lg shadow-purple-500/50">
-                Get Started
+              <Button className="relative group overflow-hidden bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 border-0 shadow-lg shadow-purple-500/50 transition-all duration-500">
+                <span className="relative z-10 flex items-center gap-2">
+                  <span className="text-slate-300 group-hover:text-white transition-colors">Login</span>
+                  <span className="text-white font-semibold">/ Get Started</span>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
               </Button>
             </Link>
           </nav>

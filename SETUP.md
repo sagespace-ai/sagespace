@@ -55,8 +55,8 @@ Push to GitHub and Vercel will automatically deploy!
 
 - **Marketing Landing Page** - `/`
 - **Demo Hub** - `/demo`
-- **AI Playground** - `/playground`
-- **Agent Observatory** - `/observatory`
+- **Playground** - `/playground`
+- **Sage Watch** - `/observatory`
 - **Council Voting** - `/council`
 - **Memory Dashboard** - `/memory`
 - **Auth System** - `/auth/login` and `/auth/signup`
