@@ -138,3 +138,35 @@ Provide a balanced response that synthesizes perspectives from all council membe
     throw new Error(`Council LLM request failed: ${error.message}`)
   }
 }
+
+/**
+ * Search Spotify for tracks, artists, or playlists
+ * Uses the /api/spotify/search endpoint
+ */
+export async function searchSpotify({
+  query,
+  type = "track",
+  limit = 10,
+}: {
+  query: string
+  type?: "track" | "artist" | "playlist" | "album"
+  limit?: number
+}): Promise<any> {
+  console.log("[AI Client] Searching Spotify for:", { query, type, limit })
+
+  try {
+    const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}&type=${type}&limit=${limit}`)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || `Spotify search failed: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log("[AI Client] Spotify search results:", data)
+    return data
+  } catch (error: any) {
+    console.error("[AI Client] Spotify search error:", error.message)
+    throw new Error(`Spotify search failed: ${error.message}`)
+  }
+}

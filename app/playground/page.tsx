@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { HomeIcon, SendIcon, SparklesIcon, UserIcon, ZapIcon, UsersIcon, SearchIcon } from "@/components/icons"
 import { SAGE_TEMPLATES } from "@/lib/sage-templates"
+import { searchSpotify } from "@/lib/ai-client"
 
 type SageMode = "single" | "circle" | "duel" | "council"
 type UserMood = "focused" | "stressed" | "curious" | "overwhelmed" | "playful"
@@ -142,6 +143,10 @@ export default function PlaygroundPage() {
 
     const userMessage = { role: "user", content: input, timestamp: new Date() }
     setMessages((prev) => [...prev, userMessage])
+    
+    const lowerInput = input.toLowerCase()
+    const isMusicQuery = lowerInput.includes("play") || lowerInput.includes("music") || lowerInput.includes("song") || lowerInput.includes("artist")
+    
     setInput("")
     setLoading(true)
 
@@ -150,6 +155,31 @@ export default function PlaygroundPage() {
       messagesSent: prev.messagesSent + 1,
       xpEarned: prev.xpEarned + 10,
     }))
+
+    if (isMusicQuery) {
+      try {
+        console.log("[v0] Music query detected, searching Spotify")
+        const searchQuery = input.replace(/play|music|song|find/gi, "").trim()
+        const spotifyResults = await searchSpotify({ query: searchQuery, type: "track", limit: 5 })
+        
+        if (spotifyResults.results && spotifyResults.results.length > 0) {
+          const spotifyMessage = {
+            role: "assistant" as const,
+            content: `I found these tracks on Spotify:\n\n${spotifyResults.results.map((track: any, i: number) => 
+              `${i + 1}. **${track.name}** by ${track.artists?.join(", ") || "Unknown"}\n   Album: ${track.album || "N/A"}\n   [Listen on Spotify](${track.uri})`
+            ).join("\n\n")}`,
+            timestamp: new Date(),
+            sageId: selectedSages[0].id,
+          }
+          setMessages((prev) => [...prev, spotifyMessage])
+          setLoading(false)
+          return
+        }
+      } catch (error: any) {
+        console.error("[v0] Spotify search failed:", error.message)
+        // Fall through to normal AI response
+      }
+    }
 
     const assistantMessageIndex = messages.length
     setMessages((prev) => [

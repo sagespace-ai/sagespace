@@ -3,21 +3,23 @@
 import type React from "react"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, TrendingUp, BookmarkCheck, Globe2, Grid3x3 } from "lucide-react"
+import { Sparkles, TrendingUp, BookmarkCheck, Globe2, Grid3x3, Users, MessageSquare, Settings } from 'lucide-react'
 import { useJourney } from "@/lib/hooks/use-journey"
 import { cn } from "@/lib/utils"
 
 const ROUTES = [
-  { path: "/", label: "Portal", icon: Sparkles },
+  { path: "/demo", label: "Hub", icon: Sparkles },
+  { path: "/playground", label: "Playground", icon: MessageSquare },
   { path: "/council", label: "Council", icon: Users },
-  { path: "/memory", label: "Memory Lane", icon: BookmarkCheck },
+  { path: "/memory", label: "Memory", icon: BookmarkCheck },
   { path: "/observatory", label: "Observatory", icon: TrendingUp },
   { path: "/multiverse", label: "Multiverse", icon: Globe2 },
   { path: "/marketplace", label: "Marketplace", icon: Grid3x3 },
+  { path: "/settings", label: "Settings", icon: Settings },
 ]
 
 function Users(props: React.SVGProps<SVGSVGElement>) {
@@ -38,6 +40,25 @@ function Users(props: React.SVGProps<SVGSVGElement>) {
       <circle cx="9" cy="7" r="4" />
       <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  )
+}
+
+function MessageSquare(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   )
 }

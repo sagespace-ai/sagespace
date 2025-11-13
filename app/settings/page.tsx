@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +35,53 @@ export default function SettingsPage() {
     safetyLevel: "moderate",
     toolBudget: 100,
   })
+
+  const [spotifyStatus, setSpotifyStatus] = useState<{
+    connected: boolean
+    isExpired?: boolean
+    metadata?: any
+    connectedAt?: string
+  }>({ connected: false })
+  const [loadingSpotify, setLoadingSpotify] = useState(false)
+
+  useEffect(() => {
+    // Check Spotify connection status on mount
+    fetch('/api/spotify/status')
+      .then(res => res.json())
+      .then(data => setSpotifyStatus(data))
+      .catch(err => console.error('Failed to check Spotify status:', err))
+      
+    // Check for connection success/error in URL
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('spotify') === 'connected') {
+      setSaveStatus('Spotify connected successfully!')
+      setTimeout(() => setSaveStatus(null), 3000)
+      // Refresh status
+      fetch('/api/spotify/status')
+        .then(res => res.json())
+        .then(data => setSpotifyStatus(data))
+    }
+  }, [])
+
+  const handleConnectSpotify = () => {
+    window.location.href = '/api/spotify/auth'
+  }
+
+  const handleDisconnectSpotify = async () => {
+    setLoadingSpotify(true)
+    try {
+      const res = await fetch('/api/spotify/disconnect', { method: 'POST' })
+      if (res.ok) {
+        setSpotifyStatus({ connected: false })
+        setSaveStatus('Spotify disconnected')
+        setTimeout(() => setSaveStatus(null), 3000)
+      }
+    } catch (err) {
+      console.error('Failed to disconnect Spotify:', err)
+    } finally {
+      setLoadingSpotify(false)
+    }
+  }
 
   const handleSave = async (section: string) => {
     setSaveStatus("saving")
@@ -81,7 +128,7 @@ export default function SettingsPage() {
             ) : (
               <>
                 <Check className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-gray-300">Saved successfully</span>
+                <span className="text-sm text-gray-300">{saveStatus}</span>
               </>
             )}
           </div>
@@ -137,6 +184,13 @@ export default function SettingsPage() {
             >
               <CreditCard className="w-4 h-4 mr-2" />
               Billing
+            </TabsTrigger>
+            <TabsTrigger
+              value="integrations"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+            >
+              <Wrench className="w-4 h-4 mr-2" />
+              Integrations
             </TabsTrigger>
           </TabsList>
 
@@ -312,7 +366,98 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
 
-          {/* Other tabs would follow similar patterns */}
+          {/* Integrations Tab */}
+          <TabsContent value="integrations" className="space-y-6">
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Connected Services</h2>
+              <p className="text-gray-400 mb-6">Manage your third-party integrations</p>
+
+              <div className="space-y-4">
+                {/* Spotify Integration */}
+                <div className="flex items-center justify-between p-4 rounded-lg border border-slate-700/50 bg-slate-900/30">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+                      <span className="text-2xl">🎵</span>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white flex items-center gap-2">
+                        Spotify
+                        {spotifyStatus.connected && (
+                          <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            Connected
+                          </span>
+                        )}
+                        {spotifyStatus.isExpired && (
+                          <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
+                            Token Expired
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-sm text-gray-400">
+                        {spotifyStatus.connected
+                          ? `Connected as ${spotifyStatus.metadata?.display_name || 'User'} • ${spotifyStatus.metadata?.product || 'free'}`
+                          : 'Play music with your Sages'}
+                      </p>
+                      {spotifyStatus.connected && spotifyStatus.connectedAt && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Connected {new Date(spotifyStatus.connectedAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    {spotifyStatus.connected ? (
+                      <Button
+                        onClick={handleDisconnectSpotify}
+                        disabled={loadingSpotify}
+                        variant="outline"
+                        className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                      >
+                        {loadingSpotify ? 'Disconnecting...' : 'Disconnect'}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleConnectSpotify}
+                        className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                      >
+                        Connect Spotify
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Coming Soon Integrations */}
+                <div className="space-y-4 opacity-50 pointer-events-none">
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-slate-700/50 bg-slate-900/30">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
+                        <span className="text-2xl">📅</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white">Google Calendar</h3>
+                        <p className="text-sm text-gray-400">Schedule sage sessions</p>
+                      </div>
+                    </div>
+                    <span className="text-xs bg-slate-700/50 text-slate-400 px-2 py-1 rounded">Coming Soon</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-slate-700/50 bg-slate-900/30">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center">
+                        <span className="text-2xl">📝</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white">Notion</h3>
+                        <p className="text-sm text-gray-400">Export insights & artifacts</p>
+                      </div>
+                    </div>
+                    <span className="text-xs bg-slate-700/50 text-slate-400 px-2 py-1 rounded">Coming Soon</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

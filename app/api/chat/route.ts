@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
 import { generateChatResponse } from "@/lib/ai-client"
+import { SAGE_TEMPLATES } from "@/lib/sage-templates"
 
 export async function POST(request: Request) {
   try {
-    const { messages, agentId, conversationId } = await request.json()
+    const { messages, agentId, conversationId, sageId } = await request.json()
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: "Invalid request: messages array required" }, { status: 400 })
@@ -12,20 +13,19 @@ export async function POST(request: Request) {
     console.log("[Chat API] Processing request:", {
       messageCount: messages.length,
       agentId,
+      sageId,
       conversationId,
     })
+
+    const sage = sageId ? SAGE_TEMPLATES.find((s) => s.id === sageId) : undefined
 
     const result = await generateChatResponse({
       messages: messages.map((m: any) => ({
         role: m.role,
         content: m.content,
       })),
-      systemPrompt: `You are a helpful AI agent in the SageSpace platform. You follow the Five Laws of Sage AI:
-1. Prioritize human well-being and safety
-2. Provide accurate, truthful information
-3. Respect user privacy and data
-4. Be transparent about capabilities and limitations
-5. Encourage learning and growth${agentId ? `\n\nYou are currently acting as agent: ${agentId}` : ""}`,
+      sage: sage as any,
+      mode: "single",
     })
 
     return result.toUIMessageStreamResponse()

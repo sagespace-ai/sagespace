@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { createServerClient } from "@/lib/supabase/server"
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -41,7 +42,49 @@ export async function GET(request: NextRequest) {
 
     const tokens = await tokenResponse.json()
 
-    // Set cookies
+    const supabase = await createServerClient()
+    
+    // Get current user (or use anon session)
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id || 'anonymous'
+    
+    // Calculate token expiration time
+    const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString()
+    
+    // Get user's Spotify profile for metadata
+    const profileResponse = await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` }
+    })
+    const profile = profileResponse.ok ? await profileResponse.json() : {}
+    
+    // Upsert integration record
+    const { error: dbError } = await supabase
+      .from('user_integrations')
+      .upsert({
+        user_id: userId,
+        integration_type: 'spotify',
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        token_expires_at: expiresAt,
+        integration_metadata: {
+          spotify_user_id: profile.id,
+          display_name: profile.display_name,
+          email: profile.email,
+          product: profile.product, // premium/free
+        },
+        connected_at: new Date().toISOString(),
+        last_refreshed_at: new Date().toISOString(),
+        is_active: true,
+      }, {
+        onConflict: 'user_id,integration_type'
+      })
+    
+    if (dbError) {
+      console.error('[v0] Database error storing Spotify tokens:', dbError)
+    }
+    // </CHANGE>
+
+    // Also set cookies for immediate use
     const cookieStore = await cookies()
     cookieStore.set("spotify_access_token", tokens.access_token, {
       httpOnly: true,
@@ -57,11 +100,10 @@ export async function GET(request: NextRequest) {
       path: "/",
     })
 
-    // Redirect back to the page they were on (or homepage)
-    const returnTo = searchParams.get("state") || "/"
-    return NextResponse.redirect(new URL(returnTo, request.url))
+    // Redirect back to settings page
+    return NextResponse.redirect(new URL('/settings?tab=integrations&spotify=connected', request.url))
   } catch (error: any) {
     console.error("[v0] Spotify callback error:", error)
-    return NextResponse.redirect(new URL(`/?spotify_error=${encodeURIComponent(error.message)}`, request.url))
+    return NextResponse.redirect(new URL(`/settings?tab=integrations&spotify_error=${encodeURIComponent(error.message)}`, request.url))
   }
 }

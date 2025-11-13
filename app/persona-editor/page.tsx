@@ -21,6 +21,7 @@ import {
   LockIcon,
   HeartIcon,
 } from "@/components/icons"
+import { searchSpotify } from "@/lib/ai-client"
 
 export default function SageStudioPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -35,6 +36,11 @@ export default function SageStudioPage() {
   const [sagePersonality, setSagePersonality] = useState("")
   const [showPreview, setShowPreview] = useState(false)
   const [previewMode, setPreviewMode] = useState<"text" | "audio" | "image" | "video">("text")
+  const [enableSpotify, setEnableSpotify] = useState(false)
+  const [spotifyTestQuery, setSpotifyTestQuery] = useState("")
+  const [spotifyTestResults, setSpotifyTestResults] = useState<any>(null)
+  const [isSpotifyConnected, setIsSpotifyConnected] = useState(false)
+  const [isCheckingSpotify, setIsCheckingSpotify] = useState(false)
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -43,6 +49,23 @@ export default function SageStudioPage() {
     window.addEventListener("mousemove", handleMouseMove)
     return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [])
+
+  useEffect(() => {
+    const checkSpotifyConnection = async () => {
+      setIsCheckingSpotify(true)
+      try {
+        const response = await fetch('/api/spotify/me')
+        setIsSpotifyConnected(response.ok)
+      } catch (error) {
+        setIsSpotifyConnected(false)
+      }
+      setIsCheckingSpotify(false)
+    }
+    
+    if (enableSpotify) {
+      checkSpotifyConnection()
+    }
+  }, [enableSpotify])
 
   const domains = [
     {
@@ -578,6 +601,105 @@ export default function SageStudioPage() {
                         collaboration.
                       </p>
                     </div>
+                  </div>
+                  
+                  <div className="bg-slate-900/50 backdrop-blur border border-slate-700 rounded-2xl p-6">
+                    <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                      <MicIcon className="w-5 h-5 text-green-400" />
+                      Spotify Music Integration
+                    </h4>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-white font-medium">Enable Spotify Search</p>
+                        <p className="text-sm text-slate-400">Allow your sage to search and recommend music</p>
+                      </div>
+                      <Button
+                        onClick={() => setEnableSpotify(!enableSpotify)}
+                        variant={enableSpotify ? "default" : "outline"}
+                        size="sm"
+                        className={enableSpotify ? "bg-green-500 hover:bg-green-600" : ""}
+                      >
+                        {enableSpotify ? "Enabled" : "Disabled"}
+                      </Button>
+                    </div>
+                    
+                    {enableSpotify && !isSpotifyConnected && (
+                      <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                        <p className="text-sm text-amber-200 mb-3 flex items-center gap-2">
+                          <LockIcon className="w-4 h-4" />
+                          Spotify not connected. Connect your account to enable music search.
+                        </p>
+                        <Button
+                          onClick={() => {
+                            window.location.href = '/api/spotify/auth'
+                          }}
+                          size="sm"
+                          className="bg-green-500 hover:bg-green-600 w-full"
+                        >
+                          Connect Spotify Account
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {enableSpotify && isSpotifyConnected && (
+                      <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
+                        <p className="text-sm text-green-200 mb-3 flex items-center gap-2">
+                          <CheckIcon className="w-4 h-4" />
+                          Spotify connected! Test the search functionality:
+                        </p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={spotifyTestQuery}
+                            onChange={(e) => setSpotifyTestQuery(e.target.value)}
+                            placeholder="e.g., Bohemian Rhapsody"
+                            className="flex-1 px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm"
+                          />
+                          <Button
+                            onClick={async () => {
+                              try {
+                                console.log('[v0] Testing Spotify search for:', spotifyTestQuery)
+                                const results = await searchSpotify({ query: spotifyTestQuery, type: "track", limit: 3 })
+                                console.log('[v0] Spotify search results:', results)
+                                setSpotifyTestResults(results)
+                              } catch (error) {
+                                console.error('[v0] Spotify test failed:', error)
+                                setSpotifyTestResults({ error: error instanceof Error ? error.message : 'Search failed' })
+                              }
+                            }}
+                            size="sm"
+                            disabled={!spotifyTestQuery}
+                            className="bg-green-500 hover:bg-green-600"
+                          >
+                            Test
+                          </Button>
+                        </div>
+                        
+                        {spotifyTestResults && (
+                          <div className="mt-3 space-y-2">
+                            {spotifyTestResults.error ? (
+                              <div className="text-xs text-red-300 p-2 bg-red-500/10 border border-red-500/30 rounded">
+                                Error: {spotifyTestResults.error}
+                              </div>
+                            ) : spotifyTestResults.results && spotifyTestResults.results.length > 0 ? (
+                              spotifyTestResults.results.map((track: any, i: number) => (
+                                <div key={i} className="text-xs text-slate-300 p-2 bg-slate-800 rounded flex items-center gap-2">
+                                  <MicIcon className="w-4 h-4 text-green-400" />
+                                  <div>
+                                    <div className="font-medium">{track.name}</div>
+                                    <div className="text-slate-500">{track.artists?.join(", ")}</div>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-xs text-slate-400 p-2 bg-slate-800 rounded">
+                                No results found
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex justify-center gap-4">

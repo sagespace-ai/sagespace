@@ -47,6 +47,10 @@ export interface Sage {
   is_featured: boolean
   created_at: string
   updated_at: string
+  domain_scope?: string
+  off_scope?: string
+  responsibilities?: string
+  uniqueness_goal?: string
 }
 
 export interface PersonaJSON {
@@ -178,4 +182,17 @@ export interface AuditLog {
 export interface Redaction {
   type: string
   count: number
+}
+
+export interface UserIntegration {
+  id: string
+  user_id: string
+  integration_type: 'spotify' | 'youtube' | 'notion' | 'calendar'
+  access_token: string
+  refresh_token?: string
+  token_expires_at?: string
+  integration_metadata: Record<string, any>
+  connected_at: string
+  last_refreshed_at?: string
+  is_active: boolean
 }

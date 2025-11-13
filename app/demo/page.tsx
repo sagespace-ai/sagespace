@@ -280,7 +280,7 @@ export default function AgentUniverseHub() {
   return (
     <div className="min-h-screen bg-black overflow-hidden relative">
       <div
-        className="fixed pointer-events-none opacity-30 blur-3xl z-0"
+        className="fixed pointer-events-none opacity-5 blur-3xl z-0"
         style={{
           width: "600px",
           height: "600px",
@@ -289,6 +289,7 @@ export default function AgentUniverseHub() {
           transition: "transform 0.3s ease-out",
         }}
       />
+      {/* </CHANGE> */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         {[...Array(150)].map((_, i) => (
           <div
