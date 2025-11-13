@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "react-hot-toast"
 import "./globals.css"
 import { CosmicDock } from "@/components/CosmicDock"
+import { GlobalSpotifyPlayer } from "@/components/GlobalSpotifyPlayer"
 
 const geistSans = Geist({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -42,6 +43,7 @@ export default function RootLayout({
         <CosmicDock />
         {children}
         <Toaster />
+        <GlobalSpotifyPlayer />
       </body>
     </html>
   )

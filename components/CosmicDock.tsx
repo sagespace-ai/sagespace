@@ -54,9 +54,41 @@ export function CosmicDock() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo and Navigation Links */}
         <div className="flex items-center gap-1">
-          <Link href="/" className="mr-4 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-cyan-400" />
-            <span className="font-bold text-white">SageSpace</span>
+          <Link href="/" className="mr-4 flex items-center gap-2 group relative">
+            <div className="relative">
+              <Sparkles className="h-5 w-5 text-cyan-400 animate-pulse" />
+              {/* Orbiting particles around the icon */}
+              <span className="absolute top-1/2 left-1/2 w-8 h-8 pointer-events-none">
+                <span
+                  className="absolute top-0 left-1/2 w-1 h-1 bg-cyan-400 rounded-full blur-sm animate-spin-slow"
+                  style={{ transformOrigin: "0 16px" }}
+                />
+                <span
+                  className="absolute top-0 left-1/2 w-1 h-1 bg-purple-400 rounded-full blur-sm animate-spin-slow"
+                  style={{ transformOrigin: "0 16px", animationDirection: "reverse", animationDelay: "1s" }}
+                />
+              </span>
+            </div>
+            <span className="font-bold text-lg relative">
+              <span
+                className="relative inline-block bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient"
+                style={{ backgroundSize: "300% 300%" }}
+              >
+                SageSpace
+                {/* Glowing dots around the text */}
+                <span className="absolute -top-0.5 left-0 w-0.5 h-0.5 bg-cyan-400 rounded-full animate-ping opacity-75" />
+                <span
+                  className="absolute -top-0.5 right-2 w-0.5 h-0.5 bg-purple-400 rounded-full animate-ping opacity-75"
+                  style={{ animationDelay: "0.5s" }}
+                />
+                <span
+                  className="absolute -bottom-0.5 left-8 w-0.5 h-0.5 bg-pink-400 rounded-full animate-ping opacity-75"
+                  style={{ animationDelay: "1s" }}
+                />
+                {/* Underline glow */}
+                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 rounded-full animate-pulse-slow blur-sm" />
+              </span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
