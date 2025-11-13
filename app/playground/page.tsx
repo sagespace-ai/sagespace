@@ -298,7 +298,7 @@ export default function PlaygroundPage() {
                 </Link>
                 <div className="h-6 w-px bg-white/10" />
                 <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  SAGE-O-MATIC
+                  your Playground
                 </h1>
               </div>
 
@@ -332,7 +332,7 @@ export default function PlaygroundPage() {
 
         {/* Main two-pane layout */}
         <main className="flex h-[calc(100vh-73px)]">
-          {/* LEFT PANE: SAGE-O-MATIC Selector */}
+          {/* LEFT PANE: your Playground Selector */}
           <aside
             className={`w-full lg:w-96 border-r border-white/10 bg-gradient-to-b from-slate-900/90 to-slate-800/90 backdrop-blur-xl overflow-y-auto ${
               mobileView === "selector" ? "block" : "hidden lg:block"
@@ -637,7 +637,7 @@ export default function PlaygroundPage() {
               <div className="flex-1 flex items-center justify-center p-6">
                 <div className="text-center max-w-md">
                   <div className="text-6xl mb-6 animate-pulse">🔮</div>
-                  <h3 className="text-2xl font-bold text-white mb-3">Welcome to SAGE-O-MATIC</h3>
+                  <h3 className="text-2xl font-bold text-white mb-3">Welcome to your Playground</h3>
                   <p className="text-slate-400 mb-6">
                     Select a mode, choose your mood, and discover the perfect Sage companions to help you learn, grow,
                     and achieve your goals.
