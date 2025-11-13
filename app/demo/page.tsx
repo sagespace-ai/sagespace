@@ -482,15 +482,12 @@ export default function AgentUniverseHub() {
                       <p className="text-sm text-slate-400 mb-4 leading-relaxed flex-1 text-center">
                         {feature.description}
                       </p>
-                      <div className="flex items-center justify-between mt-auto">
+                      <div className="flex items-center justify-center mt-auto">
                         <div
                           className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r ${feature.gradient} bg-opacity-20 border border-cyan-500/30 rounded-full text-xs font-medium text-white`}
                         >
                           <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                           {feature.stats}
-                        </div>
-                        <div className="text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          →
                         </div>
                       </div>
                     </div>
