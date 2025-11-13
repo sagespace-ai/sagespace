@@ -3,14 +3,14 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "react-hot-toast"
 import "./globals.css"
-import { AppNav } from "@/components/app-nav"
+import { CosmicDock } from "@/components/CosmicDock"
 
 const geistSans = Geist({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
+  title: "SageSpace - Your Cosmic AI Journey",
+  description: "Navigate through an immersive universe of specialized AI sages",
   generator: "v0.app",
   icons: {
     icon: [
@@ -39,8 +39,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={geistSans.variable}>
+        <CosmicDock />
         {children}
-        <AppNav />
         <Toaster />
       </body>
     </html>
