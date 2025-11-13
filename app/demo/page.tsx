@@ -376,6 +376,11 @@ export default function AgentUniverseHub() {
                     <span className="text-sm text-slate-300">{stats.activeNow} Active</span>
                   </div>
                 </div>
+                <Link href="/settings">
+                  <Button size="sm" variant="ghost" className="text-slate-300 hover:text-cyan-400 transition-colors">
+                    Settings
+                  </Button>
+                </Link>
                 <Link href="/auth/login">
                   <Button
                     size="sm"
