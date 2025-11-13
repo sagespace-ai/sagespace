@@ -17,6 +17,8 @@ export default function PlaygroundPage() {
   const router = useRouter()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const preselectedSageId = searchParams.get("sage")
+
   const [selectedMode, setSelectedMode] = useState<SageMode>("single")
   const [selectedMood, setSelectedMood] = useState<UserMood | null>(null)
   const [recommendedSages, setRecommendedSages] = useState<typeof SAGE_TEMPLATES>([])
@@ -36,6 +38,36 @@ export default function PlaygroundPage() {
 
   // Mouse tracking for cosmic effects
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    if (preselectedSageId && selectedSages.length === 0) {
+      const sage = SAGE_TEMPLATES.find((s) => s.id === preselectedSageId)
+      if (sage) {
+        console.log("[v0] Preselecting sage from URL:", sage.name)
+        setSelectedSages([sage])
+        setSelectedMode("single")
+
+        // Auto-start the session after a brief moment
+        setTimeout(() => {
+          const newConversationId = `conv-${Date.now()}`
+          setConversationId(newConversationId)
+
+          const welcomeContent = `Hello! I'm ${sage.name}, your ${sage.role}. ${sage.description}. How can I help you today?`
+
+          setMessages([
+            {
+              role: "assistant",
+              content: welcomeContent,
+              timestamp: new Date(),
+              sageId: sage.id,
+            },
+          ])
+
+          setMobileView("chat")
+        }, 500)
+      }
+    }
+  }, [preselectedSageId])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -119,19 +151,34 @@ export default function PlaygroundPage() {
       xpEarned: prev.xpEarned + 10,
     }))
 
+    const assistantMessageIndex = messages.length
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: "",
+        timestamp: new Date(),
+        sageId: selectedSages[0].id,
+      },
+    ])
+
     try {
+      console.log("[v0] Sending chat request to /api/chat")
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          messages: [...messages, userMessage].map((m) => ({ role: m.role, content: m.content })),
           agentId: selectedSages[0].id,
           conversationId,
         }),
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        console.error("[v0] Chat API error:", errorData)
+        throw new Error(errorData.message || `HTTP ${response.status}`)
       }
 
       const reader = response.body?.getReader()
@@ -142,17 +189,6 @@ export default function PlaygroundPage() {
         throw new Error("No response body")
       }
 
-      const assistantMessageIndex = messages.length
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "",
-          timestamp: new Date(),
-          sageId: selectedSages[0].id,
-        },
-      ])
-
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -162,11 +198,13 @@ export default function PlaygroundPage() {
 
         for (const line of lines) {
           if (line.startsWith("data: ")) {
-            const data = line.slice(6)
+            const data = line.slice(6).trim()
             if (data === "[DONE]") continue
 
             try {
               const parsed = JSON.parse(data)
+              console.log("[v0] Parsed SSE data:", parsed.type)
+
               if (parsed.type === "text-delta" && parsed.textDelta) {
                 accumulatedContent += parsed.textDelta
                 setMessages((prev) => {
@@ -179,33 +217,36 @@ export default function PlaygroundPage() {
                 })
               }
             } catch (e) {
-              console.error("[v0] Failed to parse SSE data:", e)
+              console.error("[v0] Failed to parse SSE data:", data, e)
             }
           }
         }
       }
 
       if (!accumulatedContent) {
+        console.warn("[v0] No content received from LLM")
         setMessages((prev) => {
           const updated = [...prev]
           updated[assistantMessageIndex] = {
             ...updated[assistantMessageIndex],
-            content: "I apologize, I couldn't generate a response.",
+            content: "I apologize, but I didn't receive a response from the AI service. Please try again.",
           }
           return updated
         })
+      } else {
+        console.log("[v0] Successfully received", accumulatedContent.length, "characters")
       }
-    } catch (error) {
-      console.error("[v0] Chat error:", error)
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "I apologize, but I'm having trouble connecting right now. Please try again!",
-          timestamp: new Date(),
-          sageId: selectedSages[0].id,
-        },
-      ])
+    } catch (error: any) {
+      console.error("[v0] Chat error:", error.message)
+
+      setMessages((prev) => {
+        const updated = [...prev]
+        updated[assistantMessageIndex] = {
+          ...updated[assistantMessageIndex],
+          content: `⚠️ Error: ${error.message}\n\nPlease check your connection and try again. If the problem persists, contact support.`,
+        }
+        return updated
+      })
     } finally {
       setLoading(false)
     }

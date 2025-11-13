@@ -210,7 +210,20 @@ export default function UniverseMapPage() {
   }
 
   const handleChatNow = (sage: FloatingSage) => {
+    console.log("[v0] Navigating to playground with sage:", sage.name)
     router.push(`/playground?sage=${encodeURIComponent(sage.name)}`)
+  }
+
+  const handleStartRandomChat = () => {
+    if (filteredSages.length > 0) {
+      const randomSage = filteredSages[Math.floor(Math.random() * filteredSages.length)]
+      console.log("[v0] Random sage selected:", randomSage.name)
+      console.log("[v0] Navigating to:", `/playground?sage=${encodeURIComponent(randomSage.name)}`)
+      router.push(`/playground?sage=${encodeURIComponent(randomSage.name)}`)
+    } else {
+      console.log("[v0] No filtered sages, going to playground")
+      router.push("/playground")
+    }
   }
 
   const getFilteredSages = () => {
@@ -313,7 +326,7 @@ export default function UniverseMapPage() {
                   className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
                   style={{ backgroundSize: "300% 300%", animation: "gradient 6s ease infinite" }}
                 >
-                  Sage Galaxy
+                  Sage Universe
                 </h1>
               </div>
 
@@ -688,16 +701,19 @@ export default function UniverseMapPage() {
 
               {/* Start Chat Button - Bottom center with energy particles */}
               <button
-                onClick={() => router.push("/playground")}
+                onClick={handleStartRandomChat}
                 className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 group"
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl blur-2xl opacity-60 group-hover:opacity-90 transition-opacity animate-pulse" />
                   <div className="relative bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 backdrop-blur-xl rounded-3xl px-8 py-4 shadow-2xl hover:scale-110 transition-all duration-300">
-                    <div className="flex items-center gap-3">
-                      <MessageCircleIcon className="w-6 h-6 text-white" />
-                      <span className="font-bold text-white text-lg">Start Chat</span>
-                      <ZapIcon className="w-5 h-5 text-yellow-300 animate-pulse" />
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="flex items-center gap-3">
+                        <MessageCircleIcon className="w-6 h-6 text-white" />
+                        <span className="font-bold text-white text-lg">Start Chat</span>
+                        <ZapIcon className="w-5 h-5 text-yellow-300 animate-pulse" />
+                      </div>
+                      <span className="text-xs text-white/80 font-medium">🎲 with a random sage</span>
                     </div>
                   </div>
                   {/* Energy particles */}

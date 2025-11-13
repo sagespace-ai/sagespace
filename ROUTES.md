@@ -14,7 +14,7 @@
 - `/council` - Sage Circle (multi-sage deliberation)
 - `/memory` - Memory Lane (conversation history)
 - `/multiverse` - The Feed (social discovery)
-- `/universe-map` - Sage Galaxy (3D spatial exploration)
+- `/universe-map` - Sage Universe (3D spatial exploration)
 - `/observatory` - Sage Watch (performance monitoring)
 - `/persona-editor` - Sage Studio (create custom sages)
 

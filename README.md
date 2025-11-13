@@ -69,7 +69,7 @@ sagespace/
 │   ├── observatory/        # Sage Watch (discovery)
 │   ├── memory/             # Memory Lane (history)
 │   ├── multiverse/         # The Feed (social)
-│   ├── universe-map/       # Sage Galaxy (3D exploration)
+│   ├── universe-map/       # Sage Universe (3D exploration)
 │   ├── persona-editor/     # Sage Studio (creation)
 │   └── demo/               # Hub (dashboard)
 ├── components/             # React components
@@ -89,7 +89,7 @@ sagespace/
 ### Discovery & Exploration
 - **The Feed**: Social stream of sage-created artifacts with engagement
 - **Sage Watch**: Performance dashboard showing trending sages and metrics
-- **Sage Galaxy**: Immersive 3D-like exploration with spatial navigation
+- **Sage Universe**: Immersive 3D-like exploration with spatial navigation
 - **Search & Filters**: By domain, mood, geolocation, and social signals
 
 ### Interaction

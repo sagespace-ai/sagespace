@@ -191,7 +191,7 @@ export default function AgentUniverseHub() {
     },
     {
       href: "/universe-map",
-      title: "Sage Galaxy",
+      title: "Sage Universe",
       description: "Navigate through an immersive universe of sages",
       gradient: "from-pink-500 to-rose-500",
       hoverGradient: "from-pink-400 to-rose-400",
@@ -473,13 +473,15 @@ export default function AgentUniverseHub() {
                       className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
                     />
                     <div className="relative z-10 flex-1 flex flex-col">
-                      <div className="group-hover:scale-110 transition-transform duration-300">
+                      <div className="flex flex-col items-center text-center group-hover:scale-110 transition-transform duration-300">
                         {feature.animatedIcon}
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors text-center">
                         {feature.title}
                       </h3>
-                      <p className="text-sm text-slate-400 mb-4 leading-relaxed flex-1">{feature.description}</p>
+                      <p className="text-sm text-slate-400 mb-4 leading-relaxed flex-1 text-center">
+                        {feature.description}
+                      </p>
                       <div className="flex items-center justify-between mt-auto">
                         <div
                           className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r ${feature.gradient} bg-opacity-20 border border-cyan-500/30 rounded-full text-xs font-medium text-white`}
@@ -590,7 +592,7 @@ export default function AgentUniverseHub() {
                     className="text-lg px-10 py-6 relative group overflow-hidden bg-black/50 backdrop-blur border-2 border-purple-500/50 hover:border-cyan-400 text-white transition-all duration-500 shadow-xl hover:shadow-purple-500/50 hover:scale-105"
                   >
                     <span className="relative z-10 flex items-center gap-3">
-                      <span>Explore Sage Galaxy</span>
+                      <span>Explore Sage Universe</span>
                       <span className="text-xl">🌌</span>
                     </span>
                   </Button>
