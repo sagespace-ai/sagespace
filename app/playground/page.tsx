@@ -2,81 +2,40 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import {
-  EyeIcon,
-  ScaleIcon,
-  BrainIcon,
-  HomeIcon,
-  SendIcon,
-  SparklesIcon,
-  UserIcon,
-  ZapIcon,
-  ActivityIcon,
-  TrendingUpIcon,
-  AwardIcon,
-  UsersIcon,
-  ShareIcon,
-  XIcon,
-} from "@/components/icons"
-import { demoConversation, seedSages } from "@/lib/seed-data"
-import { useSearchParams } from "next/navigation"
+import { HomeIcon, SendIcon, SparklesIcon, UserIcon, ZapIcon, UsersIcon, SearchIcon } from "@/components/icons"
+import { SAGE_TEMPLATES } from "@/lib/sage-templates"
+
+type SageMode = "single" | "circle" | "duel" | "council"
+type UserMood = "focused" | "stressed" | "curious" | "overwhelmed" | "playful"
 
 export default function PlaygroundPage() {
   const searchParams = useSearchParams()
-  const isDemoMode = searchParams?.get("demo") === "true"
-  const demoSage = searchParams?.get("sage")
+  const router = useRouter()
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const [messages, setMessages] = useState<Array<{ role: string; content: string; timestamp: Date }>>([])
+  const [selectedMode, setSelectedMode] = useState<SageMode>("single")
+  const [selectedMood, setSelectedMood] = useState<UserMood | null>(null)
+  const [recommendedSages, setRecommendedSages] = useState<typeof SAGE_TEMPLATES>([])
+  const [selectedSages, setSelectedSages] = useState<typeof SAGE_TEMPLATES>([])
+  const [showRecommendations, setShowRecommendations] = useState(false)
+
+  // Chat state
+  const [messages, setMessages] = useState<Array<{ role: string; content: string; timestamp: Date; sageId?: string }>>(
+    [],
+  )
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [selectedSage, setSelectedSage] = useState("Dr. Wellness")
-  const [stats, setStats] = useState({
-    messagesSent: 0,
-    xpEarned: 0,
-    currentStreak: 1,
-    tokensUsed: 0,
-  })
-  const [showShareModal, setShowShareModal] = useState(false)
-  const [shareConfig, setShareConfig] = useState({
-    title: "",
-    selectedMessages: [] as number[],
-    visibility: "public" as "public" | "followers" | "private",
-    tags: [] as string[],
-    newTag: "",
-  })
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const router = useRouter()
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [stats, setStats] = useState({ messagesSent: 0, xpEarned: 0, currentStreak: 1 })
 
-  const sages = [
-    {
-      name: "Dr. Wellness",
-      emoji: "🧘",
-      specialty: "Health & Mindfulness",
-      color: "from-emerald-500 to-teal-500",
-      id: "1",
-    },
-    {
-      name: "Prof. Einstein",
-      emoji: "🔬",
-      specialty: "Science & Research",
-      color: "from-blue-500 to-cyan-500",
-      id: "2",
-    },
-    { name: "Chef Gourmet", emoji: "👨‍🍳", specialty: "Culinary Arts", color: "from-orange-500 to-red-500", id: "3" },
-    {
-      name: "Coach Alpha",
-      emoji: "💪",
-      specialty: "Fitness & Athletics",
-      color: "from-purple-500 to-pink-500",
-      id: "4",
-    },
-    { name: "Sage Harmony", emoji: "🎨", specialty: "Creative Arts", color: "from-yellow-500 to-amber-500", id: "5" },
-  ]
+  const [mobileView, setMobileView] = useState<"selector" | "chat">("selector")
+
+  // Mouse tracking for cosmic effects
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -90,87 +49,64 @@ export default function PlaygroundPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  useEffect(() => {
-    if (isDemoMode && demoSage && messages.length === 0) {
-      console.log("[v0] Loading demo conversation...")
-      const demoMessages = demoConversation.messages.map((msg) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp),
-      }))
-      setMessages(demoMessages)
-      setSelectedSage(seedSages.find((s) => s.id === demoSage)?.name || "Dr. Wellness")
-      setStats((prev) => ({
-        ...prev,
-        messagesSent: demoMessages.filter((m) => m.role === "user").length,
-        xpEarned: 30,
-      }))
+  const discoverPerfectSage = () => {
+    console.log("[v0] Discovering sages for mode:", selectedMode, "mood:", selectedMood)
+
+    // Filter sages based on mood and mode
+    let filtered = [...SAGE_TEMPLATES]
+
+    if (selectedMood) {
+      // Simple mood-based filtering logic
+      const moodDomainMap: Record<UserMood, string[]> = {
+        focused: ["Education & Learning", "Business & Finance", "Technology & Innovation"],
+        stressed: ["Health & Wellness", "Personal Development"],
+        curious: ["Science & Research", "Creative & Arts", "Technology & Innovation"],
+        overwhelmed: ["Health & Wellness", "Personal Development"],
+        playful: ["Creative & Arts", "Social & Community"],
+      }
+
+      const preferredDomains = moodDomainMap[selectedMood] || []
+      filtered = filtered.filter((s) => preferredDomains.includes(s.domain))
     }
-  }, [isDemoMode, demoSage, messages.length])
 
-  const consultCircle = () => {
-    const lastMessage = messages[messages.length - 1]?.content || input
-    if (lastMessage) {
-      router.push(`/council?query=${encodeURIComponent(lastMessage)}`)
-    } else {
-      router.push("/council")
-    }
+    // Limit based on mode
+    const limit = selectedMode === "circle" ? 3 : selectedMode === "council" ? 5 : selectedMode === "duel" ? 2 : 10
+    setRecommendedSages(filtered.slice(0, limit))
+    setShowRecommendations(true)
   }
 
-  const openShareModal = () => {
-    setShareConfig({
-      title: messages.length > 0 ? `Conversation with ${selectedSage}` : "",
-      selectedMessages: messages.map((_, i) => i), // Select all by default
-      visibility: "public",
-      tags: [],
-      newTag: "",
-    })
-    setShowShareModal(true)
-  }
+  const startSession = () => {
+    if (selectedSages.length === 0) return
 
-  const toggleMessageSelection = (index: number) => {
-    setShareConfig((prev) => ({
-      ...prev,
-      selectedMessages: prev.selectedMessages.includes(index)
-        ? prev.selectedMessages.filter((i) => i !== index)
-        : [...prev.selectedMessages, index].sort((a, b) => a - b),
-    }))
-  }
+    console.log(
+      "[v0] Starting session with sages:",
+      selectedSages.map((s) => s.name),
+    )
 
-  const addTag = () => {
-    if (shareConfig.newTag && !shareConfig.tags.includes(shareConfig.newTag)) {
-      setShareConfig((prev) => ({
-        ...prev,
-        tags: [...prev.tags, prev.newTag.toLowerCase()],
-        newTag: "",
-      }))
-    }
-  }
+    // Generate conversation ID
+    const newConversationId = `conv-${Date.now()}`
+    setConversationId(newConversationId)
 
-  const removeTag = (tag: string) => {
-    setShareConfig((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((t) => t !== tag),
-    }))
-  }
+    // Add welcome message
+    const welcomeContent =
+      selectedSages.length === 1
+        ? `Hello! I'm ${selectedSages[0].name}, your ${selectedSages[0].role}. ${selectedSages[0].description}. How can I help you today?`
+        : `Welcome! You're now in a session with ${selectedSages.map((s) => s.name).join(", ")}. We're here to help from multiple perspectives.`
 
-  const shareToFeed = () => {
-    // In real app, this would POST to /api/feed
-    console.log("[v0] Sharing to feed:", {
-      title: shareConfig.title,
-      messages: shareConfig.selectedMessages.map((i) => messages[i]),
-      visibility: shareConfig.visibility,
-      tags: shareConfig.tags,
-      sage: selectedSage,
-    })
+    setMessages([
+      {
+        role: "assistant",
+        content: welcomeContent,
+        timestamp: new Date(),
+        sageId: selectedSages[0].id,
+      },
+    ])
 
-    // Show success and close modal
-    alert(`🎉 Shared to The Feed! Your wisdom is now helping others. +50 XP earned!`)
-    setStats((prev) => ({ ...prev, xpEarned: prev.xpEarned + 50 }))
-    setShowShareModal(false)
+    setMobileView("chat")
   }
 
   const sendMessage = async () => {
-    if (!input.trim()) return
+    if (!input.trim() || selectedSages.length === 0) return
 
     const userMessage = { role: "user", content: input, timestamp: new Date() }
     setMessages((prev) => [...prev, userMessage])
@@ -180,8 +116,7 @@ export default function PlaygroundPage() {
     setStats((prev) => ({
       ...prev,
       messagesSent: prev.messagesSent + 1,
-      xpEarned: prev.xpEarned + Math.floor(Math.random() * 50 + 10),
-      tokensUsed: prev.tokensUsed + input.length,
+      xpEarned: prev.xpEarned + 10,
     }))
 
     try {
@@ -189,33 +124,86 @@ export default function PlaygroundPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages.map((m) => ({ role: m.role, content: m.content })), userMessage],
-          agentId: selectedSage,
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          agentId: selectedSages[0].id,
+          conversationId,
         }),
       })
 
-      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      let accumulatedContent = ""
+
+      if (!reader) {
+        throw new Error("No response body")
+      }
+
+      const assistantMessageIndex = messages.length
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: data.message || data.response || "I'm here to help! How can I assist you today?",
+          content: "",
           timestamp: new Date(),
+          sageId: selectedSages[0].id,
         },
       ])
 
-      setStats((prev) => ({
-        ...prev,
-        xpEarned: prev.xpEarned + 5,
-      }))
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split("\n")
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6)
+            if (data === "[DONE]") continue
+
+            try {
+              const parsed = JSON.parse(data)
+              if (parsed.type === "text-delta" && parsed.textDelta) {
+                accumulatedContent += parsed.textDelta
+                setMessages((prev) => {
+                  const updated = [...prev]
+                  updated[assistantMessageIndex] = {
+                    ...updated[assistantMessageIndex],
+                    content: accumulatedContent,
+                  }
+                  return updated
+                })
+              }
+            } catch (e) {
+              console.error("[v0] Failed to parse SSE data:", e)
+            }
+          }
+        }
+      }
+
+      if (!accumulatedContent) {
+        setMessages((prev) => {
+          const updated = [...prev]
+          updated[assistantMessageIndex] = {
+            ...updated[assistantMessageIndex],
+            content: "I apologize, I couldn't generate a response.",
+          }
+          return updated
+        })
+      }
     } catch (error) {
-      console.error("Chat error:", error)
+      console.error("[v0] Chat error:", error)
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           content: "I apologize, but I'm having trouble connecting right now. Please try again!",
           timestamp: new Date(),
+          sageId: selectedSages[0].id,
         },
       ])
     } finally {
@@ -225,6 +213,7 @@ export default function PlaygroundPage() {
 
   return (
     <div className="min-h-screen bg-black overflow-hidden relative">
+      {/* Cosmic background effects */}
       <div
         className="fixed pointer-events-none opacity-30 blur-3xl z-0"
         style={{
@@ -255,6 +244,7 @@ export default function PlaygroundPage() {
       </div>
 
       <div className="relative z-10">
+        {/* Header */}
         <header className="border-b border-white/10 backdrop-blur-md bg-black/50 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
@@ -267,219 +257,288 @@ export default function PlaygroundPage() {
                 </Link>
                 <div className="h-6 w-px bg-white/10" />
                 <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Playground
+                  SAGE-O-MATIC
                 </h1>
               </div>
 
-              <div className="hidden lg:flex items-center gap-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 rounded-lg">
                   <ZapIcon className="w-3 h-3 text-cyan-400" />
                   <span className="text-xs font-medium text-white">{stats.xpEarned} XP</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/20 border border-cyan-500/30 rounded-lg">
-                  <ActivityIcon className="w-3 h-3 text-cyan-400" />
-                  <span className="text-xs font-medium text-white">{stats.messagesSent} Msgs</span>
+                {/* Mobile toggle */}
+                <div className="lg:hidden flex gap-1">
+                  <Button
+                    onClick={() => setMobileView("selector")}
+                    variant={mobileView === "selector" ? "default" : "ghost"}
+                    size="sm"
+                  >
+                    Selector
+                  </Button>
+                  <Button
+                    onClick={() => setMobileView("chat")}
+                    variant={mobileView === "chat" ? "default" : "ghost"}
+                    size="sm"
+                    disabled={selectedSages.length === 0}
+                  >
+                    Chat
+                  </Button>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/30 rounded-lg">
-                  <TrendingUpIcon className="w-3 h-3 text-emerald-400" />
-                  <span className="text-xs font-medium text-white">{stats.currentStreak}🔥 Streak</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Link href="/observatory">
-                  <Button variant="ghost" size="sm" className="text-slate-300 hover:text-cyan-400">
-                    <EyeIcon className="w-4 h-4" />
-                  </Button>
-                </Link>
-                <Link href="/council">
-                  <Button variant="ghost" size="sm" className="text-slate-300 hover:text-purple-400">
-                    <ScaleIcon className="w-4 h-4" />
-                  </Button>
-                </Link>
-                <Link href="/memory">
-                  <Button variant="ghost" size="sm" className="text-slate-300 hover:text-pink-400">
-                    <BrainIcon className="w-4 h-4" />
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>
         </header>
 
-        <main className="container mx-auto px-4 py-6 max-w-7xl">
-          <div className="grid lg:grid-cols-4 gap-6">
-            <aside className="lg:col-span-1">
-              <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-purple-500/20 rounded-2xl p-6 sticky top-24">
-                <div className="mb-6">
-                  <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                    <SparklesIcon className="w-5 h-5 text-yellow-400" />
-                    Choose Your Sage
-                  </h2>
-                  <p className="text-xs text-slate-400">Select an AI companion to chat with</p>
-                </div>
-
-                <div className="space-y-3">
-                  {sages.map((sage) => (
+        {/* Main two-pane layout */}
+        <main className="flex h-[calc(100vh-73px)]">
+          {/* LEFT PANE: SAGE-O-MATIC Selector */}
+          <aside
+            className={`w-full lg:w-96 border-r border-white/10 bg-gradient-to-b from-slate-900/90 to-slate-800/90 backdrop-blur-xl overflow-y-auto ${
+              mobileView === "selector" ? "block" : "hidden lg:block"
+            }`}
+          >
+            <div className="p-6 space-y-6">
+              {/* Mode Selection */}
+              <div>
+                <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                  <SparklesIcon className="w-5 h-5 text-yellow-400" />
+                  Choose Your Experience
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { id: "single" as SageMode, emoji: "👤", label: "Single Sage", desc: "One-on-one guidance" },
+                    { id: "circle" as SageMode, emoji: "⭕", label: "Sage Circle", desc: "3 perspectives" },
+                    { id: "duel" as SageMode, emoji: "⚔️", label: "Sage Duel", desc: "Debate 2 views" },
+                    { id: "council" as SageMode, emoji: "🏛️", label: "Grand Council", desc: "5+ expert panel" },
+                  ].map((mode) => (
                     <button
-                      key={sage.name}
-                      onClick={() => setSelectedSage(sage.name)}
-                      className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-300 group ${
-                        selectedSage === sage.name
-                          ? `bg-gradient-to-r ${sage.color} bg-opacity-20 border-cyan-400 shadow-lg shadow-cyan-500/30`
+                      key={mode.id}
+                      onClick={() => setSelectedMode(mode.id)}
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        selectedMode === mode.id
+                          ? "bg-gradient-to-br from-purple-500/20 to-cyan-500/20 border-cyan-400 shadow-lg shadow-cyan-500/30"
                           : "bg-slate-800/50 border-slate-700 hover:border-purple-500/50"
                       }`}
                     >
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-3xl group-hover:scale-110 transition-transform">{sage.emoji}</span>
-                        <div className="flex-1">
-                          <div className="font-semibold text-white text-sm">{sage.name}</div>
-                          <div className="text-xs text-slate-400">{sage.specialty}</div>
-                        </div>
-                        {selectedSage === sage.name && (
-                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                        )}
-                      </div>
+                      <div className="text-3xl mb-2">{mode.emoji}</div>
+                      <div className="font-semibold text-white text-sm">{mode.label}</div>
+                      <div className="text-xs text-slate-400 mt-1">{mode.desc}</div>
                     </button>
                   ))}
                 </div>
+              </div>
 
-                <div className="mt-6 pt-6 border-t border-slate-700">
+              {/* Mood Selector */}
+              <div>
+                <h3 className="text-sm font-semibold text-white mb-3">How are you feeling?</h3>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "focused" as UserMood, emoji: "🎯", label: "Focused" },
+                    { id: "stressed" as UserMood, emoji: "😰", label: "Stressed" },
+                    { id: "curious" as UserMood, emoji: "🤔", label: "Curious" },
+                    { id: "overwhelmed" as UserMood, emoji: "😵", label: "Overwhelmed" },
+                    { id: "playful" as UserMood, emoji: "🎮", label: "Playful" },
+                  ].map((mood) => (
+                    <button
+                      key={mood.id}
+                      onClick={() => setSelectedMood(mood.id)}
+                      className={`px-3 py-2 rounded-lg border transition-all ${
+                        selectedMood === mood.id
+                          ? "bg-purple-500/20 border-purple-400 text-white"
+                          : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-purple-500/50"
+                      }`}
+                    >
+                      <span className="mr-1">{mood.emoji}</span>
+                      <span className="text-xs">{mood.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Hologram Preview */}
+              {selectedSages.length > 0 && (
+                <Card className="bg-gradient-to-br from-purple-500/20 to-cyan-500/20 border-2 border-cyan-500/30 p-4">
                   <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                    <AwardIcon className="w-4 h-4 text-yellow-400" />
-                    Session Stats
+                    <SparklesIcon className="w-4 h-4 text-yellow-400" />
+                    Active Session
                   </h3>
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-400">Messages Sent</span>
-                      <span className="text-sm font-medium text-white">{stats.messagesSent}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-400">XP Earned</span>
-                      <span className="text-sm font-medium text-cyan-400">+{stats.xpEarned}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-400">Tokens Used</span>
-                      <span className="text-sm font-medium text-purple-400">{stats.tokensUsed}</span>
-                    </div>
+                    {selectedSages.map((sage) => (
+                      <div key={sage.id} className="flex items-center gap-3 p-2 bg-black/30 rounded-lg">
+                        <span className="text-2xl">{sage.avatar}</span>
+                        <div className="flex-1">
+                          <div className="font-semibold text-white text-sm">{sage.name}</div>
+                          <div className="text-xs text-slate-400">{sage.role}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {/* Discover Button */}
+              <Button
+                onClick={discoverPerfectSage}
+                disabled={!selectedMood}
+                className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold py-6 rounded-xl shadow-lg shadow-purple-500/50 disabled:opacity-50"
+              >
+                <SearchIcon className="w-5 h-5 mr-2" />
+                Discover Perfect Sage{selectedMode !== "single" && "s"}
+              </Button>
+
+              {/* Recommendations List */}
+              {showRecommendations && recommendedSages.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-white mb-3">Perfect Matches</h3>
+                  <div className="space-h-2 max-h-96 overflow-y-auto">
+                    {recommendedSages.map((sage) => (
+                      <button
+                        key={sage.id}
+                        onClick={() => {
+                          if (selectedSages.find((s) => s.id === sage.id)) {
+                            setSelectedSages(selectedSages.filter((s) => s.id !== sage.id))
+                          } else {
+                            const maxSages =
+                              selectedMode === "single"
+                                ? 1
+                                : selectedMode === "duel"
+                                  ? 2
+                                  : selectedMode === "circle"
+                                    ? 3
+                                    : 5
+                            if (selectedSages.length < maxSages) {
+                              setSelectedSages([...selectedSages, sage])
+                            }
+                          }
+                        }}
+                        className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+                          selectedSages.find((s) => s.id === sage.id)
+                            ? "bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-400"
+                            : "bg-slate-800/50 border-slate-700 hover:border-cyan-500/50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-3xl">{sage.avatar}</span>
+                          <div className="flex-1">
+                            <div className="font-semibold text-white text-sm">{sage.name}</div>
+                            <div className="text-xs text-slate-400">{sage.role}</div>
+                            <div className="text-xs text-cyan-400 mt-1">{sage.domain}</div>
+                          </div>
+                          {selectedSages.find((s) => s.id === sage.id) && (
+                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs">✓</span>
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              </Card>
-            </aside>
+              )}
 
-            <div className="lg:col-span-3">
-              <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-purple-500/20 rounded-2xl overflow-hidden shadow-2xl">
-                {/* Chat header */}
+              {/* Start Session Button */}
+              {selectedSages.length > 0 && (
+                <Button
+                  onClick={startSession}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-6 rounded-xl shadow-lg shadow-green-500/50"
+                >
+                  <SparklesIcon className="w-5 h-5 mr-2" />
+                  Start Session
+                </Button>
+              )}
+            </div>
+          </aside>
+
+          {/* RIGHT PANE: Chat Interface */}
+          <div className={`flex-1 flex flex-col ${mobileView === "chat" ? "block" : "hidden lg:flex"}`}>
+            {conversationId && selectedSages.length > 0 ? (
+              <>
+                {/* Chat Header */}
                 <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 border-b border-purple-500/30 p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="text-4xl">{sages.find((s) => s.name === selectedSage)?.emoji}</div>
+                      <div className="flex -space-x-2">
+                        {selectedSages.slice(0, 3).map((sage, i) => (
+                          <div
+                            key={sage.id}
+                            className="text-3xl bg-slate-800 rounded-full border-2 border-slate-900"
+                            style={{ zIndex: 10 - i }}
+                          >
+                            {sage.avatar}
+                          </div>
+                        ))}
+                        {selectedSages.length > 3 && (
+                          <div className="w-12 h-12 bg-purple-500/20 rounded-full border-2 border-purple-500 flex items-center justify-center text-xs text-white font-bold">
+                            +{selectedSages.length - 3}
+                          </div>
+                        )}
+                      </div>
                       <div>
-                        <h3 className="font-bold text-white">{selectedSage}</h3>
+                        <h3 className="font-bold text-white">
+                          {selectedSages.length === 1 ? selectedSages[0].name : `${selectedSages.length} Sages`}
+                        </h3>
                         <div className="flex items-center gap-2 text-xs text-slate-300">
                           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                          <span>Online & Ready</span>
+                          <span>Online & Ready • {selectedMode === "single" ? "1-on-1" : selectedMode}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {messages.length > 0 && (
-                        <Button
-                          onClick={openShareModal}
-                          size="sm"
-                          className="bg-gradient-to-r from-pink-500/20 to-orange-500/20 hover:from-pink-500/30 hover:to-orange-500/30 border border-pink-500/30 text-white transition-all duration-300 hover:scale-105"
-                        >
-                          <ShareIcon className="w-4 h-4 mr-2" />
-                          <span className="hidden md:inline">Share to Feed</span>
-                          <span className="md:hidden">Share</span>
-                        </Button>
-                      )}
-                      <Button
-                        onClick={consultCircle}
-                        size="sm"
-                        className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border border-purple-500/30 text-white transition-all duration-300 hover:scale-105"
-                      >
-                        <UsersIcon className="w-4 h-4 mr-2" />
-                        <span className="hidden md:inline">Consult Sage Circle</span>
-                        <span className="md:hidden">Circle</span>
-                      </Button>
-                      <div className="hidden lg:flex items-center gap-2 text-xs text-slate-400">
-                        <SparklesIcon className="w-3 h-3 text-yellow-400" />
-                        <span>Earn +10 XP per message</span>
-                      </div>
-                    </div>
+                    <Button
+                      onClick={() => router.push("/council")}
+                      size="sm"
+                      className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50"
+                    >
+                      <UsersIcon className="w-4 h-4 mr-2" />
+                      Consult Council
+                    </Button>
                   </div>
                 </div>
 
-                <div className="h-[600px] overflow-y-auto p-6 space-y-4" style={{ scrollbarWidth: "thin" }}>
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
                   {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
-                      <div className="text-6xl mb-6 animate-bounce">
-                        {sages.find((s) => s.name === selectedSage)?.emoji}
-                      </div>
-                      <h3 className="text-2xl font-bold text-white mb-2">Ready to Chat with {selectedSage}?</h3>
-                      <p className="text-slate-400 max-w-md mb-6">
-                        Ask me anything about {sages.find((s) => s.name === selectedSage)?.specialty}. I'm here to help
-                        you learn and grow!
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <div className="text-6xl mb-4">{selectedSages[0].avatar}</div>
+                      <h3 className="text-xl font-bold text-white mb-2">Session Started!</h3>
+                      <p className="text-slate-400 text-center max-w-md">
+                        Ask your question to begin the conversation.
                       </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
-                        <button
-                          onClick={() => setInput("Tell me about your expertise")}
-                          className="p-4 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-xl text-left transition-all duration-300 hover:scale-105"
-                        >
-                          <div className="text-sm font-medium text-white mb-1">💡 Get Started</div>
-                          <div className="text-xs text-slate-400">Tell me about your expertise</div>
-                        </button>
-                        <button
-                          onClick={() => setInput("What can you help me with today?")}
-                          className="p-4 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-xl text-left transition-all duration-300 hover:scale-105"
-                        >
-                          <div className="text-sm font-medium text-white mb-1">🎯 Quick Help</div>
-                          <div className="text-xs text-slate-400">What can you help me with today?</div>
-                        </button>
-                      </div>
                     </div>
                   ) : (
                     <>
-                      {messages.map((msg, i) => (
-                        <div
-                          key={i}
-                          className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-slide-up`}
-                          style={{ animationDelay: `${i * 0.05}s` }}
-                        >
-                          <div
-                            className={`max-w-[85%] p-4 rounded-2xl ${
-                              msg.role === "user"
-                                ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-white ml-auto"
-                                : "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-white"
-                            } backdrop-blur-sm shadow-lg`}
-                          >
-                            <div className="flex items-start gap-3">
-                              {msg.role === "assistant" && (
-                                <div className="text-2xl flex-shrink-0">
-                                  {sages.find((s) => s.name === selectedSage)?.emoji}
+                      {messages.map((msg, i) => {
+                        const sage = selectedSages.find((s) => s.id === msg.sageId)
+                        return (
+                          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                            <div
+                              className={`max-w-[85%] p-4 rounded-2xl ${
+                                msg.role === "user"
+                                  ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30"
+                                  : "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30"
+                              } backdrop-blur-sm`}
+                            >
+                              <div className="flex items-start gap-3">
+                                {msg.role === "assistant" && sage && <span className="text-2xl">{sage.avatar}</span>}
+                                <div className="flex-1">
+                                  {msg.role === "assistant" && sage && (
+                                    <div className="text-xs font-semibold text-cyan-400 mb-1">{sage.name}</div>
+                                  )}
+                                  <p className="text-sm text-white leading-relaxed">{msg.content}</p>
+                                  <div className="text-xs text-slate-400 mt-2">
+                                    {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                  </div>
                                 </div>
-                              )}
-                              <div className="flex-1">
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                                <div className="text-xs text-slate-400 mt-2">
-                                  {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                </div>
+                                {msg.role === "user" && <UserIcon className="w-6 h-6 text-cyan-400" />}
                               </div>
-                              {msg.role === "user" && (
-                                <div className="text-2xl flex-shrink-0">
-                                  <UserIcon className="w-6 h-6 text-cyan-400" />
-                                </div>
-                              )}
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                       {loading && (
-                        <div className="flex justify-start animate-pulse">
-                          <div className="max-w-[85%] p-4 rounded-2xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 backdrop-blur-sm">
+                        <div className="flex justify-start">
+                          <div className="p-4 rounded-2xl bg-purple-500/20 border border-purple-500/30">
                             <div className="flex items-center gap-2">
-                              <div className="text-2xl">{sages.find((s) => s.name === selectedSage)?.emoji}</div>
+                              <span className="text-2xl">{selectedSages[0].avatar}</span>
                               <div className="flex gap-1">
                                 <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" />
                                 <div
@@ -500,282 +559,54 @@ export default function PlaygroundPage() {
                   )}
                 </div>
 
+                {/* Composer */}
                 <div className="bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border-t border-purple-500/30 p-4">
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 mb-2">
                     <Input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-                      placeholder={`Ask ${selectedSage} anything...`}
-                      className="flex-1 bg-slate-800/80 border-slate-600 focus:border-cyan-500 text-white placeholder:text-slate-500 rounded-xl px-4 py-3"
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault()
+                          sendMessage()
+                        }
+                      }}
+                      placeholder="Ask anything..."
+                      className="flex-1 bg-slate-800/80 border-slate-600 focus:border-cyan-500 text-white rounded-xl px-4 py-3"
                       disabled={loading}
                     />
                     <Button
                       onClick={sendMessage}
                       disabled={loading || !input.trim()}
-                      className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 border-0 shadow-lg shadow-purple-500/50 px-6 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                      className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 px-6 rounded-xl"
                     >
                       <SendIcon className="w-5 h-5" />
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between mt-3 text-xs text-slate-400">
-                    <div>Press Enter to send • Shift+Enter for new line</div>
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between text-xs text-slate-400">
+                    <span>Enter to send • Shift+Enter for new line</span>
+                    <span className="flex items-center gap-1">
                       <ZapIcon className="w-3 h-3 text-yellow-400" />
-                      <span>+10 XP per message</span>
-                    </div>
+                      +10 XP per message
+                    </span>
                   </div>
                 </div>
-              </Card>
-
-              <div className="mt-6 p-6 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/30 rounded-xl backdrop-blur">
-                <div className="flex items-center gap-2 mb-3">
-                  <SparklesIcon className="w-5 h-5 text-yellow-400" />
-                  <h3 className="font-semibold text-white">Pro Tips</h3>
-                </div>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex gap-2">
-                    <span>💡</span>
-                    <span className="text-slate-300">Ask follow-up questions to dive deeper into topics</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span>🎯</span>
-                    <span className="text-slate-300">Use "Consult Sage Circle" to get multiple perspectives</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span>⚡</span>
-                    <span className="text-slate-300">Earn more XP by having longer conversations</span>
-                  </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-6">
+                <div className="text-center max-w-md">
+                  <div className="text-6xl mb-6 animate-pulse">🔮</div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Welcome to SAGE-O-MATIC</h3>
+                  <p className="text-slate-400 mb-6">
+                    Select a mode, choose your mood, and discover the perfect Sage companions to help you learn, grow,
+                    and achieve your goals.
+                  </p>
+                  <div className="text-sm text-slate-500">👈 Use the selector on the left to get started</div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </main>
-
-        {showShareModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-slide-up">
-              {/* Modal Header */}
-              <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <ShareIcon className="w-6 h-6 text-pink-400" />
-                    Share Your Wisdom
-                  </h2>
-                  <button
-                    onClick={() => setShowShareModal(false)}
-                    className="text-slate-400 hover:text-white transition-colors"
-                  >
-                    <XIcon className="w-6 h-6" />
-                  </button>
-                </div>
-                <p className="text-slate-300 text-sm">
-                  Choose what to share, add context, and inspire others in The Feed. Earn XP and recognition! 🌟
-                </p>
-              </div>
-
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-                {/* Title Input */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold text-white mb-2">Conversation Title *</label>
-                  <Input
-                    value={shareConfig.title}
-                    onChange={(e) => setShareConfig((prev) => ({ ...prev, title: e.target.value }))}
-                    placeholder="e.g., How I built a sustainable morning routine"
-                    className="bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-500"
-                  />
-                  <p className="text-xs text-slate-400 mt-1">Make it catchy to attract more engagement!</p>
-                </div>
-
-                {/* Privacy Settings */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold text-white mb-3">Who can see this?</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    <button
-                      onClick={() => setShareConfig((prev) => ({ ...prev, visibility: "public" }))}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        shareConfig.visibility === "public"
-                          ? "bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500 shadow-lg"
-                          : "bg-slate-800/50 border-slate-600 hover:border-green-500/50"
-                      }`}
-                    >
-                      <div className="text-2xl mb-2">🌍</div>
-                      <div className="font-semibold text-white text-sm">Public</div>
-                      <div className="text-xs text-slate-400 mt-1">Everyone can see & learn</div>
-                    </button>
-                    <button
-                      onClick={() => setShareConfig((prev) => ({ ...prev, visibility: "followers" }))}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        shareConfig.visibility === "followers"
-                          ? "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-500 shadow-lg"
-                          : "bg-slate-800/50 border-slate-600 hover:border-blue-500/50"
-                      }`}
-                    >
-                      <div className="text-2xl mb-2">👥</div>
-                      <div className="font-semibold text-white text-sm">Followers</div>
-                      <div className="text-xs text-slate-400 mt-1">Only your followers</div>
-                    </button>
-                    <button
-                      onClick={() => setShareConfig((prev) => ({ ...prev, visibility: "private" }))}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        shareConfig.visibility === "private"
-                          ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500 shadow-lg"
-                          : "bg-slate-800/50 border-slate-600 hover:border-purple-500/50"
-                      }`}
-                    >
-                      <div className="text-2xl mb-2">🔒</div>
-                      <div className="font-semibold text-white text-sm">Private</div>
-                      <div className="text-xs text-slate-400 mt-1">Just for you</div>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Message Selection */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="block text-sm font-semibold text-white">
-                      Select Messages to Share ({shareConfig.selectedMessages.length}/{messages.length})
-                    </label>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>
-                          setShareConfig((prev) => ({ ...prev, selectedMessages: messages.map((_, i) => i) }))
-                        }
-                        className="text-xs text-cyan-400 hover:text-cyan-300"
-                      >
-                        Select All
-                      </button>
-                      <button
-                        onClick={() => setShareConfig((prev) => ({ ...prev, selectedMessages: [] }))}
-                        className="text-xs text-slate-400 hover:text-slate-300"
-                      >
-                        Clear All
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-2 max-h-64 overflow-y-auto bg-slate-800/30 rounded-xl p-4">
-                    {messages.map((msg, i) => (
-                      <div
-                        key={i}
-                        onClick={() => toggleMessageSelection(i)}
-                        className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                          shareConfig.selectedMessages.includes(i)
-                            ? "bg-cyan-500/10 border-cyan-500/50 shadow-lg"
-                            : "bg-slate-800/50 border-slate-700 hover:border-cyan-500/30"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            checked={shareConfig.selectedMessages.includes(i)}
-                            onChange={() => {}}
-                            className="mt-1"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              {msg.role === "user" ? (
-                                <UserIcon className="w-4 h-4 text-cyan-400" />
-                              ) : (
-                                <span className="text-lg">{sages.find((s) => s.name === selectedSage)?.emoji}</span>
-                              )}
-                              <span className="text-xs font-semibold text-white">
-                                {msg.role === "user" ? "You" : selectedSage}
-                              </span>
-                            </div>
-                            <p className="text-sm text-slate-300 line-clamp-2">{msg.content}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-slate-400 mt-2">
-                    💡 Tip: Remove sensitive or personal information for privacy
-                  </p>
-                </div>
-
-                {/* Tags */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold text-white mb-2">
-                    Add Tags (helps others discover your conversation)
-                  </label>
-                  <div className="flex gap-2 mb-3">
-                    <Input
-                      value={shareConfig.newTag}
-                      onChange={(e) => setShareConfig((prev) => ({ ...prev, newTag: e.target.value }))}
-                      onKeyPress={(e) => e.key === "Enter" && addTag()}
-                      placeholder="e.g., productivity, wellness, coding"
-                      className="flex-1 bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-500"
-                    />
-                    <Button
-                      onClick={addTag}
-                      className="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-400"
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  {shareConfig.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {shareConfig.tags.map((tag) => (
-                        <span key={tag} className="text-xs text-purple-300">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Preview */}
-                <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/30 rounded-xl">
-                  <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                    <EyeIcon className="w-4 h-4 text-cyan-400" />
-                    Preview
-                  </h3>
-                  <div className="bg-slate-900/50 rounded-lg p-4">
-                    <h4 className="font-bold text-white mb-2">{shareConfig.title || "Untitled Conversation"}</h4>
-                    <p className="text-sm text-slate-400 mb-2">
-                      {shareConfig.selectedMessages.length} messages • {shareConfig.visibility} • with {selectedSage}
-                    </p>
-                    {shareConfig.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {shareConfig.tags.map((tag) => (
-                          <span key={tag} className="text-xs text-purple-300">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-t border-purple-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-slate-400">
-                    <SparklesIcon className="w-4 h-4 inline text-yellow-400 mr-1" />
-                    Earn +50 XP by sharing valuable conversations!
-                  </div>
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={() => setShowShareModal(false)}
-                      className="bg-slate-800/80 hover:bg-slate-700 border-2 border-slate-600 hover:border-slate-500 text-white transition-all duration-300"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={shareToFeed}
-                      disabled={!shareConfig.title || shareConfig.selectedMessages.length === 0}
-                      className="bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white shadow-lg shadow-pink-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <ShareIcon className="w-4 h-4 mr-2" />
-                      Share to Feed
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
