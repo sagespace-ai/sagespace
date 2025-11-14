@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { HomeIcon, SendIcon, SparklesIcon, UserIcon, ZapIcon, UsersIcon, SearchIcon } from "@/components/icons"
 import { SAGE_TEMPLATES } from "@/lib/sage-templates"
-import { searchSpotify } from "@/lib/ai-client"
 
 type SageMode = "single" | "circle" | "duel" | "council"
 type UserMood = "focused" | "stressed" | "curious" | "overwhelmed" | "playful"
@@ -158,22 +157,26 @@ export default function PlaygroundPage() {
 
     if (isMusicQuery) {
       try {
-        console.log("[v0] Music query detected, searching Spotify")
+        console.log("[v0] Music query detected, searching Spotify via API")
         const searchQuery = input.replace(/play|music|song|find/gi, "").trim()
-        const spotifyResults = await searchSpotify({ query: searchQuery, type: "track", limit: 5 })
+        const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=5`)
         
-        if (spotifyResults.results && spotifyResults.results.length > 0) {
-          const spotifyMessage = {
-            role: "assistant" as const,
-            content: `I found these tracks on Spotify:\n\n${spotifyResults.results.map((track: any, i: number) => 
-              `${i + 1}. **${track.name}** by ${track.artists?.join(", ") || "Unknown"}\n   Album: ${track.album || "N/A"}\n   [Listen on Spotify](${track.uri})`
-            ).join("\n\n")}`,
-            timestamp: new Date(),
-            sageId: selectedSages[0].id,
+        if (response.ok) {
+          const spotifyResults = await response.json()
+          
+          if (spotifyResults.results && spotifyResults.results.length > 0) {
+            const spotifyMessage = {
+              role: "assistant" as const,
+              content: `I found these tracks on Spotify:\n\n${spotifyResults.results.map((track: any, i: number) => 
+                `${i + 1}. **${track.name}** by ${track.artists?.join(", ") || "Unknown"}\n   Album: ${track.album || "N/A"}\n   [Listen on Spotify](${track.uri})`
+              ).join("\n\n")}`,
+              timestamp: new Date(),
+              sageId: selectedSages[0].id,
+            }
+            setMessages((prev) => [...prev, spotifyMessage])
+            setLoading(false)
+            return
           }
-          setMessages((prev) => [...prev, spotifyMessage])
-          setLoading(false)
-          return
         }
       } catch (error: any) {
         console.error("[v0] Spotify search failed:", error.message)

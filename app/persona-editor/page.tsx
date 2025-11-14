@@ -21,7 +21,6 @@ import {
   LockIcon,
   HeartIcon,
 } from "@/components/icons"
-import { searchSpotify } from "@/lib/ai-client"
 
 export default function StudioPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -659,7 +658,11 @@ export default function StudioPage() {
                             onClick={async () => {
                               try {
                                 console.log('[v0] Testing Spotify search for:', spotifyTestQuery)
-                                const results = await searchSpotify({ query: spotifyTestQuery, type: "track", limit: 3 })
+                                const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(spotifyTestQuery)}&type=track&limit=3`)
+                                if (!response.ok) {
+                                  throw new Error(`HTTP ${response.status}`)
+                                }
+                                const results = await response.json()
                                 console.log('[v0] Spotify search results:', results)
                                 setSpotifyTestResults(results)
                               } catch (error) {
