@@ -14,3 +14,5 @@ export function createClient() {
 
   return clientInstance
 }
+
+export { createClient as createBrowserClient }

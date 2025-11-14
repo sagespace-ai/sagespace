@@ -20,3 +20,7 @@ export function createClient() {
 
   return serviceRoleClient
 }
+
+export const createServiceRoleClient = createClient
+
+export const createServiceClient = createClient

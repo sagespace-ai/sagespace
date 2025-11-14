@@ -7,8 +7,17 @@ export async function GET() {
     
     // Get current user
     const { data: { user } } = await supabase.auth.getUser()
-    const userId = user?.id || 'anonymous'
     
+    if (!user) {
+      console.log('[v0] User not authenticated, cannot check Spotify status')
+      return NextResponse.json({ 
+        connected: false,
+        requiresAuth: true,
+        message: 'Please sign in to connect Spotify'
+      })
+    }
+    
+    const userId = user.id
     console.log('[v0] Checking Spotify status for user:', userId)
     
     // Check if Spotify is connected

@@ -1,10 +1,11 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from "react-hot-toast"
 import "./globals.css"
-import { CosmicDock } from "@/components/CosmicDock"
+import { CommandBar } from "@/components/navigation/CommandBar"
 import { GlobalSpotifyPlayer } from "@/components/GlobalSpotifyPlayer"
+import { CosmicBackground } from "@/components/CosmicBackground"
 
 const geistSans = Geist({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -39,11 +40,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={geistSans.variable}>
-        <CosmicDock />
-        {children}
-        <Toaster />
-        <GlobalSpotifyPlayer />
+      <body className={`${geistSans.className} bg-black text-white`}>
+        <CosmicBackground />
+        <div className="relative z-10">
+          <CommandBar />
+          {children}
+          <Toaster />
+          <GlobalSpotifyPlayer />
+        </div>
       </body>
     </html>
   )

@@ -41,6 +41,7 @@ export default function SettingsPage() {
     isExpired?: boolean
     metadata?: any
     connectedAt?: string
+    requiresAuth?: boolean // Added requiresAuth flag
   }>({ connected: false })
   const [loadingSpotify, setLoadingSpotify] = useState(false)
 
@@ -64,6 +65,10 @@ export default function SettingsPage() {
   }, [])
 
   const handleConnectSpotify = () => {
+    if (spotifyStatus.requiresAuth) {
+      window.location.href = '/auth/login?redirect=/settings?tab=integrations'
+      return
+    }
     window.location.href = '/api/spotify/auth'
   }
 
@@ -371,6 +376,14 @@ export default function SettingsPage() {
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
               <h2 className="text-2xl font-bold text-white mb-4">Connected Services</h2>
               <p className="text-gray-400 mb-6">Manage your third-party integrations</p>
+
+              {spotifyStatus.requiresAuth && (
+                <div className="mb-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                  <p className="text-yellow-400 text-sm">
+                    Please sign in to connect integrations
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-4">
                 {/* Spotify Integration */}
