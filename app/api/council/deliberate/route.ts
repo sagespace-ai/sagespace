@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createServerClient } from "@/lib/supabase/server"
 import { generateCouncilResponse } from "@/lib/ai-client"
+import { createCouncilGraph } from "@/lib/ai/orchestration/council-graph"
+import { monitoredAPIRoute } from "@/lib/self-healing/middleware"
 
-export async function POST(request: Request) {
+async function councilHandler(request: Request) {
   try {
-    const { query, agentIds } = await request.json()
+    const { query, agentIds, useOrchestration } = await request.json()
 
     if (!query) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = await createServerClient()
 
     const { data: agents, error } = await supabase
       .from("agents")
@@ -28,6 +30,38 @@ export async function POST(request: Request) {
 
     console.log("[Council API] Starting deliberation with", councilAgents.length, "agents")
 
+    if (useOrchestration) {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const graph = createCouncilGraph(
+          councilAgents.map(a => a.id),
+          user.id
+        )
+
+        const result = await graph.execute({
+          messages: [{ role: 'user', content: query }],
+          context: {
+            agentIds,
+            userId: user.id,
+          },
+        })
+
+        const lastMessage = result.messages[result.messages.length - 1]
+        
+        return NextResponse.json({
+          message: lastMessage,
+          perspectives: result.context.perspectives,
+          synthesis: result.context.synthesis,
+          metadata: {
+            errors: result.errors,
+            steps: result.metadata,
+          },
+        })
+      }
+    }
+
+    // Fallback to simple streaming mode
     const result = await generateCouncilResponse({
       messages: [{ role: "user", content: query }],
       agents: councilAgents.map((a) => ({
@@ -37,7 +71,6 @@ export async function POST(request: Request) {
       })),
     })
 
-    // Return streaming response
     return result.toUIMessageStreamResponse()
   } catch (error: any) {
     console.error("[Council API] Deliberation error:", {
@@ -54,3 +87,5 @@ export async function POST(request: Request) {
     )
   }
 }
+
+export const POST = monitoredAPIRoute(councilHandler, 'council')

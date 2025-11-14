@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Sparkles, MessageSquare, Users, BookmarkCheck, TrendingUp, Globe2, Grid3x3, Layers } from 'lucide-react'
+import { Sparkles, MessageSquare, Users, BookmarkCheck, TrendingUp, Globe2, Grid3x3, Layers, Book } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { useJourney } from "@/lib/hooks/use-journey"
 import { useNavigationState } from "@/lib/hooks/use-navigation-state"
@@ -25,6 +25,7 @@ const ROUTES = [
   { path: "/observatory", label: "Observatory", icon: TrendingUp },
   { path: "/multiverse", label: "Multiverse", icon: Globe2 },
   { path: "/marketplace", label: "Marketplace", icon: Grid3x3 },
+  { path: "/docs", label: "Docs", icon: Book },
 ]
 
 export function CommandBar() {

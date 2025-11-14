@@ -6,6 +6,7 @@ import "./globals.css"
 import { CommandBarWrapper } from "@/components/navigation/CommandBarWrapper"
 import { GlobalSpotifyPlayer } from "@/components/GlobalSpotifyPlayer"
 import { CosmicBackground } from "@/components/CosmicBackground"
+import { ObservabilityTracker } from "@/components/observability-tracker"
 
 const geistSans = Geist({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body className={`${geistSans.className} bg-black text-white`}>
         <CosmicBackground />
         <div className="relative z-10">
+          <ObservabilityTracker />
           <CommandBarWrapper />
           {children}
           <Toaster />

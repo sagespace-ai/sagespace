@@ -34,15 +34,32 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
+      if (!email || !password) {
+        throw new Error("Please enter both email and password")
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
         password,
       })
 
-      if (error) throw error
+      if (error) {
+        // Provide more helpful error messages
+        if (error.message.includes("Invalid login credentials")) {
+          throw new Error("Invalid email or password. Please check your credentials and try again.")
+        }
+        throw error
+      }
+
+      if (!data.user) {
+        throw new Error("Login failed. Please try again.")
+      }
+
+      // Successful login - redirect to demo
       router.push("/demo")
     } catch (err: any) {
-      setError(err.message || "Failed to log in")
+      console.error("[v0] Login error:", err)
+      setError(err.message || "Failed to log in. Please try again.")
     } finally {
       setLoading(false)
     }

@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
-import { User, Shield, Bell, Eye, Palette, Wrench, CreditCard, ArrowLeft, Check, Sparkles } from "@/components/icons"
+import { User, Shield, Bell, Eye, Palette, Wrench, CreditCard, ArrowLeft, Check, Sparkles, Zap, TrendingUp, XCircle, Info, Star } from "@/components/icons"
+import type { AIProposal } from "@/lib/types/personalization"
 
 export default function SettingsPage() {
   const [saveStatus, setSaveStatus] = useState<string | null>(null)
@@ -36,12 +37,22 @@ export default function SettingsPage() {
     toolBudget: 100,
   })
 
+  const [aiProposals, setAiProposals] = useState<AIProposal[]>([])
+  const [designKarma, setDesignKarma] = useState({
+    karmaPoints: 0,
+    architectLevel: 1,
+    reviewStreak: 0,
+    proposalsReviewed: 0,
+  })
+  const [loadingProposals, setLoadingProposals] = useState(false)
+  const [analyzingBehavior, setAnalyzingBehavior] = useState(false)
+
   const [spotifyStatus, setSpotifyStatus] = useState<{
     connected: boolean
     isExpired?: boolean
     metadata?: any
     connectedAt?: string
-    requiresAuth?: boolean // Added requiresAuth flag
+    requiresAuth?: boolean
   }>({ connected: false })
   const [loadingSpotify, setLoadingSpotify] = useState(false)
 
@@ -62,7 +73,144 @@ export default function SettingsPage() {
         .then(res => res.json())
         .then(data => setSpotifyStatus(data))
     }
+
+    loadAIProposals()
+    loadDesignKarma()
   }, [])
+
+  const loadAIProposals = async () => {
+    try {
+      setLoadingProposals(true)
+      const res = await fetch('/api/personalization')
+      if (res.ok) {
+        const data = await res.json()
+        setAiProposals(data.ai_proposals?.pendingChanges || [])
+      }
+    } catch (error) {
+      console.error('Failed to load AI proposals:', error)
+    } finally {
+      setLoadingProposals(false)
+    }
+  }
+
+  const loadDesignKarma = async () => {
+    try {
+      const res = await fetch('/api/design-karma')
+      if (res.ok) {
+        const data = await res.json()
+        setDesignKarma(data)
+      }
+    } catch (error) {
+      console.error('Failed to load design karma:', error)
+    }
+  }
+
+  const triggerAnalysis = async () => {
+    try {
+      setAnalyzingBehavior(true)
+      setSaveStatus('Analyzing your behavior patterns...')
+      
+      const res = await fetch('/api/dreamer/analyze', { method: 'POST' })
+      const data = await res.json()
+      
+      if (res.ok) {
+        setSaveStatus(`Generated ${data.proposalsGenerated} new suggestions!`)
+        await loadAIProposals()
+      } else {
+        setSaveStatus('Analysis failed - please try again')
+      }
+      
+      setTimeout(() => setSaveStatus(null), 3000)
+    } catch (error) {
+      console.error('Failed to trigger analysis:', error)
+      setSaveStatus('Analysis failed - please try again')
+      setTimeout(() => setSaveStatus(null), 3000)
+    } finally {
+      setAnalyzingBehavior(false)
+    }
+  }
+
+  const approveProposal = async (proposalId: string) => {
+    try {
+      console.log('[v0] [Settings] Approving proposal:', proposalId)
+      
+      const res = await fetch('/api/proposals/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ proposalId }),
+      })
+
+      const data = await res.json()
+      console.log('[v0] [Settings] Approval response:', data)
+
+      if (res.ok) {
+        setSaveStatus(`✅ Approved: ${data.proposalTitle}. Changes applied!`)
+        
+        await Promise.all([
+          loadAIProposals(),
+          loadDesignKarma()
+        ])
+        
+        console.log('[v0] [Settings] ✅ Proposal approved successfully')
+        
+        setTimeout(() => setSaveStatus(null), 5000)
+      } else {
+        console.error('[v0] [Settings] Approval failed:', data)
+        setSaveStatus(`❌ Failed to approve: ${data.error}`)
+        setTimeout(() => setSaveStatus(null), 5000)
+      }
+    } catch (error) {
+      console.error('[v0] [Settings] Failed to approve proposal:', error)
+      setSaveStatus('❌ Network error - please try again')
+      setTimeout(() => setSaveStatus(null), 5000)
+    }
+  }
+
+  const rejectProposal = async (proposalId: string, reason?: string) => {
+    try {
+      console.log('[v0] [Settings] Rejecting proposal:', proposalId, 'Reason:', reason)
+      
+      const res = await fetch('/api/proposals/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ proposalId, reason }),
+      })
+
+      const data = await res.json()
+      console.log('[v0] [Settings] Rejection response:', data)
+
+      if (res.ok) {
+        setSaveStatus('✅ Proposal rejected. AI will learn from your preference.')
+        await Promise.all([
+          loadAIProposals(),
+          loadDesignKarma()
+        ])
+        console.log('[v0] [Settings] ✅ Proposal rejected successfully')
+        setTimeout(() => setSaveStatus(null), 5000)
+      } else {
+        console.error('[v0] [Settings] Rejection failed:', data)
+        setSaveStatus(`❌ Failed to reject: ${data.error}`)
+        setTimeout(() => setSaveStatus(null), 5000)
+      }
+    } catch (error) {
+      console.error('[v0] [Settings] Failed to reject proposal:', error)
+      setSaveStatus('❌ Network error - please try again')
+      setTimeout(() => setSaveStatus(null), 5000)
+    }
+  }
+
+  const getImpactBadge = (level: string) => {
+    switch (level) {
+      case 'low':
+        return 'bg-green-500/20 text-green-400 border-green-500/30'
+      case 'medium':
+        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+      case 'high':
+        return 'bg-red-500/20 text-red-400 border-red-500/30'
+      default:
+        return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+    }
+  }
 
   const handleConnectSpotify = () => {
     if (spotifyStatus.requiresAuth) {
@@ -197,6 +345,13 @@ export default function SettingsPage() {
               <Wrench className="w-4 h-4 mr-2" />
               Integrations
             </TabsTrigger>
+            <TabsTrigger
+              value="adaptive"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-cyan-400"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Adaptive Mode
+            </TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
@@ -226,7 +381,7 @@ export default function SettingsPage() {
                     id="bio"
                     value={settings.bio}
                     onChange={(e) => setSettings({ ...settings, bio: e.target.value })}
-                    className="bg-slate-900/50 border-slate-600 text-white"
+                    className="bg-slate-900/50 border border-slate-600 text-white"
                   />
                   <p className="text-xs text-gray-500 mt-1">Tell others about yourself</p>
                 </div>
@@ -466,6 +621,166 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <span className="text-xs bg-slate-700/50 text-slate-400 px-2 py-1 rounded">Coming Soon</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Adaptive Mode Tab - AI Suggestions Console */}
+          <TabsContent value="adaptive" className="space-y-6">
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <Sparkles className="w-6 h-6 text-purple-400" />
+                    Adaptive Mode: AI Suggestions
+                  </h2>
+                  <p className="text-gray-400 mt-2">
+                    SageSpace learns how you work and suggests personalized improvements. You control what changes.
+                  </p>
+                </div>
+                <Button
+                  onClick={triggerAnalysis}
+                  disabled={analyzingBehavior}
+                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600"
+                >
+                  {analyzingBehavior ? (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Analyze My Behavior
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Design Karma Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-purple-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    <span className="text-sm text-gray-400">Karma Points</span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">{designKarma.karmaPoints}</p>
+                </div>
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-cyan-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-5 h-5 text-cyan-400" />
+                    <span className="text-sm text-gray-400">Architect Level</span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">{designKarma.architectLevel}</p>
+                </div>
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-green-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="w-5 h-5 text-green-400" />
+                    <span className="text-sm text-gray-400">Review Streak</span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">{designKarma.reviewStreak} days</p>
+                </div>
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-pink-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Check className="w-5 h-5 text-pink-400" />
+                    <span className="text-sm text-gray-400">Reviewed</span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">{designKarma.proposalsReviewed}</p>
+                </div>
+              </div>
+
+              {/* AI Proposals List */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Info className="w-5 h-5 text-cyan-400" />
+                  Pending Suggestions ({aiProposals.length})
+                </h3>
+
+                {loadingProposals ? (
+                  <div className="text-center py-8">
+                    <Sparkles className="w-8 h-8 text-purple-400 animate-spin mx-auto mb-2" />
+                    <p className="text-gray-400">Loading suggestions...</p>
+                  </div>
+                ) : aiProposals.length === 0 ? (
+                  <div className="text-center py-8 bg-slate-900/30 rounded-lg border border-slate-700/50">
+                    <Sparkles className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-400 mb-2">No suggestions yet</p>
+                    <p className="text-sm text-gray-500">
+                      Use the platform more, then click "Analyze My Behavior" to get personalized suggestions
+                    </p>
+                  </div>
+                ) : (
+                  aiProposals.map((proposal) => (
+                    <div
+                      key={proposal.id}
+                      className="bg-slate-900/50 rounded-lg border border-slate-700/50 p-5 hover:border-cyan-500/30 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="text-lg font-semibold text-white">{proposal.title}</h4>
+                            <span className={`text-xs px-2 py-1 rounded-full border ${getImpactBadge(proposal.impactLevel)}`}>
+                              {proposal.impactLevel} impact
+                            </span>
+                          </div>
+                          <p className="text-gray-400 text-sm mb-2">{proposal.description}</p>
+                          <div className="bg-cyan-500/10 border border-cyan-500/20 rounded p-3 mb-3">
+                            <p className="text-sm text-cyan-300 flex items-center gap-2">
+                              <TrendingUp className="w-4 h-4" />
+                              <span className="font-semibold">Expected Benefit:</span> {proposal.expectedBenefit}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* AI Reasoning - Collapsible */}
+                      <details className="mb-4">
+                        <summary className="text-sm text-purple-400 cursor-pointer hover:text-purple-300 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4" />
+                          Why AI recommended this
+                        </summary>
+                        <p className="text-sm text-gray-400 mt-2 pl-6 border-l-2 border-purple-500/30 ml-2">
+                          {proposal.aiReasoning}
+                        </p>
+                      </details>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-3">
+                        <Button
+                          onClick={() => approveProposal(proposal.id)}
+                          className="bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-600 hover:to-cyan-600 text-white flex-1"
+                        >
+                          <Check className="w-4 h-4 mr-2" />
+                          Approve & Apply
+                        </Button>
+                        <Button
+                          onClick={() => rejectProposal(proposal.id)}
+                          variant="outline"
+                          className="border-red-500/30 text-red-400 hover:bg-red-500/10 flex-1"
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Info Box */}
+              <div className="mt-6 bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-purple-300 mb-1">How Adaptive Mode Works</h4>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• AI analyzes your navigation, usage patterns, and preferences</li>
+                      <li>• Suggestions are filtered through safety and compliance checks</li>
+                      <li>• You review and approve all changes - nothing happens automatically</li>
+                      <li>• Earn Karma Points and level up your Architect status by reviewing proposals</li>
+                    </ul>
                   </div>
                 </div>
               </div>

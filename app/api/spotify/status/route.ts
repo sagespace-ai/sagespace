@@ -20,14 +20,13 @@ export async function GET() {
     const userId = user.id
     console.log('[v0] Checking Spotify status for user:', userId)
     
-    // Check if Spotify is connected
     const { data: integration, error } = await supabase
       .from('user_integrations')
       .select('*')
       .eq('user_id', userId)
       .eq('integration_type', 'spotify')
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
     
     if (error) {
       if (error.message.includes('user_integrations') || error.code === 'PGRST205') {
@@ -38,7 +37,7 @@ export async function GET() {
           message: 'Database migration required. Run script 004-add-spotify-integration-table.sql'
         })
       }
-      console.log('[v0] Spotify check error:', error)
+      console.log('[v0] Spotify check error:', error.message)
       return NextResponse.json({ connected: false })
     }
     
