@@ -1,1 +1,3 @@
-export { default } from '../persona-editor/page'
+import StudioPage from '../persona-editor/page'
+
+export default StudioPage

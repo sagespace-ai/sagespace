@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
   const router = useRouter()
-  const supabase = createClient()
+  // const supabase = createClient()
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -40,6 +40,7 @@ export default function LoginPage() {
 
       console.log("[v0] Attempting login for email:", email.trim())
 
+      const supabase = createClient()
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,

@@ -17,10 +17,10 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [isValidToken, setIsValidToken] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
     const checkSession = async () => {
+      const supabase = createClient()
       const { data: { session }, error } = await supabase.auth.getSession()
       
       console.log('[v0] Checking reset password session:', { hasSession: !!session, error })
@@ -35,7 +35,7 @@ export default function ResetPasswordPage() {
     }
     
     checkSession()
-  }, [supabase])
+  }, [])
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,6 +54,7 @@ export default function ResetPasswordPage() {
     setLoading(true)
 
     try {
+      const supabase = createClient()
       const { error } = await supabase.auth.updateUser({
         password: password,
       })
