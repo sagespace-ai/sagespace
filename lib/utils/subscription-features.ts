@@ -119,7 +119,7 @@ export const PLAN_DETAILS = {
     priceCents: 900,
     interval: 'month' as const,
     blurb: 'Expand your horizons with deeper insights',
-    stripePriceId: process.env.STRIPE_PRICE_VOYAGER || null,
+    stripePriceId: null, // Set via API routes on server
   },
   astral: {
     id: 'astral' as const,
@@ -128,7 +128,7 @@ export const PLAN_DETAILS = {
     priceCents: 1900,
     interval: 'month' as const,
     blurb: 'Navigate the full cosmos with unlimited access',
-    stripePriceId: process.env.STRIPE_PRICE_ASTRAL || null,
+    stripePriceId: null, // Set via API routes on server
   },
   oracle: {
     id: 'oracle' as const,
@@ -137,7 +137,7 @@ export const PLAN_DETAILS = {
     priceCents: 4900,
     interval: 'month' as const,
     blurb: 'Harness divine wisdom for teams and professionals',
-    stripePriceId: process.env.STRIPE_PRICE_ORACLE || null,
+    stripePriceId: null, // Set via API routes on server
   },
   celestial: {
     id: 'celestial' as const,
@@ -146,6 +146,6 @@ export const PLAN_DETAILS = {
     priceCents: 9900,
     interval: 'month' as const,
     blurb: 'Command the universe with enterprise power',
-    stripePriceId: process.env.STRIPE_PRICE_CELESTIAL || null,
+    stripePriceId: null, // Set via API routes on server
   },
 } as const;
