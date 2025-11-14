@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from "react-hot-toast"
 import "./globals.css"
-import { CommandBar } from "@/components/navigation/CommandBar"
+import { CommandBarWrapper } from "@/components/navigation/CommandBarWrapper"
 import { GlobalSpotifyPlayer } from "@/components/GlobalSpotifyPlayer"
 import { CosmicBackground } from "@/components/CosmicBackground"
 
@@ -43,7 +43,7 @@ export default function RootLayout({
       <body className={`${geistSans.className} bg-black text-white`}>
         <CosmicBackground />
         <div className="relative z-10">
-          <CommandBar />
+          <CommandBarWrapper />
           {children}
           <Toaster />
           <GlobalSpotifyPlayer />

@@ -709,7 +709,7 @@ export default function MemoryPage() {
                 </Link>
                 <div className="h-6 w-px bg-white/10" />
                 <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  Memory Lane
+                  Memory
                 </h1>
               </div>
 

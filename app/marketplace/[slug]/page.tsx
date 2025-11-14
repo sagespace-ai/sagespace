@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowLeftIcon, SparklesIcon, CheckIcon } from "@/components/icons"
 import { SAGE_TEMPLATES } from "@/lib/sage-templates"
-import { useParams } from "next/navigation"
+import { useParams } from 'next/navigation'
 
 export default function MarketplaceSagePage() {
   const params = useParams()
@@ -132,7 +132,7 @@ export default function MarketplaceSagePage() {
                   variant="outline"
                   className="w-full border-2 border-cyan-400/50 text-cyan-300 hover:bg-cyan-400/10 bg-transparent"
                 >
-                  Add to Sage Circle
+                  Add to Council
                 </Button>
               </Link>
             </Card>

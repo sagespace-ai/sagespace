@@ -7,12 +7,12 @@ export const APP_ROUTES = {
   // Main App
   hub: "/demo", // TODO: Migrate to /hub after updating all links
   playground: "/playground",
-  sageWatch: "/observatory",
-  sageCircle: "/council",
-  memoryLane: "/memory",
-  theFeed: "/multiverse", // TODO: Migrate to /feed
-  sageGalaxy: "/universe-map", // TODO: Migrate to /galaxy
-  sageStudio: "/persona-editor", // TODO: Migrate to /studio
+  observatory: "/observatory",
+  council: "/council",
+  memory: "/memory",
+  multiverse: "/multiverse", // TODO: Migrate to /feed
+  universeMap: "/universe-map", // TODO: Migrate to /galaxy
+  studio: "/persona-editor", // TODO: Migrate to /studio
   marketplace: "/marketplace",
   marketplaceSage: (slug: string) => `/marketplace/${slug}`,
 
@@ -29,11 +29,11 @@ export const APP_ROUTES = {
 export const ROUTE_STATUS = {
   [APP_ROUTES.hub]: { implemented: true, needsMigration: true, targetPath: "/hub" },
   [APP_ROUTES.playground]: { implemented: true, needsPreSeededSession: false },
-  [APP_ROUTES.sageWatch]: { implemented: true, needsAPI: true },
-  [APP_ROUTES.sageCircle]: { implemented: true, needsAPI: true },
-  [APP_ROUTES.memoryLane]: { implemented: true, needsAPI: true },
-  [APP_ROUTES.theFeed]: { implemented: true, needsMigration: true, targetPath: "/feed" },
-  [APP_ROUTES.sageGalaxy]: { implemented: true, needsMigration: true, targetPath: "/galaxy" },
-  [APP_ROUTES.sageStudio]: { implemented: true, needsAPI: true },
+  [APP_ROUTES.observatory]: { implemented: true, needsAPI: true },
+  [APP_ROUTES.council]: { implemented: true, needsAPI: true },
+  [APP_ROUTES.memory]: { implemented: true, needsAPI: true },
+  [APP_ROUTES.multiverse]: { implemented: true, needsMigration: true, targetPath: "/feed" },
+  [APP_ROUTES.universeMap]: { implemented: true, needsMigration: true, targetPath: "/galaxy" },
+  [APP_ROUTES.studio]: { implemented: true, needsAPI: true },
   [APP_ROUTES.marketplace]: { implemented: true, needsAPI: false },
 }

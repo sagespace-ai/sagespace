@@ -218,7 +218,7 @@ export default function ObservatoryPage() {
                 </Link>
                 <div className="h-6 w-px bg-white/10" />
                 <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Sage Watch
+                  Observatory
                 </h1>
               </div>
 
@@ -266,10 +266,10 @@ export default function ObservatoryPage() {
               className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient-x"
               style={{ backgroundSize: "300% 300%" }}
             >
-              Monitor Your AI Universe
+              Monitor Your AI Guides
             </h2>
             <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
-              Track performance, analyze activity, and optimize your specialized AI agents in real-time
+              Track performance, analyze activity, and optimize your specialized AI guides in real-time
             </p>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
@@ -282,7 +282,7 @@ export default function ObservatoryPage() {
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
                 </div>
                 <div className="text-3xl font-bold text-white mb-1">{stats.totalAgents}</div>
-                <div className="text-sm text-emerald-300">Total Sages</div>
+                <div className="text-sm text-emerald-300">Total Guides</div>
                 <div className="text-xs text-emerald-200/60 mt-2">Click for breakdown</div>
               </Card>
 
@@ -339,7 +339,7 @@ export default function ObservatoryPage() {
                       : "bg-slate-800/50 text-cyan-400 border border-cyan-500/50 hover:bg-cyan-500/10"
                   }`}
                 >
-                  All Sages ({stats.totalAgents})
+                  All Guides ({stats.totalAgents})
                 </button>
                 {domains.map((domain) => (
                   <button
@@ -456,12 +456,12 @@ export default function ObservatoryPage() {
                 <div className="flex gap-2">
                   <span>📊</span>
                   <span className="text-slate-300">
-                    Monitor response times to identify which sages are most efficient
+                    Monitor response times to identify which guides are most efficient
                   </span>
                 </div>
                 <div className="flex gap-2">
                   <span>🎯</span>
-                  <span className="text-slate-300">Check interaction counts to see which sages are most popular</span>
+                  <span className="text-slate-300">Check interaction counts to see which guides are most popular</span>
                 </div>
                 <div className="flex gap-2">
                   <span>⚡</span>
@@ -504,7 +504,7 @@ export default function ObservatoryPage() {
               <div>
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <SparklesIcon className="w-5 h-5 text-cyan-400" />
-                  How This Sage Helps You
+                  How This Guide Helps You
                 </h3>
                 <div className="grid md:grid-cols-3 gap-4">
                   <Card className="bg-cyan-500/10 border-2 border-cyan-500/30 p-4">
@@ -779,7 +779,7 @@ export default function ObservatoryPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                 {selectedMetric === "total" && "Sage Universe Overview"}
-                {selectedMetric === "active" && "Active Sage Analytics"}
+                {selectedMetric === "active" && "Active Guide Analytics"}
                 {selectedMetric === "interactions" && "Interaction Timeline"}
                 {selectedMetric === "performance" && "Performance Insights"}
               </h2>
@@ -813,7 +813,7 @@ export default function ObservatoryPage() {
                   ))}
                 </div>
                 <p className="text-slate-300 text-center mt-6">
-                  Your AI universe is growing! {stats.totalAgents} specialized sages ready to assist across all domains.
+                  Your AI universe is growing! {stats.totalAgents} specialized guides ready to assist across all domains.
                 </p>
               </div>
             )}
@@ -822,7 +822,7 @@ export default function ObservatoryPage() {
               <div className="space-y-6">
                 <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 p-6">
                   <div className="text-5xl font-bold text-emerald-400 mb-2">{stats.activeAgents}</div>
-                  <div className="text-slate-300">Sages actively processing requests right now</div>
+                  <div className="text-slate-300">Guides actively processing requests right now</div>
                   <div className="mt-4 flex items-center gap-2 text-sm text-emerald-300">
                     <TrendingUpIcon className="w-4 h-4" />
                     <span>18% increase in the last hour</span>
@@ -855,13 +855,13 @@ export default function ObservatoryPage() {
                   <div className="text-5xl font-bold text-purple-400 mb-2">
                     {stats.totalInteractions.toLocaleString()}
                   </div>
-                  <div className="text-slate-300">Total interactions across all sages</div>
+                  <div className="text-slate-300">Total interactions across all guides</div>
                   <div className="mt-4 text-sm text-purple-300">
                     🎉 Achievement Unlocked: Reached 5,000+ interactions!
                   </div>
                 </Card>
                 <div className="space-y-3">
-                  <div className="text-sm font-semibold text-white mb-2">Top Performing Sages (Last 24h)</div>
+                  <div className="text-sm font-semibold text-white mb-2">Top Performing Guides (Last 24h)</div>
                   {[...Array(5)].map((_, i) => (
                     <div
                       key={i}
@@ -884,7 +884,7 @@ export default function ObservatoryPage() {
               <div className="space-y-6">
                 <Card className="bg-gradient-to-br from-orange-500/10 to-yellow-500/10 border border-orange-500/30 p-6">
                   <div className="text-5xl font-bold text-orange-400 mb-2">{stats.avgResponseTime}ms</div>
-                  <div className="text-slate-300">Average response time across all sages</div>
+                  <div className="text-slate-300">Average response time across all guides</div>
                   <div className="mt-4 flex items-center gap-2 text-sm text-emerald-300">
                     <ZapIcon className="w-4 h-4" />
                     <span>15% faster than last week</span>

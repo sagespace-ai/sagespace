@@ -328,7 +328,7 @@ export default function PlaygroundPage() {
                 </Link>
                 <div className="h-6 w-px bg-white/10" />
                 <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  your Playground
+                  Playground
                 </h1>
               </div>
 
@@ -377,9 +377,9 @@ export default function PlaygroundPage() {
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { id: "single" as SageMode, emoji: "👤", label: "Single Sage", desc: "One-on-one guidance" },
-                    { id: "circle" as SageMode, emoji: "⭕", label: "Sage Circle", desc: "3 perspectives" },
-                    { id: "duel" as SageMode, emoji: "⚔️", label: "Sage Duel", desc: "Debate 2 views" },
+                    { id: "single" as SageMode, emoji: "👤", label: "Single Guide", desc: "One-on-one guidance" },
+                    { id: "circle" as SageMode, emoji: "⭕", label: "Guide Council", desc: "3 perspectives" },
+                    { id: "duel" as SageMode, emoji: "⚔️", label: "Duel", desc: "Debate 2 views" },
                     { id: "council" as SageMode, emoji: "🏛️", label: "Grand Council", desc: "5+ expert panel" },
                   ].map((mode) => (
                     <button
@@ -454,7 +454,7 @@ export default function PlaygroundPage() {
                 className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold py-6 rounded-xl shadow-lg shadow-purple-500/50 disabled:opacity-50"
               >
                 <SearchIcon className="w-5 h-5 mr-2" />
-                Discover Perfect Sage{selectedMode !== "single" && "s"}
+                Discover Perfect Guide{selectedMode !== "single" ? "s" : ""}
               </Button>
 
               {/* Recommendations List */}
@@ -546,7 +546,7 @@ export default function PlaygroundPage() {
                       </div>
                       <div>
                         <h3 className="font-bold text-white">
-                          {selectedSages.length === 1 ? selectedSages[0].name : `${selectedSages.length} Sages`}
+                          {selectedSages.length === 1 ? selectedSages[0].name : `${selectedSages.length} Guides`}
                         </h3>
                         <div className="flex items-center gap-2 text-xs text-slate-300">
                           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
@@ -667,9 +667,9 @@ export default function PlaygroundPage() {
               <div className="flex-1 flex items-center justify-center p-6">
                 <div className="text-center max-w-md">
                   <div className="text-6xl mb-6 animate-pulse">🔮</div>
-                  <h3 className="text-2xl font-bold text-white mb-3">Welcome to your Playground</h3>
+                  <h3 className="text-2xl font-bold text-white mb-3">Welcome to Playground</h3>
                   <p className="text-slate-400 mb-6">
-                    Select a mode, choose your mood, and discover the perfect Sage companions to help you learn, grow,
+                    Select a mode, choose your mood, and discover the perfect Guide companions to help you learn, grow,
                     and achieve your goals.
                   </p>
                   <div className="text-sm text-slate-500">👈 Use the selector on the left to get started</div>

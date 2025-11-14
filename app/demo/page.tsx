@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { HomeIcon, UserIcon, TrendingUpIcon, ZapIcon, AwardIcon, ActivityIcon } from "@/components/icons"
 
 export default function AgentUniverseHub() {
@@ -80,8 +80,8 @@ export default function AgentUniverseHub() {
     },
     {
       href: "/observatory",
-      title: "Sage Watch",
-      description: "Discover trending sages and see what's popular",
+      title: "Observatory",
+      description: "Discover trending guides and see what's popular",
       gradient: "from-purple-500 to-pink-500",
       hoverGradient: "from-purple-400 to-pink-400",
       stats: "Live Now: 300",
@@ -110,11 +110,11 @@ export default function AgentUniverseHub() {
     },
     {
       href: "/council",
-      title: "Sage Circle",
-      description: "Get diverse perspectives from multiple sages",
+      title: "Council",
+      description: "Get diverse perspectives from multiple guides",
       gradient: "from-emerald-500 to-teal-500",
       hoverGradient: "from-emerald-400 to-teal-400",
-      stats: "Circles: 89",
+      stats: "Councils: 89",
       delay: "0.2s",
       animatedIcon: (
         <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
@@ -134,7 +134,7 @@ export default function AgentUniverseHub() {
     },
     {
       href: "/memory",
-      title: "Memory Lane",
+      title: "Memory",
       description: "Revisit your favorite conversations and insights",
       gradient: "from-orange-500 to-red-500",
       hoverGradient: "from-orange-400 to-red-400",
@@ -158,8 +158,8 @@ export default function AgentUniverseHub() {
     },
     {
       href: "/multiverse",
-      title: "The Feed",
-      description: "Explore trending sage conversations and discoveries",
+      title: "Multiverse",
+      description: "Explore trending guide conversations and discoveries",
       gradient: "from-indigo-500 to-purple-500",
       hoverGradient: "from-indigo-400 to-purple-400",
       stats: "Trending: 34",
@@ -191,8 +191,8 @@ export default function AgentUniverseHub() {
     },
     {
       href: "/universe-map",
-      title: "Sage Universe",
-      description: "Navigate through an immersive universe of sages",
+      title: "Universe Map",
+      description: "Navigate through an immersive universe of guides",
       gradient: "from-pink-500 to-rose-500",
       hoverGradient: "from-pink-400 to-rose-400",
       stats: "Exploring: 892",
@@ -223,11 +223,11 @@ export default function AgentUniverseHub() {
     },
     {
       href: "/persona-editor",
-      title: "Sage Studio",
+      title: "Studio",
       description: "Create your own custom AI companions with unique personalities",
       gradient: "from-yellow-500 to-amber-500",
       hoverGradient: "from-yellow-400 to-amber-400",
-      stats: "Your Sages: 12",
+      stats: "Your Guides: 12",
       delay: "0.6s",
       animatedIcon: (
         <div className="relative w-16 h-16 mb-4 mx-auto flex items-center justify-center">
@@ -252,7 +252,7 @@ export default function AgentUniverseHub() {
     },
     {
       href: "/multiverse",
-      title: "Browse Sages",
+      title: "Browse Guides",
       description: "Discover 300+ specialized AI companions by expertise",
       gradient: "from-cyan-500 to-purple-500",
       hoverGradient: "from-cyan-400 to-purple-400",
@@ -398,7 +398,7 @@ export default function AgentUniverseHub() {
         <main className="container mx-auto px-4 py-12">
           <section className="mb-16 text-center animate-fade-in">
             <div className="inline-block px-6 py-2 bg-green-500/20 border border-green-500/50 rounded-full text-green-300 text-sm font-medium mb-6 animate-pulse">
-              🟢 {stats.activeNow} Sages Active Now
+              🟢 {stats.activeNow} Guides Active Now
             </div>
             <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
               <span
@@ -415,8 +415,8 @@ export default function AgentUniverseHub() {
               </span>
             </h2>
             <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-8 leading-relaxed">
-              Connect with <span className="text-cyan-400 font-semibold">{stats.totalAgents} specialized AI sages</span>
-              , get collaborative wisdom from sage circles, and discover insights shared by the community
+              Connect with <span className="text-cyan-400 font-semibold">{stats.totalAgents} specialized AI guides</span>
+              , get collaborative wisdom from the Council, and discover insights shared by the community
             </p>
             <div className="flex flex-wrap items-center justify-center gap-6 mb-12">
               <div className="px-6 py-3 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl backdrop-blur">
@@ -429,7 +429,7 @@ export default function AgentUniverseHub() {
               <div className="px-6 py-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl backdrop-blur">
                 <div className="flex items-center gap-2 mb-1">
                   <ActivityIcon className="w-4 h-4 text-purple-400" />
-                  <span className="text-xs text-slate-400 uppercase tracking-wide">Active Sages</span>
+                  <span className="text-xs text-slate-400 uppercase tracking-wide">Active Guides</span>
                 </div>
                 <div className="text-2xl font-bold text-white">{stats.totalAgents}</div>
               </div>
@@ -450,7 +450,7 @@ export default function AgentUniverseHub() {
             </div>
             <div className="text-sm text-slate-400 flex items-center justify-center gap-2">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span>All systems operational · {stats.activeNow} sages ready to assist</span>
+              <span>All systems operational · {stats.activeNow} guides ready to assist</span>
             </div>
           </section>
           <section>
@@ -514,7 +514,7 @@ export default function AgentUniverseHub() {
                     <div>
                       <h4 className="font-semibold text-white mb-1">Start a Conversation</h4>
                       <p className="text-sm text-slate-300">
-                        Head to the Playground and chat with any sage that fits your needs
+                        Head to the Playground and chat with any guide that fits your needs
                       </p>
                     </div>
                   </div>
@@ -523,14 +523,14 @@ export default function AgentUniverseHub() {
                     <div>
                       <h4 className="font-semibold text-white mb-1">Get Multiple Perspectives</h4>
                       <p className="text-sm text-slate-300">
-                        Use Sage Circle to consult multiple experts and get well-rounded advice
+                        Use Council to consult multiple experts and get well-rounded advice
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="text-2xl">🌊</div>
                     <div>
-                      <h4 className="font-semibold text-white mb-1">Explore The Feed</h4>
+                      <h4 className="font-semibold text-white mb-1">Explore The Multiverse</h4>
                       <p className="text-sm text-slate-300">
                         See what conversations others are having and discover new insights
                       </p>
@@ -539,9 +539,9 @@ export default function AgentUniverseHub() {
                   <div className="flex gap-3">
                     <div className="text-2xl">⚡</div>
                     <div>
-                      <h4 className="font-semibold text-white mb-1">Create Your Own Sage</h4>
+                      <h4 className="font-semibold text-white mb-1">Create Your Own Guide</h4>
                       <p className="text-sm text-slate-300">
-                        Design a custom AI companion in Sage Studio tailored to your unique needs
+                        Design a custom AI companion in Studio tailored to your unique needs
                       </p>
                     </div>
                   </div>
@@ -590,7 +590,7 @@ export default function AgentUniverseHub() {
                     className="text-lg px-10 py-6 relative group overflow-hidden bg-black/50 backdrop-blur border-2 border-purple-500/50 hover:border-cyan-400 text-white transition-all duration-500 shadow-xl hover:shadow-purple-500/50 hover:scale-105"
                   >
                     <span className="relative z-10 flex items-center gap-3">
-                      <span>Explore Sage Universe</span>
+                      <span>Explore Universe</span>
                       <span className="text-xl">🌌</span>
                     </span>
                   </Button>
