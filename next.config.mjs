@@ -9,9 +9,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  webpack: (config, { isServer }) => {
-    return config;
-  },
+  turbopack: {},
   poweredByHeader: false,
   compress: true,
   async headers() {
