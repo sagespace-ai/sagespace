@@ -8,6 +8,7 @@ import { ObservabilityCollector } from '@/lib/ai/observability'
 import { GovernanceChecker, type GovernanceContext } from '@/lib/governance/policy'
 import { UXTemplateLibrary, PAGE_CLASSIFICATION, PageType } from '@/lib/ai/uxTemplates'
 import { ProposalScoring, type UserPattern, type SemanticProfile } from '@/lib/ai/scoring'
+import { SemanticAnalyzer } from '@/lib/ai/semantic-analyzer'
 import type { 
   AIProposal, 
   UserPersonalization, 
@@ -46,16 +47,18 @@ export class DreamerSystem {
         successPatterns: successSignals,
       }
 
+      const personalization = await this.getUserPersonalization(userId)
+      const previousTopics = personalization?.memorySummary?.favoriteFeatures || []
+      
+      const semanticAnalysis = await SemanticAnalyzer.analyze(events, previousTopics)
+
       const semanticProfile: SemanticProfile = {
-        dominantTopics: [], // TODO: Add semantic analysis with embeddings
+        dominantTopics: semanticAnalysis.dominantTopics,
         preferredMoods: this.extractPreferredMoods(events),
         sageAffinities: userPattern.preferredSages,
-        queryComplexity: 'moderate', // TODO: Analyze query complexity
+        queryComplexity: semanticAnalysis.queryComplexity,
         averageSessionLength: this.calculateAverageSessionLength(events),
       }
-
-      // 3. Get user's current personalization context
-      const personalization = await this.getUserPersonalization(userId)
 
       const uxTemplates = new UXTemplateLibrary()
       const scoring = new ProposalScoring()
