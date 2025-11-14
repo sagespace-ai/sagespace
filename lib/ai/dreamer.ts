@@ -6,6 +6,8 @@ import { createServiceClient } from '@/lib/supabase/service-role'
 import { generateChatResponseSync } from '@/lib/ai-client'
 import { ObservabilityCollector } from '@/lib/ai/observability'
 import { GovernanceChecker, type GovernanceContext } from '@/lib/governance/policy'
+import { UXTemplateLibrary, PAGE_CLASSIFICATION, PageType } from '@/lib/ai/uxTemplates'
+import { ProposalScoring, type UserPattern, type SemanticProfile } from '@/lib/ai/scoring'
 import type { 
   AIProposal, 
   UserPersonalization, 
@@ -36,21 +38,94 @@ export class DreamerSystem {
       const timeOnPage = this.calculateTimeOnPage(events)
       const successSignals = this.identifySuccessSignals(events)
 
+      const userPattern: UserPattern = {
+        frequentPages: this.calculatePageFrequency(events),
+        preferredSages: this.extractPreferredSages(events),
+        commonTransitions: navigationPatterns,
+        frictionPoints,
+        successPatterns: successSignals,
+      }
+
+      const semanticProfile: SemanticProfile = {
+        dominantTopics: [], // TODO: Add semantic analysis with embeddings
+        preferredMoods: this.extractPreferredMoods(events),
+        sageAffinities: userPattern.preferredSages,
+        queryComplexity: 'moderate', // TODO: Analyze query complexity
+        averageSessionLength: this.calculateAverageSessionLength(events),
+      }
+
       // 3. Get user's current personalization context
       const personalization = await this.getUserPersonalization(userId)
 
-      // 4. Generate proposals using AI
-      const rawProposals = await this.generateProposals({
-        userId,
-        navigationPatterns,
-        frictionPoints,
-        timeOnPage,
-        successSignals,
-        memorySummary: personalization?.memorySummary || this.getDefaultMemorySummary(),
-        currentPreferences: personalization?.uxPreferences || {},
-      })
+      const uxTemplates = new UXTemplateLibrary()
+      const scoring = new ProposalScoring()
+      const rawProposals: AIProposal[] = []
 
-      // 5. Filter proposals through governance layer
+      // Template 1: Navigation shortcuts for frequent transitions
+      const topTransitions = navigationPatterns.slice(0, 3)
+      for (const transition of topTransitions) {
+        if (transition.count >= 5) { // Only if user does this frequently
+          const proposal = await uxTemplates.navigationShortcut({
+            from: transition.fromPage,
+            to: transition.toPage,
+            visitCount: transition.count,
+            reason: `You navigate from ${transition.fromPage} to ${transition.toPage} ${transition.count} times, making it one of your most common paths.`
+          })
+          rawProposals.push(proposal)
+        }
+      }
+
+      // Template 2: Sage recommendations
+      if (userPattern.preferredSages.length > 0) {
+        const proposal = await uxTemplates.sageRecommendation({
+          sageNames: userPattern.preferredSages.slice(0, 3),
+          reason: `Based on your conversation history, these are your most-used Sages.`,
+          usageCount: userPattern.preferredSages.length * 5, // Estimate
+        })
+        rawProposals.push(proposal)
+      }
+
+      // Template 10: Memory filters if user has many conversations
+      const memoryVisits = userPattern.frequentPages.find(p => p.page === '/memory')
+      if (memoryVisits && memoryVisits.visitRate > 0.1) {
+        const proposal = await uxTemplates.memoryFilter({
+          filterType: 'sage',
+          reason: 'You frequently visit Memory. Adding filters would help you find conversations faster.',
+          conversationCount: 10, // TODO: Get actual count
+        })
+        rawProposals.push(proposal)
+      }
+
+      // Template 11: Error prevention for friction points
+      const topFriction = frictionPoints.slice(0, 2)
+      for (const friction of topFriction) {
+        if (friction.count >= 3) {
+          const proposal = await uxTemplates.errorAvoidance({
+            errorType: 'User Flow Interruption',
+            page: friction.page,
+            preventionStrategy: `Add clearer guidance or validation for ${friction.component}`,
+            reason: `You've encountered issues with ${friction.component} on ${friction.page} ${friction.count} times.`,
+            occurrenceCount: friction.count,
+          })
+          rawProposals.push(proposal)
+        }
+      }
+
+      const scoredProposals = rawProposals.map(proposal => ({
+        ...proposal,
+        metadata: {
+          ...proposal.metadata,
+          score: scoring.calculate(proposal, userPattern, semanticProfile)
+        }
+      }))
+
+      const qualityProposals = scoredProposals.filter(p => 
+        (p.metadata?.score || 0) >= 50
+      )
+
+      console.log('[Dreamer] Generated', rawProposals.length, 'proposals,', qualityProposals.length, 'passed scoring threshold')
+
+      // 7. Filter proposals through governance layer
       const governanceContext: GovernanceContext = {
         userId,
         currentPreferences: personalization?.uxPreferences || {},
@@ -60,7 +135,7 @@ export class DreamerSystem {
 
       const approvedProposals: AIProposal[] = []
       
-      for (const proposal of rawProposals) {
+      for (const proposal of qualityProposals) {
         // Sanitize proposal first
         const sanitized = GovernanceChecker.sanitizeProposal(proposal)
         
@@ -81,11 +156,11 @@ export class DreamerSystem {
         }
       }
 
-      // 6. Save approved proposals to database
+      // 8. Save approved proposals to database
       const savedProposals = await this.saveProposals(userId, approvedProposals)
 
       console.log('[Dreamer] Generated', savedProposals.length, 'approved proposals for user:', userId)
-      return savedProposals // Return proposals with correct IDs
+      return savedProposals
     } catch (error) {
       console.error('[Dreamer] Error analyzing user:', error)
       return []
@@ -535,5 +610,57 @@ Based on this data, what UX improvements would benefit this specific user?`
     } catch (error) {
       console.error('[Dreamer] Error logging blocked proposal:', error)
     }
+  }
+
+  private static calculatePageFrequency(events: ObservabilityEvent[]): Array<{ page: string; visitRate: number }> {
+    const pageViews = events.filter(e => e.eventType === 'page_view')
+    const total = pageViews.length
+    const pageCounts: Record<string, number> = {}
+
+    pageViews.forEach(e => {
+      const page = e.pagePath || 'unknown'
+      pageCounts[page] = (pageCounts[page] || 0) + 1
+    })
+
+    return Object.entries(pageCounts)
+      .map(([page, count]) => ({
+        page,
+        visitRate: count / total
+      }))
+      .sort((a, b) => b.visitRate - a.visitRate)
+  }
+
+  private static extractPreferredMoods(events: ObservabilityEvent[]): string[] {
+    const moods = events
+      .filter(e => e.metadata?.mood)
+      .map(e => e.metadata!.mood)
+    
+    const moodCounts: Record<string, number> = {}
+    moods.forEach(mood => {
+      moodCounts[mood] = (moodCounts[mood] || 0) + 1
+    })
+
+    return Object.entries(moodCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([mood]) => mood)
+  }
+
+  private static calculateAverageSessionLength(events: ObservabilityEvent[]): number {
+    // Calculate based on time between first and last event per day
+    const eventsByDay: Record<string, ObservabilityEvent[]> = {}
+    
+    events.forEach(e => {
+      const day = new Date(e.createdAt).toDateString()
+      if (!eventsByDay[day]) eventsByDay[day] = []
+      eventsByDay[day].push(e)
+    })
+
+    const sessionLengths = Object.values(eventsByDay).map(dayEvents => {
+      const times = dayEvents.map(e => new Date(e.createdAt).getTime()).sort()
+      return (times[times.length - 1] - times[0]) / 1000 / 60 // minutes
+    })
+
+    return sessionLengths.reduce((sum, len) => sum + len, 0) / sessionLengths.length || 0
   }
 }

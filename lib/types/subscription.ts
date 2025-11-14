@@ -1,4 +1,4 @@
-export type SubscriptionPlanId = 'free' | 'pro' | 'enterprise';
+export type SubscriptionPlanId = 'explorer' | 'voyager' | 'astral' | 'oracle' | 'celestial';
 export type SubscriptionStatus = 'active' | 'cancelled' | 'past_due' | 'trialing';
 
 export interface FeatureFlags {
@@ -42,7 +42,9 @@ export interface PlanDetails {
 export interface SubscriptionWithFeatures {
   subscription: UserSubscription;
   features: FeatureFlags;
-  isPro: boolean;
-  isEnterprise: boolean;
-  isFree: boolean;
+  isExplorer: boolean;
+  isVoyager: boolean;
+  isAstral: boolean;
+  isOracle: boolean;
+  isCelestial: boolean;
 }

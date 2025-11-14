@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { SubscriptionWithFeatures } from '@/lib/types/subscription';
+import { getFeaturesForPlan } from '@/lib/utils/subscription-features';
 
 export function useSubscription() {
   const [data, setData] = useState<SubscriptionWithFeatures | null>(null);
@@ -18,41 +19,31 @@ export function useSubscription() {
       const res = await fetch('/api/subscriptions/me');
       
       if (!res.ok) {
-        console.log('[v0] Subscription API returned error, using default free plan');
+        console.log('[v0] Subscription API returned error, using default explorer plan');
       }
       
       const subscriptionData = await res.json();
       setData(subscriptionData);
       setError(null);
     } catch (err) {
-      console.log('[v0] Error loading subscription, using default free plan:', err);
+      console.log('[v0] Error loading subscription, using default explorer plan:', err);
       const defaultSub: SubscriptionWithFeatures = {
         subscription: {
-          id: 'default-free',
+          id: 'default-explorer',
           userId: 'unknown',
-          planId: 'free',
+          planId: 'explorer',
           status: 'active',
           currentPeriodEnd: null,
           cancelAtPeriodEnd: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
-        features: {
-          maxSages: 1,
-          maxConversations: 10,
-          maxMessages: 100,
-          hasCouncil: false,
-          hasMemory: false,
-          hasPersonaEditor: false,
-          hasMultiverse: false,
-          hasMarketplace: false,
-          hasTeamFeatures: false,
-          hasPrioritySupport: false,
-          hasAdvancedAnalytics: false,
-        },
-        isPro: false,
-        isEnterprise: false,
-        isFree: true,
+        features: getFeaturesForPlan('explorer'),
+        isExplorer: true,
+        isVoyager: false,
+        isAstral: false,
+        isOracle: false,
+        isCelestial: false,
       };
       setData(defaultSub);
       setError(null);
@@ -84,9 +75,11 @@ export function useSubscription() {
   return {
     subscription: data?.subscription,
     features: data?.features,
-    isPro: data?.isPro ?? false,
-    isEnterprise: data?.isEnterprise ?? false,
-    isFree: data?.isFree ?? true,
+    isExplorer: data?.isExplorer ?? true,
+    isVoyager: data?.isVoyager ?? false,
+    isAstral: data?.isAstral ?? false,
+    isOracle: data?.isOracle ?? false,
+    isCelestial: data?.isCelestial ?? false,
     isLoading,
     error,
     changePlan,

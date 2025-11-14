@@ -17,7 +17,6 @@ export function PlatformNav({ currentPage, userStats }: PlatformNavProps) {
   const defaultStats = { level: 7, xp: 2850, activeNow: 47 }
   const stats = userStats || defaultStats
 
-  const isHubPage = currentPage === "hub"
 
   return (
     <header className="border-b border-white/10 backdrop-blur-md bg-black/50 sticky top-0 z-50">
@@ -30,19 +29,6 @@ export function PlatformNav({ currentPage, userStats }: PlatformNavProps) {
                 <span className="hidden sm:inline">Home</span>
               </Button>
             </Link>
-
-            {!isHubPage && (
-              <>
-                <div className="h-8 w-px bg-white/10" />
-                <Link href="/hub">
-                  <Button variant="ghost" size="sm" className="text-slate-300 hover:text-cyan-400 transition-colors">
-                    <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">
-                      Hub
-                    </span>
-                  </Button>
-                </Link>
-              </>
-            )}
           </div>
 
           <div className="flex items-center gap-4">

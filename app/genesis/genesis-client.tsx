@@ -10,6 +10,7 @@ import { useSubscription } from '@/lib/hooks/use-subscription'
 import { PLAN_DETAILS } from '@/lib/utils/subscription-features'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { AnimatedLogo } from '@/components/branding/AnimatedLogo'
 
 export function GenesisClient() {
   const [loading, setLoading] = useState(true)
@@ -53,11 +54,7 @@ export function GenesisClient() {
   if (loading || subLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="h-12 w-12 border-4 border-purple-500 border-t-transparent rounded-full"
-        />
+        <AnimatedLogo size="lg" />
       </div>
     )
   }

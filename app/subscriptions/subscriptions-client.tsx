@@ -2,72 +2,111 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, CreditCard, Check, Sparkles, Zap, Crown, Lock, Loader2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowLeft, CreditCard, Check, Sparkles, Zap, Crown, Rocket, Star, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useSubscription } from '@/lib/hooks/use-subscription'
-import { getFeaturesForPlan, PLAN_DETAILS } from '@/lib/utils/subscription-features'
+import { PLAN_DETAILS } from '@/lib/utils/subscription-features'
 import { useToast } from '@/hooks/use-toast'
 
 const PLAN_FEATURES = {
-  free: [
-    'Full Genesis Chamber access',
+  explorer: [
     'Origin Sage companion',
-    '3 rotating Discovery Sages',
+    '3 rotating Discovery Sages weekly',
     '75 messages per day',
     '7-day memory history',
     '20 saved artifacts',
+    '2-Sage Council sessions',
     'Basic insights dashboard',
     'Community support',
   ],
-  pro: [
+  voyager: [
+    '50 curated Sages',
+    '10 rotating weekly',
+    '500 messages per day',
+    '30-day memory retention',
+    '100 saved artifacts',
+    '4-Sage Council sessions',
+    '10 councils per day',
+    'Advanced insights',
+    'Priority support',
+  ],
+  astral: [
     'All 300+ Sages unlocked',
     'Unlimited messages',
     'Full memory history',
-    'Unlimited council size (6 Sages)',
+    '6-Sage councils',
     'Unlimited council sessions',
     '500 saved artifacts',
-    'Advanced insights & analytics',
     'Custom Sage creation',
     'Automation & routines',
-    'Priority support',
+    'Premium support',
   ],
-  enterprise: [
-    'Everything in Pro',
+  oracle: [
+    'Everything in Astral',
+    '10-Sage mega councils',
+    '2,000 saved artifacts',
     'Team workspaces',
     'API access',
-    'SSO & role-based access',
-    'White-label branding',
-    'Governance controls',
+    'Advanced analytics',
     'Custom integrations',
-    'Dedicated support & SLAs',
+    'Dedicated support',
+  ],
+  celestial: [
+    'Everything in Oracle',
+    'Unlimited council size',
+    'Unlimited artifacts',
+    'White-label branding',
+    'SSO & enterprise auth',
+    'Governance controls',
+    'Custom model training',
+    'SLA guarantees',
   ],
 }
 
 const PLAN_CONFIG = [
   {
-    id: 'free' as const,
+    id: 'explorer' as const,
     name: 'Genesis Explorer',
     headline: '$0 / forever',
     icon: Sparkles,
-    features: PLAN_FEATURES.free,
+    gradient: 'from-slate-600 to-slate-500',
+    features: PLAN_FEATURES.explorer,
   },
   {
-    id: 'pro' as const,
+    id: 'voyager' as const,
     name: 'Sage Voyager',
     headline: '$9 / month',
-    icon: Zap,
-    features: PLAN_FEATURES.pro,
+    icon: Rocket,
+    gradient: 'from-cyan-600 to-blue-600',
+    features: PLAN_FEATURES.voyager,
     popular: true,
   },
   {
-    id: 'enterprise' as const,
-    name: 'Council Architect',
+    id: 'astral' as const,
+    name: 'Astral Navigator',
+    headline: '$19 / month',
+    icon: Zap,
+    gradient: 'from-purple-600 to-pink-600',
+    features: PLAN_FEATURES.astral,
+  },
+  {
+    id: 'oracle' as const,
+    name: 'Cosmic Oracle',
     headline: '$49 / month',
     icon: Crown,
-    features: PLAN_FEATURES.enterprise,
+    gradient: 'from-amber-600 to-orange-600',
+    features: PLAN_FEATURES.oracle,
+  },
+  {
+    id: 'celestial' as const,
+    name: 'Celestial Architect',
+    headline: '$99 / month',
+    icon: Star,
+    gradient: 'from-violet-600 via-fuchsia-600 to-pink-600',
+    features: PLAN_FEATURES.celestial,
   },
 ]
 
@@ -146,7 +185,7 @@ export function SubscriptionsPageClient() {
     )
   }
 
-  const currentPlanId = subscription?.planId || 'free'
+  const currentPlanId = subscription?.planId || 'explorer'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white pt-20 pb-12">
@@ -165,16 +204,16 @@ export function SubscriptionsPageClient() {
           
           <div className="space-y-2">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Subscriptions
+              Choose Your Cosmic Path
             </h1>
             <p className="text-slate-300 text-lg">
-              Choose the plan that fits your wisdom-seeking journey
+              From free exploration to enterprise mastery - find your perfect tier
             </p>
           </div>
         </div>
 
         {/* Plan Cards */}
-        <div className="grid gap-6 lg:grid-cols-3 mb-8">
+        <div className="grid gap-6 lg:grid-cols-3 xl:grid-cols-5 mb-8">
           {PLAN_CONFIG.map((plan) => {
             const Icon = plan.icon
             const isCurrent = plan.id === currentPlanId
@@ -187,8 +226,8 @@ export function SubscriptionsPageClient() {
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                    <div className="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full text-sm font-semibold shadow-lg">
-                      Most Popular
+                    <div className={`px-4 py-1.5 bg-gradient-to-r ${plan.gradient} rounded-full text-sm font-semibold shadow-lg`}>
+                      Popular
                     </div>
                   </div>
                 )}
@@ -196,15 +235,14 @@ export function SubscriptionsPageClient() {
                 <Card 
                   className={`h-full transition-all ${
                     isCurrent 
-                      ? 'bg-gradient-to-br from-purple-900/40 to-cyan-900/40 border-purple-400 shadow-lg shadow-purple-500/20' 
+                      ? `bg-gradient-to-br from-purple-900/40 to-cyan-900/40 border-2 border-gradient-to-r ${plan.gradient} shadow-lg` 
                       : 'bg-slate-900/50 border-purple-500/20 hover:border-purple-400/40'
-                  } ${plan.popular && !isCurrent ? 'border-purple-500' : ''}`}
+                  }`}
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <Icon className={`h-6 w-6 ${isCurrent ? 'text-cyan-400' : 'text-purple-400'}`} />
-                        <CardTitle className="text-xl">{plan.name}</CardTitle>
+                      <div className={`p-2 rounded-lg bg-gradient-to-br ${plan.gradient}`}>
+                        <Icon className="h-5 w-5 text-white" />
                       </div>
                       {isCurrent && (
                         <div className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded-full border border-cyan-400/30">
@@ -212,17 +250,18 @@ export function SubscriptionsPageClient() {
                         </div>
                       )}
                     </div>
-                    <div className="flex items-end gap-1">
-                      <span className="text-4xl font-bold">{plan.headline.split(' / ')[0]}</span>
-                      <span className="text-slate-400 mb-1 text-sm">/ {plan.headline.split(' / ')[1]}</span>
+                    <CardTitle className="text-lg">{plan.name}</CardTitle>
+                    <div className="flex flex-col">
+                      <span className="text-3xl font-bold">{plan.headline.split(' / ')[0]}</span>
+                      <span className="text-slate-400 text-sm">/ {plan.headline.split(' / ')[1]}</span>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <ul className="space-y-3">
+                    <ul className="space-y-2">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-slate-300">{feature}</span>
+                          <span className="text-xs text-slate-300">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -231,14 +270,12 @@ export function SubscriptionsPageClient() {
                       className={`w-full ${
                         isCurrent
                           ? 'bg-gradient-to-r from-purple-600/50 to-cyan-600/50 cursor-default'
-                          : plan.popular
-                          ? 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500'
-                          : 'bg-slate-800 hover:bg-slate-700 border border-purple-500/20'
+                          : `bg-gradient-to-r ${plan.gradient} hover:opacity-90`
                       }`}
                       onClick={() => handleSelectPlan(plan.id)}
                       disabled={isCurrent}
                     >
-                      {isCurrent ? 'Current Plan' : plan.id === 'pro' || plan.id === 'enterprise' ? 'Upgrade' : 'Downgrade'}
+                      {isCurrent ? 'Current Plan' : 'Select Plan'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -255,12 +292,12 @@ export function SubscriptionsPageClient() {
               Billing Management
             </CardTitle>
             <CardDescription className="text-slate-300">
-              Subscriptions are in preview mode. Payment options will be available soon.
+              Zero-infra monetization system powered by Stripe (test mode)
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-slate-400">
-              Once configured, you'll be able to manage payment methods, view billing history, and update your subscription here.
+              All transactions use Groq free tier by default. Upgrade to unlock premium features without infrastructure costs.
             </p>
             
             <div className="flex gap-3">
@@ -291,11 +328,11 @@ export function SubscriptionsPageClient() {
         <DialogContent className="bg-slate-900 border-purple-500/20 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl">
-              {previewData?.isUpgrade ? 'Upgrade' : 'Downgrade'} Subscription
+              {previewData?.isUpgrade ? 'Upgrade' : 'Change'} Subscription
             </DialogTitle>
             <DialogDescription className="text-slate-300">
               {previewData?.isUpgrade 
-                ? `Unlock the full power of SageSpace with ${previewData?.targetPlan?.name}`
+                ? `Unlock enhanced cosmic powers with ${previewData?.targetPlan?.name}`
                 : `Switch to ${previewData?.targetPlan?.name}`
               }
             </DialogDescription>
@@ -315,33 +352,9 @@ export function SubscriptionsPageClient() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-purple-400">Key Feature Changes:</p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-400" />
-                    <span>
-                      Sages: {previewData.featureDiffs.sages.current} → {previewData.featureDiffs.sages.new === 'all' ? 'All 300+' : previewData.featureDiffs.sages.new}
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-400" />
-                    <span>
-                      Messages: {previewData.featureDiffs.messages.current}/day → {previewData.featureDiffs.messages.new === 'unlimited' ? 'Unlimited' : `${previewData.featureDiffs.messages.new}/day`}
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-400" />
-                    <span>
-                      Memory: {previewData.featureDiffs.memory.current === 'full' ? 'Full history' : `${previewData.featureDiffs.memory.current} days`} → {previewData.featureDiffs.memory.new === 'full' ? 'Full history' : `${previewData.featureDiffs.memory.new} days`}
-                    </span>
-                  </li>
-                </ul>
-              </div>
-
               <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
                 <p className="text-xs text-slate-300">
-                  Note: This is a preview subscription system. Actual billing will be integrated with Stripe soon.
+                  Preview mode: Changes apply instantly. Stripe integration coming soon for real billing.
                 </p>
               </div>
             </div>

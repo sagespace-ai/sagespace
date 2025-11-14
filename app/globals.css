@@ -445,3 +445,74 @@
 .animate-cosmic-enter {
   animation: cosmic-enter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
+
+/* Add density and motion classes for appearance functionality */
+
+/* Density classes */
+.density-comfortable {
+  --card-spacing: 24px;
+  --section-spacing: 48px;
+}
+
+.density-cozy {
+  --card-spacing: 16px;
+  --section-spacing: 32px;
+}
+
+.density-compact {
+  --card-spacing: 12px;
+  --section-spacing: 24px;
+}
+
+/* Motion reduction */
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Light theme support */
+.light {
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.205 0 0);
+}
+
+.light body {
+  @apply bg-white text-gray-900;
+}
+
+.light .cosmic-card {
+  @apply from-white/95 to-gray-100/95 border-purple-300/30;
+}
+
+.light .cosmic-text-gradient {
+  @apply from-cyan-600 via-purple-600 to-pink-600;
+}
+
+@keyframes spiral {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes draw {
+  0% {
+    stroke-dasharray: 0 1000;
+  }
+  100% {
+    stroke-dasharray: 1000 0;
+  }
+}
+
+.animate-spiral {
+  animation: spiral 20s linear infinite;
+}
+
+.animate-draw {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw 3s ease-in-out forwards;
+}

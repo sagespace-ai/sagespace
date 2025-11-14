@@ -11,10 +11,40 @@ export async function POST(request: Request) {
     console.log('[v0] [Approve Proposal] Starting approval process...')
     
     const supabase = await createServerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      console.log('[v0] [Approve Proposal] Auth error:', authError)
+    
+    let user;
+    try {
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError) {
+        console.log('[v0] [Approve Proposal] Auth error:', authError.message)
+        
+        // Handle rate limiting specifically
+        if (authError.message?.includes('rate') || authError.message?.includes('Too Many')) {
+          return NextResponse.json({ 
+            error: 'Too many requests. Please wait a moment and try again.' 
+          }, { status: 429 })
+        }
+        
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      
+      if (!authUser) {
+        console.log('[v0] [Approve Proposal] No user found')
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      
+      user = authUser
+    } catch (authException: any) {
+      console.log('[v0] [Approve Proposal] Auth exception:', authException.message)
+      
+      // Handle JSON parse errors from rate limiting
+      if (authException.message?.includes('JSON') || authException.message?.includes('Too Many')) {
+        return NextResponse.json({ 
+          error: 'Too many requests. Please wait a moment and try again.' 
+        }, { status: 429 })
+      }
+      
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

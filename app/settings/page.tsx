@@ -8,8 +8,65 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
-import { User, Shield, Bell, Eye, Palette, Wrench, CreditCard, ArrowLeft, Check, Sparkles, Zap, TrendingUp, XCircle, Info, Star } from "@/components/icons"
+import { User, Shield, Bell, Eye, Palette, Wrench, CreditCard, ArrowLeft, Check, Sparkles, Zap, TrendingUp, XCircle, Info, Star, ArrowRight, Crown } from "@/components/icons"
 import type { AIProposal } from "@/lib/types/personalization"
+import { useAppearance } from "@/lib/contexts/AppearanceContext"
+
+// Placeholder for the SubscriptionManager component
+// In a real application, this would be imported from "@/components/billing/SubscriptionManager"
+const SubscriptionManager = () => (
+  <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
+    <h2 className="text-2xl font-bold text-white mb-4">Subscription & Billing</h2>
+    <p className="text-gray-400 mb-6">Manage your subscription plan and payment details.</p>
+
+    <div className="space-y-6">
+      <div className="bg-slate-900/30 rounded-lg p-4 border border-slate-700/50">
+        <h3 className="text-lg font-semibold text-white mb-2">Current Plan</h3>
+        <p className="text-gray-400">You are currently on the <span className="font-bold text-cyan-400">Pro Plan</span>.</p>
+        <p className="text-sm text-gray-500">Next billing date: October 26, 2024</p>
+        <Button variant="outline" className="mt-4 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">Manage Subscription</Button>
+      </div>
+
+      <div className="bg-slate-900/30 rounded-lg p-4 border border-slate-700/50">
+        <h3 className="text-lg font-semibold text-white mb-2">Payment Method</h3>
+        <p className="text-gray-400">Visa ending in <span className="font-bold text-white">**** 1234</span></p>
+        <p className="text-sm text-gray-500">Expires: 12/2025</p>
+        <Button variant="outline" className="mt-4 border-slate-600 text-gray-300 hover:text-white bg-transparent">Update Payment Method</Button>
+      </div>
+
+      <div className="bg-slate-900/30 rounded-lg p-4 border border-slate-700/50">
+        <h3 className="text-lg font-semibold text-white mb-2">Usage</h3>
+        <p className="text-gray-400">You have used <span className="font-bold text-cyan-400">75%</span> of your Pro Plan credits this month.</p>
+        <div className="w-full bg-gray-700 rounded-full h-2.5 mt-3">
+          <div className="bg-cyan-500 h-2.5 rounded-full w-[75%]" />
+        </div>
+        <Button variant="outline" className="mt-4 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">Upgrade Plan</Button>
+      </div>
+
+      <div className="border-t border-slate-700 pt-6">
+        <h3 className="text-lg font-semibold text-white mb-2">Past Invoices</h3>
+        <ul className="space-y-2">
+          <li>
+            <Link href="#" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
+              Invoice #INV-005678 <span className="text-gray-400">(Aug 2024)</span> <ArrowRight className="w-3 h-3" />
+            </Link>
+          </li>
+          <li>
+            <Link href="#" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
+              Invoice #INV-004567 <span className="text-gray-400">(Jul 2024)</span> <ArrowRight className="w-3 h-3" />
+            </Link>
+          </li>
+          <li>
+            <Link href="#" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
+              Invoice #INV-003456 <span className="text-gray-400">(Jun 2024)</span> <ArrowRight className="w-3 h-3" />
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </Card>
+)
+
 
 export default function SettingsPage() {
   const [saveStatus, setSaveStatus] = useState<string | null>(null)
@@ -37,6 +94,8 @@ export default function SettingsPage() {
     toolBudget: 100,
   })
 
+  const { settings: appearanceSettings, updateSettings: updateAppearance, isLoading: loadingAppearance } = useAppearance()
+
   const [aiProposals, setAiProposals] = useState<AIProposal[]>([])
   const [designKarma, setDesignKarma] = useState({
     karmaPoints: 0,
@@ -46,6 +105,10 @@ export default function SettingsPage() {
   })
   const [loadingProposals, setLoadingProposals] = useState(false)
   const [analyzingBehavior, setAnalyzingBehavior] = useState(false)
+  const [processingProposal, setProcessingProposal] = useState<string | null>(null)
+  const [lastRequestTime, setLastRequestTime] = useState<number>(0)
+  const [isRateLimited, setIsRateLimited] = useState(false)
+  const MIN_REQUEST_DELAY = 2000 // 2 seconds between requests
 
   const [spotifyStatus, setSpotifyStatus] = useState<{
     connected: boolean
@@ -131,7 +194,24 @@ export default function SettingsPage() {
   }
 
   const approveProposal = async (proposalId: string) => {
+    const now = Date.now()
+    const timeSinceLastRequest = now - lastRequestTime
+    
+    if (processingProposal) {
+      console.log('[v0] [Settings] Already processing a proposal, ignoring click')
+      return
+    }
+
+    if (timeSinceLastRequest < MIN_REQUEST_DELAY) {
+      const remainingTime = Math.ceil((MIN_REQUEST_DELAY - timeSinceLastRequest) / 1000)
+      setSaveStatus(`⏱️ Please wait ${remainingTime} second${remainingTime > 1 ? 's' : ''} before next action`)
+      setTimeout(() => setSaveStatus(null), 2000)
+      return
+    }
+    
     try {
+      setProcessingProposal(proposalId)
+      setLastRequestTime(now)
       console.log('[v0] [Settings] Approving proposal:', proposalId)
       
       const res = await fetch('/api/proposals/approve', {
@@ -156,18 +236,49 @@ export default function SettingsPage() {
         setTimeout(() => setSaveStatus(null), 5000)
       } else {
         console.error('[v0] [Settings] Approval failed:', data)
-        setSaveStatus(`❌ Failed to approve: ${data.error}`)
-        setTimeout(() => setSaveStatus(null), 5000)
+        
+        if (res.status === 429) {
+          setIsRateLimited(true)
+          setSaveStatus('⏱️ Rate limit reached. Please wait 30 seconds before trying again.')
+          
+          setTimeout(() => {
+            setIsRateLimited(false)
+            setSaveStatus('✅ Rate limit cleared. You can continue reviewing proposals.')
+            setTimeout(() => setSaveStatus(null), 3000)
+          }, 30000)
+        } else {
+          setSaveStatus(`❌ Failed to approve: ${data.error}`)
+          setTimeout(() => setSaveStatus(null), 5000)
+        }
       }
     } catch (error) {
       console.error('[v0] [Settings] Failed to approve proposal:', error)
       setSaveStatus('❌ Network error - please try again')
       setTimeout(() => setSaveStatus(null), 5000)
+    } finally {
+      setProcessingProposal(null)
     }
   }
 
   const rejectProposal = async (proposalId: string, reason?: string) => {
+    const now = Date.now()
+    const timeSinceLastRequest = now - lastRequestTime
+    
+    if (processingProposal) {
+      console.log('[v0] [Settings] Already processing a proposal, ignoring click')
+      return
+    }
+
+    if (timeSinceLastRequest < MIN_REQUEST_DELAY) {
+      const remainingTime = Math.ceil((MIN_REQUEST_DELAY - timeSinceLastRequest) / 1000)
+      setSaveStatus(`⏱️ Please wait ${remainingTime} second${remainingTime > 1 ? 's' : ''} before next action`)
+      setTimeout(() => setSaveStatus(null), 2000)
+      return
+    }
+    
     try {
+      setProcessingProposal(proposalId)
+      setLastRequestTime(now)
       console.log('[v0] [Settings] Rejecting proposal:', proposalId, 'Reason:', reason)
       
       const res = await fetch('/api/proposals/reject', {
@@ -189,13 +300,27 @@ export default function SettingsPage() {
         setTimeout(() => setSaveStatus(null), 5000)
       } else {
         console.error('[v0] [Settings] Rejection failed:', data)
-        setSaveStatus(`❌ Failed to reject: ${data.error}`)
-        setTimeout(() => setSaveStatus(null), 5000)
+        
+        if (res.status === 429) {
+          setIsRateLimited(true)
+          setSaveStatus('⏱️ Rate limit reached. Please wait 30 seconds before trying again.')
+          
+          setTimeout(() => {
+            setIsRateLimited(false)
+            setSaveStatus('✅ Rate limit cleared. You can continue reviewing proposals.')
+            setTimeout(() => setSaveStatus(null), 3000)
+          }, 30000)
+        } else {
+          setSaveStatus(`❌ Failed to reject: ${data.error}`)
+          setTimeout(() => setSaveStatus(null), 5000)
+        }
       }
     } catch (error) {
       console.error('[v0] [Settings] Failed to reject proposal:', error)
       setSaveStatus('❌ Network error - please try again')
       setTimeout(() => setSaveStatus(null), 5000)
+    } finally {
+      setProcessingProposal(null)
     }
   }
 
@@ -265,14 +390,16 @@ export default function SettingsPage() {
             Back to Hub
           </Link>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Settings Universe
+            Settings
           </h1>
           <p className="text-gray-400 mt-2">Customize your SageSpace experience</p>
         </div>
 
         {/* Save status indicator */}
         {saveStatus && (
-          <div className="fixed top-4 right-4 z-50 bg-slate-800/90 backdrop-blur-sm border border-cyan-500/30 rounded-lg px-4 py-3 flex items-center gap-2 animate-slide-down">
+          <div className={`fixed top-4 right-4 z-50 backdrop-blur-sm border rounded-lg px-4 py-3 flex items-center gap-2 animate-slide-down shadow-lg ${
+            isRateLimited ? 'bg-yellow-800/90 border-yellow-500/50' : 'bg-slate-800/90 border-cyan-500/30'
+          }`}>
             {saveStatus === "saving" ? (
               <>
                 <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" />
@@ -288,66 +415,66 @@ export default function SettingsPage() {
         )}
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-slate-800/50 border border-slate-700/50 p-1 flex-wrap h-auto">
+          <TabsList className="bg-slate-800/50 border border-slate-700/50 p-1 flex-wrap h-auto gap-1">
             <TabsTrigger
               value="profile"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md"
             >
               <User className="w-4 h-4 mr-2" />
               Profile
             </TabsTrigger>
             <TabsTrigger
-              value="security"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+              value="appearance"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md"
             >
-              <Shield className="w-4 h-4 mr-2" />
-              Security
+              <Palette className="w-4 h-4 mr-2" />
+              Appearance
             </TabsTrigger>
             <TabsTrigger
               value="notifications"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md"
             >
               <Bell className="w-4 h-4 mr-2" />
               Notifications
             </TabsTrigger>
             <TabsTrigger
               value="privacy"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md"
             >
               <Eye className="w-4 h-4 mr-2" />
               Privacy
             </TabsTrigger>
             <TabsTrigger
-              value="appearance"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+              value="security"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md"
             >
-              <Palette className="w-4 h-4 mr-2" />
-              Appearance
+              <Shield className="w-4 h-4 mr-2" />
+              Security
             </TabsTrigger>
             <TabsTrigger
               value="studio"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md"
             >
               <Wrench className="w-4 h-4 mr-2" />
               Studio
             </TabsTrigger>
             <TabsTrigger
+              value="integrations"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Integrations
+            </TabsTrigger>
+            <TabsTrigger
               value="billing"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md"
             >
               <CreditCard className="w-4 h-4 mr-2" />
               Billing
             </TabsTrigger>
             <TabsTrigger
-              value="integrations"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
-            >
-              <Wrench className="w-4 h-4 mr-2" />
-              Integrations
-            </TabsTrigger>
-            <TabsTrigger
               value="adaptive"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-cyan-400"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-md border-2 border-transparent data-[state=active]:border-purple-500/30"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Adaptive Mode
@@ -526,6 +653,335 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
 
+          {/* Appearance Tab */}
+          <TabsContent value="appearance" className="space-y-6">
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Appearance & Theme</h2>
+              <p className="text-gray-400 mb-6">Customize your cosmic experience</p>
+
+              {loadingAppearance ? (
+                <div className="text-center py-8">
+                  <Sparkles className="w-8 h-8 text-purple-400 animate-spin mx-auto mb-2" />
+                  <p className="text-gray-400">Loading appearance settings...</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Theme Selection */}
+                  <div>
+                    <Label htmlFor="theme" className="text-gray-300 text-base font-semibold mb-3 block">
+                      Color Theme
+                    </Label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <button
+                        onClick={() => updateAppearance({ theme: "system" })}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          appearanceSettings.theme === "system"
+                            ? "border-cyan-500 bg-cyan-500/10"
+                            : "border-slate-700 bg-slate-900/30 hover:border-slate-600"
+                        }`}
+                      >
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-slate-600 to-slate-400 mx-auto mb-2" />
+                        <p className="text-white font-semibold">Auto</p>
+                        <p className="text-xs text-gray-400">Match system</p>
+                      </button>
+                      <button
+                        onClick={() => updateAppearance({ theme: "dark" })}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          appearanceSettings.theme === "dark"
+                            ? "border-cyan-500 bg-cyan-500/10"
+                            : "border-slate-700 bg-slate-900/30 hover:border-slate-600"
+                        }`}
+                      >
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-slate-900 to-slate-700 mx-auto mb-2" />
+                        <p className="text-white font-semibold">Dark</p>
+                        <p className="text-xs text-gray-400">Deep cosmos</p>
+                      </button>
+                      <button
+                        onClick={() => updateAppearance({ theme: "light" })}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          appearanceSettings.theme === "light"
+                            ? "border-cyan-500 bg-cyan-500/10"
+                            : "border-slate-700 bg-slate-900/30 hover:border-slate-600"
+                        }`}
+                      >
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-slate-200 to-white mx-auto mb-2" />
+                        <p className="text-white font-semibold">Light</p>
+                        <p className="text-xs text-gray-400">Bright sky</p>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Feed Density */}
+                  <div>
+                    <Label htmlFor="density" className="text-gray-300 text-base font-semibold mb-3 block">
+                      Interface Density
+                    </Label>
+                    <select
+                      id="density"
+                      value={appearanceSettings.feedDensity}
+                      onChange={(e) => updateAppearance({ feedDensity: e.target.value as any })}
+                      className="w-full bg-slate-900/50 border border-slate-600 text-white rounded-md px-3 py-2"
+                    >
+                      <option value="comfortable">Comfortable - Spacious layout</option>
+                      <option value="cozy">Cozy - Balanced spacing</option>
+                      <option value="compact">Compact - More content visible</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-2">Controls spacing and card sizes throughout the platform</p>
+                  </div>
+
+                  {/* Motion Settings */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-slate-700/50 bg-slate-900/30">
+                    <div>
+                      <Label className="text-gray-300 font-semibold">Reduce Motion</Label>
+                      <p className="text-sm text-gray-400">Minimize animations for accessibility</p>
+                    </div>
+                    <Switch
+                      checked={appearanceSettings.reduceMotion}
+                      onCheckedChange={(checked) => updateAppearance({ reduceMotion: checked })}
+                    />
+                  </div>
+
+                  {/* Cosmic Background Customization - Coming Soon */}
+                  <div className="opacity-50 pointer-events-none">
+                    <Label className="text-gray-300 text-base font-semibold mb-3 block">
+                      Cosmic Background Intensity
+                    </Label>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-400">Subtle</span>
+                      <div className="flex-1 h-2 bg-slate-700 rounded-full relative">
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-cyan-500 rounded-full" />
+                      </div>
+                      <span className="text-sm text-gray-400">Vivid</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">Coming soon: Adjust cosmic background effects</p>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-700">
+                    <p className="text-sm text-green-400 flex items-center gap-2">
+                      <Check className="w-4 h-4" />
+                      Appearance changes are saved automatically and applied immediately
+                    </p>
+                  </div>
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Security Tab - Enhanced */}
+          <TabsContent value="security" className="space-y-6">
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
+              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                <Shield className="w-6 h-6 text-cyan-400" />
+                Security & Authentication
+              </h2>
+              <p className="text-gray-400 mb-6">Protect your account and manage security settings</p>
+
+              <div className="space-y-6">
+                {/* Password Section */}
+                <div className="bg-slate-900/30 rounded-lg p-5 border border-slate-700/50">
+                  <h3 className="text-lg font-semibold text-white mb-4">Password</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="current-password" className="text-gray-300">
+                        Current Password
+                      </Label>
+                      <Input
+                        id="current-password"
+                        type="password"
+                        placeholder="Enter current password"
+                        className="bg-slate-900/50 border-slate-600 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="new-password" className="text-gray-300">
+                        New Password
+                      </Label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        placeholder="Enter new password"
+                        className="bg-slate-900/50 border-slate-600 text-white"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Must be at least 12 characters with mixed case, numbers, and symbols
+                      </p>
+                    </div>
+                    <div>
+                      <Label htmlFor="confirm-password" className="text-gray-300">
+                        Confirm New Password
+                      </Label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        placeholder="Confirm new password"
+                        className="bg-slate-900/50 border-slate-600 text-white"
+                      />
+                    </div>
+                    <Button className="bg-gradient-to-r from-cyan-500 to-purple-500">
+                      Update Password
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Two-Factor Authentication */}
+                <div className="bg-slate-900/30 rounded-lg p-5 border border-slate-700/50">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-1">Two-Factor Authentication</h3>
+                      <p className="text-sm text-gray-400">Add an extra layer of security to your account</p>
+                    </div>
+                    <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">
+                      Coming Soon
+                    </span>
+                  </div>
+                  <div className="opacity-50 pointer-events-none">
+                    <Button variant="outline" className="border-slate-600 text-gray-300">
+                      Enable 2FA
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Active Sessions */}
+                <div className="bg-slate-900/30 rounded-lg p-5 border border-slate-700/50">
+                  <h3 className="text-lg font-semibold text-white mb-4">Active Sessions</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded border border-slate-700/30">
+                      <div>
+                        <p className="text-white font-medium">Current Session</p>
+                        <p className="text-sm text-gray-400">Chrome on macOS • Just now</p>
+                      </div>
+                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                        Active
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      You can sign out of all other sessions from here
+                    </p>
+                    <Button variant="outline" className="border-red-500/30 text-red-400 hover:bg-red-500/10">
+                      Sign Out All Other Sessions
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Danger Zone */}
+                <div className="border-2 border-red-500/30 rounded-lg p-5 bg-red-500/5">
+                  <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
+                  <p className="text-sm text-gray-400 mb-4">
+                    These actions are permanent and cannot be undone
+                  </p>
+                  <div className="space-y-2">
+                    <Button variant="outline" className="w-full justify-start border-red-500/30 text-red-400 hover:bg-red-500/10">
+                      Delete My Account
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Studio Tab */}
+          <TabsContent value="studio" className="space-y-6">
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Studio Defaults</h2>
+              <p className="text-gray-400 mb-6">Configure your Sage creation preferences</p>
+
+              <div className="space-y-6">
+                {/* Default Visibility */}
+                <div>
+                  <Label htmlFor="defaultVisibility" className="text-gray-300 text-base font-semibold mb-3 block">
+                    Default Sage Visibility
+                  </Label>
+                  <select
+                    id="defaultVisibility"
+                    value={settings.defaultVisibility}
+                    onChange={(e) => setSettings({ ...settings, defaultVisibility: e.target.value })}
+                    className="w-full bg-slate-900/50 border border-slate-600 text-white rounded-md px-3 py-2"
+                  >
+                    <option value="private">Private - Only you can access</option>
+                    <option value="public">Public - Visible in Marketplace</option>
+                    <option value="unlisted">Unlisted - Anyone with link can access</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-2">Sets the default visibility for new Sages you create</p>
+                </div>
+
+                {/* Safety Level */}
+                <div>
+                  <Label htmlFor="safetyLevel" className="text-gray-300 text-base font-semibold mb-3 block">
+                    Content Safety Level
+                  </Label>
+                  <select
+                    id="safetyLevel"
+                    value={settings.safetyLevel}
+                    onChange={(e) => setSettings({ ...settings, safetyLevel: e.target.value })}
+                    className="w-full bg-slate-900/50 border border-slate-600 text-white rounded-md px-3 py-2"
+                  >
+                    <option value="strict">Strict - Maximum safety filters</option>
+                    <option value="moderate">Moderate - Balanced filtering</option>
+                    <option value="relaxed">Relaxed - Minimal filtering</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-2">Controls content filtering for Sage responses</p>
+                </div>
+
+                {/* Tool Budget */}
+                <div>
+                  <Label htmlFor="toolBudget" className="text-gray-300 text-base font-semibold mb-3 block">
+                    Default Tool Budget
+                  </Label>
+                  <Input
+                    id="toolBudget"
+                    type="number"
+                    min="0"
+                    max="1000"
+                    value={settings.toolBudget}
+                    onChange={(e) => setSettings({ ...settings, toolBudget: Number.parseInt(e.target.value) })}
+                    className="bg-slate-900/50 border-slate-600 text-white"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Maximum tokens allocated for tool usage per session (0-1000)
+                  </p>
+                </div>
+
+                {/* Studio Templates - Coming Soon */}
+                <div className="border border-slate-700/50 rounded-lg p-4 bg-slate-900/20">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-1">Favorite Templates</h3>
+                      <p className="text-sm text-gray-400">Quick-start templates for faster Sage creation</p>
+                    </div>
+                    <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">Coming Soon</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 opacity-50">
+                    <div className="p-3 rounded border border-slate-700 bg-slate-900/30">
+                      <p className="text-sm font-semibold text-white">Technical Expert</p>
+                      <p className="text-xs text-gray-500">Code, docs, debugging</p>
+                    </div>
+                    <div className="p-3 rounded border border-slate-700 bg-slate-900/30">
+                      <p className="text-sm font-semibold text-white">Creative Writer</p>
+                      <p className="text-xs text-gray-500">Stories, poetry, content</p>
+                    </div>
+                    <div className="p-3 rounded border border-slate-700 bg-slate-900/30">
+                      <p className="text-sm font-semibold text-white">Business Analyst</p>
+                      <p className="text-xs text-gray-500">Strategy, data, insights</p>
+                    </div>
+                    <div className="p-3 rounded border border-slate-700 bg-slate-900/30">
+                      <p className="text-sm font-semibold text-white">Personal Coach</p>
+                      <p className="text-xs text-gray-500">Growth, motivation, goals</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Button onClick={() => handleSave("studio")} className="bg-gradient-to-r from-cyan-500 to-purple-500">
+                  Save Studio Preferences
+                </Button>
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Billing Tab */}
+          <TabsContent value="billing" className="space-y-6">
+            <SubscriptionManager />
+          </TabsContent>
+
           {/* Integrations Tab */}
           <TabsContent value="integrations" className="space-y-6">
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
@@ -627,7 +1083,7 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
 
-          {/* Adaptive Mode Tab - AI Suggestions Console */}
+          {/* Adaptive Mode Tab */}
           <TabsContent value="adaptive" className="space-y-6">
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 p-6">
               <div className="flex items-start justify-between mb-6">
@@ -691,6 +1147,20 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              {isRateLimited && (
+                <div className="mb-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                  <div className="flex items-center gap-3">
+                    <Info className="w-5 h-5 text-yellow-400" />
+                    <div>
+                      <p className="text-yellow-400 font-semibold">Rate Limit Active</p>
+                      <p className="text-sm text-yellow-300/80">
+                        Please wait 30 seconds before reviewing more proposals. This prevents overwhelming the system.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* AI Proposals List */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -750,18 +1220,38 @@ export default function SettingsPage() {
                       <div className="flex items-center gap-3">
                         <Button
                           onClick={() => approveProposal(proposal.id)}
-                          className="bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-600 hover:to-cyan-600 text-white flex-1"
+                          disabled={processingProposal !== null || isRateLimited}
+                          className="bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-600 hover:to-cyan-600 text-white flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <Check className="w-4 h-4 mr-2" />
-                          Approve & Apply
+                          {processingProposal === proposal.id ? (
+                            <>
+                              <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                              Approving...
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-4 h-4 mr-2" />
+                              Approve & Apply
+                            </>
+                          )}
                         </Button>
                         <Button
                           onClick={() => rejectProposal(proposal.id)}
+                          disabled={processingProposal !== null || isRateLimited}
                           variant="outline"
-                          className="border-red-500/30 text-red-400 hover:bg-red-500/10 flex-1"
+                          className="border-red-500/30 text-red-400 hover:bg-red-500/10 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <XCircle className="w-4 h-4 mr-2" />
-                          Reject
+                          {processingProposal === proposal.id ? (
+                            <>
+                              <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                              Rejecting...
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Reject
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>

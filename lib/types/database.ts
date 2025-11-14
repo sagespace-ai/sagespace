@@ -8,7 +8,7 @@ export type ThreadType = "chat" | "circle" | "debate" | "duet"
 export type EventType = "like" | "remix" | "comment" | "save" | "share" | "validate" | "follow" | "view"
 export type TargetType = "artifact" | "sage" | "user" | "thread"
 export type QuestTaskType = "remix" | "validate" | "teach" | "debate" | "create" | "share" | "streak"
-export type PurchaseType = "plan" | "credits" | "marketplace"
+export type PurchaseType = "plan" | "sagepoints" | "marketplace"
 export type PurchaseStatus = "pending" | "completed" | "failed" | "refunded"
 
 export interface User {
@@ -18,7 +18,7 @@ export interface User {
   avatar_url?: string
   bio?: string
   plan: Plan
-  credits: number
+  sage_points: number
   xp: number
   level: number
   streak_days: number
@@ -154,7 +154,7 @@ export interface Quest {
   title: string
   description: string
   reward_xp: number
-  reward_credits: number
+  reward_sage_points: number
   start_date: string
   end_date: string
   is_active: boolean

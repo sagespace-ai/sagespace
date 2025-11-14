@@ -12,7 +12,6 @@ import { useJourney } from "@/lib/hooks/use-journey"
 import { cn } from "@/lib/utils"
 
 const ROUTES = [
-  { path: "/demo", label: "Hub", icon: Sparkles },
   { path: "/playground", label: "Playground", icon: MessageSquare },
   { path: "/council", label: "Council", icon: Users },
   { path: "/memory", label: "Memory", icon: BookmarkCheck },

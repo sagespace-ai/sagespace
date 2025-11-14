@@ -16,9 +16,9 @@ import { CommandBarUserSection } from "./CommandBarUserSection"
 import type { XPTier } from "@/lib/types/navigation"
 import { PlanBadge } from '@/components/PlanBadge'
 import { useSubscription } from '@/lib/hooks/use-subscription'
+import { AnimatedLogo } from '@/components/branding/AnimatedLogo'
 
 const ROUTES = [
-  { path: "/demo", label: "Hub", icon: Sparkles },
   { path: "/playground", label: "Playground", icon: MessageSquare },
   { path: "/council", label: "Council", icon: Users },
   { path: "/memory", label: "Memory", icon: BookmarkCheck },
@@ -63,29 +63,8 @@ export function CommandBar() {
         {/* Left: Logo + SageSwitch + Navigation */}
         <div className="flex items-center gap-3">
           {/* Logo with animations */}
-          <Link href="/" className="flex items-center gap-2 group relative mr-2">
-            <div className="relative">
-              <Sparkles className="h-5 w-5 text-cyan-400 animate-pulse" />
-              <span className="absolute top-1/2 left-1/2 w-8 h-8 pointer-events-none">
-                <span
-                  className="absolute top-0 left-1/2 w-1 h-1 bg-cyan-400 rounded-full blur-sm animate-spin-slow"
-                  style={{ transformOrigin: "0 16px" }}
-                />
-                <span
-                  className="absolute top-0 left-1/2 w-1 h-1 bg-purple-400 rounded-full blur-sm animate-spin-slow"
-                  style={{ transformOrigin: "0 16px", animationDirection: "reverse", animationDelay: "1s" }}
-                />
-              </span>
-            </div>
-            <span className="font-bold text-lg relative">
-              <span
-                className="relative inline-block bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient"
-                style={{ backgroundSize: "300% 300%" }}
-              >
-                SageSpace
-                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 rounded-full animate-pulse-slow blur-sm" />
-              </span>
-            </span>
+          <Link href="/" className="flex items-center group relative mr-2">
+            <AnimatedLogo size="sm" showText={true} animate={true} />
           </Link>
 
           {/* Sage Switch */}

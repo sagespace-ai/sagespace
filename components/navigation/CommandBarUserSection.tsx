@@ -38,17 +38,49 @@ export function CommandBarUserSection() {
         const user = await userRes.json()
         const progress = await progressRes.json()
         
+        // Check if user object exists and has required properties
+        if (user && typeof user === 'object') {
+          setUserData({
+            name: user.name || user.email?.split('@')[0] || 'Anonymous',
+            email: user.email || 'no-email@example.com',
+            image: user.image || null,
+            xp: progress?.xp || 0,
+            level: progress?.level || 1,
+            streakDays: progress?.streakDays || 0,
+          })
+        } else {
+          // Set default anonymous user if user object is invalid
+          setUserData({
+            name: 'Anonymous',
+            email: 'no-email@example.com',
+            image: null,
+            xp: 0,
+            level: 1,
+            streakDays: 0,
+          })
+        }
+      } else {
+        // Set default anonymous user if API calls fail
         setUserData({
-          name: user.name || 'Anonymous',
-          email: user.email,
-          image: user.image,
-          xp: progress.xp,
-          level: progress.level,
-          streakDays: progress.streakDays,
+          name: 'Anonymous',
+          email: 'no-email@example.com',
+          image: null,
+          xp: 0,
+          level: 1,
+          streakDays: 0,
         })
       }
     } catch (error) {
       console.error('Error loading user data:', error)
+      // Set default anonymous user on error
+      setUserData({
+        name: 'Anonymous',
+        email: 'no-email@example.com',
+        image: null,
+        xp: 0,
+        level: 1,
+        streakDays: 0,
+      })
     } finally {
       setLoading(false)
     }

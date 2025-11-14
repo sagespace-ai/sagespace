@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
+import { SimpleLogo } from "@/components/branding/SimpleLogo"
 
 export default function MarketingPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -91,39 +92,12 @@ export default function MarketingPage() {
 
       <header className="relative border-b border-white/10 backdrop-blur-md bg-black/50 z-50">
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient"
-          >
-            SageSpace
+          <Link href="/" className="flex items-center">
+            <SimpleLogo size="lg" showText={true} />
           </Link>
+          {/* </CHANGE> */}
+          
           <nav className="flex items-center gap-4">
-            <Link href="/demo" className="relative group">
-              <Button
-                variant="ghost"
-                className="text-white hover:text-cyan-400 transition-colors relative overflow-visible"
-              >
-                <span className="relative inline-flex items-center gap-2">
-                  <span
-                    className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient font-semibold"
-                    style={{ backgroundSize: "300% 300%" }}
-                  >
-                    Hub
-                  </span>
-
-                  {/* Orbiting particles */}
-                  <span className="absolute -top-1 left-0 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping-slow opacity-75" />
-                  <span
-                    className="absolute -top-1 left-0 w-1.5 h-1.5 bg-purple-400 rounded-full animate-orbit-1"
-                    style={{ animationDelay: "0.5s" }}
-                  />
-                  <span
-                    className="absolute -top-1 left-0 w-1.5 h-1.5 bg-pink-400 rounded-full animate-orbit-2"
-                    style={{ animationDelay: "1s" }}
-                  />
-                </span>
-              </Button>
-            </Link>
 
             <Link href="/auth/login">
               <Button className="relative group overflow-hidden bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 border-0 shadow-lg shadow-purple-500/50 transition-all duration-500">
@@ -141,6 +115,11 @@ export default function MarketingPage() {
       <main className="relative z-10">
         <section className="container mx-auto px-4 pt-32 pb-20 text-center">
           <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
+            <div className="flex justify-center mb-8">
+              <SimpleLogo size="xl" showText={false} />
+            </div>
+            {/* </CHANGE> */}
+
             <div className="inline-block px-6 py-2 bg-purple-500/20 border border-purple-500/50 rounded-full text-purple-300 text-sm font-medium mb-4 animate-slide-down">
               🚀 300+ Specialized AI Sages Ready to Assist
             </div>

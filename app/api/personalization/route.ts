@@ -52,6 +52,11 @@ export async function GET() {
           avoidedFeatures: [],
           peakActivityHours: [],
         },
+        appearance_settings: {
+          theme: 'dark',
+          reduceMotion: false,
+          feedDensity: 'comfortable',
+        },
       }
 
       await serviceSupabase.from('user_personalization').insert(defaultPersonalization)
@@ -76,6 +81,11 @@ export async function PATCH(request: Request) {
     }
 
     const updates = await request.json()
+
+    console.log('[v0] [Personalization API] Updating with:', {
+      hasAppearance: !!updates.appearance_settings,
+      appearance: updates.appearance_settings,
+    })
 
     const serviceSupabase = createServiceClient()
     const { data, error } = await serviceSupabase

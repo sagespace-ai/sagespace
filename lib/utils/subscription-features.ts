@@ -2,7 +2,8 @@ import type { SubscriptionPlanId, FeatureFlags } from '@/lib/types/subscription'
 
 export function getFeaturesForPlan(planId: SubscriptionPlanId): FeatureFlags {
   switch (planId) {
-    case 'free':
+    case 'explorer':
+      // Free tier - Genesis basics
       return {
         maxSagesUnlocked: 10, // Origin Sage + 9 rotating sages
         rotatingSagesEnabled: true,
@@ -20,7 +21,27 @@ export function getFeaturesForPlan(planId: SubscriptionPlanId): FeatureFlags {
         whiteLabelEnabled: false,
       };
     
-    case 'pro':
+    case 'voyager':
+      // $9/month - Solid personal use
+      return {
+        maxSagesUnlocked: 50, // 50 curated sages
+        rotatingSagesEnabled: true,
+        rotatingSagesCount: 10,
+        councilMaxSagesPerSession: 4,
+        councilSessionsPerDay: 10,
+        messagesPerDay: 500,
+        memoryRetentionDays: 30,
+        maxArtifacts: 100,
+        advancedInsights: true,
+        customSagesEnabled: false,
+        automationsEnabled: false,
+        teamWorkspacesEnabled: false,
+        apiAccessEnabled: false,
+        whiteLabelEnabled: false,
+      };
+    
+    case 'astral':
+      // $19/month - Power user tier
       return {
         maxSagesUnlocked: 'all', // All 300+ sages
         rotatingSagesEnabled: false, // Not needed with all unlocked
@@ -38,7 +59,27 @@ export function getFeaturesForPlan(planId: SubscriptionPlanId): FeatureFlags {
         whiteLabelEnabled: false,
       };
     
-    case 'enterprise':
+    case 'oracle':
+      // $49/month - Professional tier
+      return {
+        maxSagesUnlocked: 'all',
+        rotatingSagesEnabled: false,
+        rotatingSagesCount: 0,
+        councilMaxSagesPerSession: 10,
+        councilSessionsPerDay: 'unlimited',
+        messagesPerDay: 'unlimited',
+        memoryRetentionDays: 'full',
+        maxArtifacts: 2000,
+        advancedInsights: true,
+        customSagesEnabled: true,
+        automationsEnabled: true,
+        teamWorkspacesEnabled: true,
+        apiAccessEnabled: true,
+        whiteLabelEnabled: false,
+      };
+    
+    case 'celestial':
+      // $99/month - Enterprise tier
       return {
         maxSagesUnlocked: 'all',
         rotatingSagesEnabled: false,
@@ -57,33 +98,54 @@ export function getFeaturesForPlan(planId: SubscriptionPlanId): FeatureFlags {
       };
     
     default:
-      return getFeaturesForPlan('free');
+      return getFeaturesForPlan('explorer');
   }
 }
 
 export const PLAN_DETAILS = {
-  free: {
-    id: 'free' as const,
+  explorer: {
+    id: 'explorer' as const,
     name: 'Genesis Explorer',
     headline: '$0 / forever',
     priceCents: 0,
     interval: 'forever' as const,
-    blurb: 'Everything you need to start your journey',
+    blurb: 'Begin your cosmic journey with essential wisdom',
+    stripePriceId: null,
   },
-  pro: {
-    id: 'pro' as const,
+  voyager: {
+    id: 'voyager' as const,
     name: 'Sage Voyager',
     headline: '$9 / month',
     priceCents: 900,
     interval: 'month' as const,
-    blurb: 'For power users who live inside SageSpace',
+    blurb: 'Expand your horizons with deeper insights',
+    stripePriceId: process.env.STRIPE_PRICE_VOYAGER || null,
   },
-  enterprise: {
-    id: 'enterprise' as const,
-    name: 'Council Architect',
+  astral: {
+    id: 'astral' as const,
+    name: 'Astral Navigator',
+    headline: '$19 / month',
+    priceCents: 1900,
+    interval: 'month' as const,
+    blurb: 'Navigate the full cosmos with unlimited access',
+    stripePriceId: process.env.STRIPE_PRICE_ASTRAL || null,
+  },
+  oracle: {
+    id: 'oracle' as const,
+    name: 'Cosmic Oracle',
     headline: '$49 / month',
     priceCents: 4900,
     interval: 'month' as const,
-    blurb: 'For teams, firms, and white-label deployments',
+    blurb: 'Harness divine wisdom for teams and professionals',
+    stripePriceId: process.env.STRIPE_PRICE_ORACLE || null,
+  },
+  celestial: {
+    id: 'celestial' as const,
+    name: 'Celestial Architect',
+    headline: '$99 / month',
+    priceCents: 9900,
+    interval: 'month' as const,
+    blurb: 'Command the universe with enterprise power',
+    stripePriceId: process.env.STRIPE_PRICE_CELESTIAL || null,
   },
 } as const;

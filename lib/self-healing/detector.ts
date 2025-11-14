@@ -150,6 +150,27 @@ export class SelfHealingDetector {
   }
 
   /**
+   * Detect memory system issues
+   */
+  static async detectMemoryIssue(
+    userId: string,
+    failureType: 'load_failure' | 'save_failure' | 'search_failure',
+    errorMessage: string
+  ): Promise<SystemIssue | null> {
+    return {
+      type: 'memory_issue',
+      severity: failureType === 'save_failure' ? 'high' : 'medium',
+      affectedComponent: 'memory',
+      errorDetails: {
+        userId,
+        failureType,
+        errorMessage,
+      },
+      detectedAt: new Date().toISOString(),
+    }
+  }
+
+  /**
    * Log a system issue to the database
    */
   static async logIssue(issue: SystemIssue): Promise<string | null> {
@@ -218,6 +239,12 @@ export class SelfHealingDetector {
           requiresUserApproval: true,
         }
       
+      case 'memory_issue':
+        return {
+          proposedFix: this.generateMemoryFix(issue),
+          requiresUserApproval: true,
+        }
+      
       default:
         return {
           proposedFix: 'Unknown issue type - manual investigation required',
@@ -274,6 +301,20 @@ export class SelfHealingDetector {
 
   private static generateDeadlockFix(issue: SystemIssue): string {
     return `For Council session ${issue.errorDetails.sessionId}, implement tie-breaking mechanism. Consider using weighted voting or bringing in additional neutral sage. Lower consensus threshold from current level.`
+  }
+
+  private static generateMemoryFix(issue: SystemIssue): string {
+    const failureType = issue.errorDetails.failureType
+    
+    if (failureType === 'save_failure') {
+      return `Increase memory allocation for save operations in ${issue.affectedComponent}. Implement data compression to reduce memory usage.`
+    } else if (failureType === 'load_failure') {
+      return `Optimize data loading process in ${issue.affectedComponent}. Use lazy loading for non-critical data.`
+    } else if (failureType === 'search_failure') {
+      return `Enhance search indexing in ${issue.affectedComponent}. Use more efficient search algorithms.`
+    } else {
+      return `Review memory usage in ${issue.affectedComponent}. Implement memory profiling and optimize resource consumption.`
+    }
   }
 
   /**

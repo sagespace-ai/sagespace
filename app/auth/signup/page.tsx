@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { SparklesIcon } from "@/components/icons"
+import { SimpleLogo } from "@/components/branding/SimpleLogo"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -62,8 +61,8 @@ export default function SignupPage() {
 
       <Card className="relative w-full max-w-md bg-slate-900/80 border-purple-500/20 backdrop-blur-sm">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <SparklesIcon className="w-12 h-12 text-cyan-400" />
+          <div className="flex justify-center mb-6">
+            <SimpleLogo size="lg" />
           </div>
           <CardTitle className="text-2xl bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
             Join SageSpace
