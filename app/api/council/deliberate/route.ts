@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase/server"
 import { generateCouncilResponse } from "@/lib/ai-client"
 import { createCouncilGraph } from "@/lib/ai/orchestration/council-graph"
 import { monitoredAPIRoute } from "@/lib/self-healing/middleware"
+import type { AccessLevel } from "@/lib/ai/model-registry"
 
 async function councilHandler(request: Request) {
   try {
@@ -13,6 +14,20 @@ async function councilHandler(request: Request) {
     }
 
     const supabase = await createServerClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    let userAccessLevel: AccessLevel = 'free'
+    if (user) {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('subscription_tier')
+        .eq('id', user.id)
+        .single()
+      
+      // Map subscription tier to access level
+      userAccessLevel = (profile?.subscription_tier || 'free') as AccessLevel
+    }
 
     const { data: agents, error } = await supabase
       .from("agents")
@@ -28,11 +43,9 @@ async function councilHandler(request: Request) {
       return NextResponse.json({ error: "No agents available for council deliberation" }, { status: 404 })
     }
 
-    console.log("[Council API] Starting deliberation with", councilAgents.length, "agents")
+    console.log("[Council API] Starting deliberation with", councilAgents.length, "agents", "- Access level:", userAccessLevel)
 
-    if (useOrchestration) {
-      const { data: { user } } = await supabase.auth.getUser()
-      
+    if (useOrchestration) {      
       if (user) {
         const graph = createCouncilGraph(
           councilAgents.map(a => a.id),
@@ -61,7 +74,6 @@ async function councilHandler(request: Request) {
       }
     }
 
-    // Fallback to simple streaming mode
     const result = await generateCouncilResponse({
       messages: [{ role: "user", content: query }],
       agents: councilAgents.map((a) => ({
@@ -69,6 +81,7 @@ async function councilHandler(request: Request) {
         role: a.role || "Expert",
         expertise: a.expertise,
       })),
+      userAccessLevel, // Charter compliance: enables cost-aware routing
     })
 
     return result.toUIMessageStreamResponse()

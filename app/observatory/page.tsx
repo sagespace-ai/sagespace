@@ -16,6 +16,9 @@ import {
   UserIcon,
   AwardIcon,
   XIcon,
+  AlertCircle,
+  CheckCircle,
+  ShieldIcon, // Added ShieldIcon for compliance link
 } from "@/components/icons"
 
 export default function ObservatoryPage() {
@@ -34,6 +37,8 @@ export default function ObservatoryPage() {
   const [activityHistory, setActivityHistory] = useState<any[]>([])
   const [showChatWindow, setShowChatWindow] = useState(false)
   const [sageFeed, setSageFeed] = useState<any[]>([])
+  const [systemStatus, setSystemStatus] = useState<any>(null)
+  const [healthChecks, setHealthChecks] = useState<any>(null)
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -170,6 +175,40 @@ export default function ObservatoryPage() {
     }
   }, [showChatWindow, selectedSage])
 
+  useEffect(() => {
+    const fetchSystemStatus = async () => {
+      try {
+        const response = await fetch('/api/system/status')
+        const data = await response.json()
+        setSystemStatus(data)
+      } catch (error) {
+        console.error('Failed to fetch system status:', error)
+      }
+    }
+
+    const fetchHealthChecks = async () => {
+      try {
+        const response = await fetch('/api/health')
+        const data = await response.json()
+        setHealthChecks(data)
+      } catch (error) {
+        console.error('Failed to fetch health checks:', error)
+      }
+    }
+
+    fetchSystemStatus()
+    fetchHealthChecks()
+
+    // Refresh every 30 seconds
+    const interval = setInterval(() => {
+      fetchSystemStatus()
+      fetchHealthChecks()
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+
   const filteredAgents = filter === "all" ? agents : agents.filter((a) => a.domain === filter)
 
   const domains = ["Health", "Education", "Creative", "Business", "Science", "Technology"]
@@ -255,12 +294,229 @@ export default function ObservatoryPage() {
                     <BrainIcon className="w-4 h-4" />
                   </Button>
                 </Link>
+                <Link href="/observatory/compliance">
+                  <Button variant="ghost" size="sm" className="text-slate-300 hover:text-emerald-400">
+                    <ShieldIcon className="w-4 h-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
         </header>
 
         <main className="container mx-auto px-4 py-8">
+          {(systemStatus || healthChecks) && (
+            <div className="mb-8 space-y-4">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                System Health & Monitoring
+              </h2>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Health Status Card */}
+                {healthChecks && (
+                  <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-emerald-500/30 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      {healthChecks.status === 'healthy' ? (
+                        <CheckCircle className="w-8 h-8 text-emerald-400" />
+                      ) : (
+                        <AlertCircle className="w-8 h-8 text-yellow-400" />
+                      )}
+                      <div className={`w-3 h-3 rounded-full animate-pulse ${
+                        healthChecks.status === 'healthy' ? 'bg-emerald-400' : 'bg-yellow-400'
+                      }`} />
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-1">
+                      {healthChecks.status === 'healthy' ? 'Healthy' : 'Degraded'}
+                    </div>
+                    <div className="text-sm text-slate-400">Overall System</div>
+                    <div className="mt-3 space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Database:</span>
+                        <span className={healthChecks.checks.database.ok ? 'text-emerald-400' : 'text-red-400'}>
+                          {healthChecks.checks.database.ok ? '✓ OK' : '✗ Down'}
+                        </span>
+                      </div>
+                      {healthChecks.checks.database.latencyMs && (
+                        <div className="text-xs text-slate-500">
+                          Latency: {healthChecks.checks.database.latencyMs}ms
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                )}
+
+                {/* AI Provider Status */}
+                {systemStatus && (
+                  <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-purple-500/30 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <ZapIcon className="w-8 h-8 text-purple-400" />
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        systemStatus.circuitBreakers?.groq === 'closed'
+                          ? 'bg-emerald-500/20 text-emerald-400'
+                          : systemStatus.circuitBreakers?.groq === 'open'
+                          ? 'bg-red-500/20 text-red-400'
+                          : 'bg-yellow-500/20 text-yellow-400'
+                      }`}>
+                        {systemStatus.circuitBreakers?.groq || 'unknown'}
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-1">
+                      Groq Provider
+                    </div>
+                    <div className="text-sm text-slate-400">Charter-Compliant AI</div>
+                    <div className="mt-3 text-xs text-purple-300">
+                      Zero-cost, ultra-fast inference
+                    </div>
+                  </Card>
+                )}
+
+                {/* System Load Card */}
+                {systemStatus && (
+                  <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-cyan-500/30 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <ActivityIcon className="w-8 h-8 text-cyan-400" />
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        systemStatus.status === 'normal'
+                          ? 'bg-emerald-500/20 text-emerald-400'
+                          : systemStatus.status === 'light'
+                          ? 'bg-yellow-500/20 text-yellow-400'
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {systemStatus.status}
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-1 capitalize">
+                      {systemStatus.status} Mode
+                    </div>
+                    <div className="text-sm text-slate-400">Load Status</div>
+                    {systemStatus.load && (
+                      <div className="mt-3 space-y-1 text-xs">
+                        {systemStatus.load.aiLatencyHigh && (
+                          <div className="text-yellow-400">⚠ High AI latency</div>
+                        )}
+                        {systemStatus.load.errorRateHigh && (
+                          <div className="text-red-400">⚠ Elevated errors</div>
+                        )}
+                        {!systemStatus.load.aiLatencyHigh && !systemStatus.load.errorRateHigh && (
+                          <div className="text-emerald-400">✓ All systems nominal</div>
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                )}
+
+                {/* Active Limits Card */}
+                {systemStatus?.limits && (
+                  <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-orange-500/30 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <ScaleIcon className="w-8 h-8 text-orange-400" />
+                      <TrendingUpIcon className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-1">
+                      Active Limits
+                    </div>
+                    <div className="text-sm text-slate-400">Load Protection</div>
+                    <div className="mt-3 space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Council:</span>
+                        <span className="text-orange-400">{systemStatus.limits.councilParticipants} sages</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Response:</span>
+                        <span className="text-orange-400">{systemStatus.limits.maxResponseLength} tokens</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Memory:</span>
+                        <span className={systemStatus.limits.memorySummarizationEnabled ? 'text-emerald-400' : 'text-red-400'}>
+                          {systemStatus.limits.memorySummarizationEnabled ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+              </div>
+
+              {/* Performance Metrics */}
+              {systemStatus?.metrics && Object.keys(systemStatus.metrics).length > 0 && (
+                <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-purple-500/20 p-6">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <ActivityIcon className="w-5 h-5 text-purple-400" />
+                    Performance Metrics
+                  </h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {systemStatus.metrics['chat.success'] !== undefined && (
+                      <div>
+                        <div className="text-2xl font-bold text-emerald-400">
+                          {systemStatus.metrics['chat.success'] || 0}
+                        </div>
+                        <div className="text-sm text-slate-400">Successful Chats</div>
+                      </div>
+                    )}
+                    {systemStatus.metrics['chat.error'] !== undefined && (
+                      <div>
+                        <div className="text-2xl font-bold text-red-400">
+                          {systemStatus.metrics['chat.error'] || 0}
+                        </div>
+                        <div className="text-sm text-slate-400">Chat Errors</div>
+                      </div>
+                    )}
+                    {systemStatus.metrics['router.groq.success'] !== undefined && (
+                      <div>
+                        <div className="text-2xl font-bold text-purple-400">
+                          {systemStatus.metrics['router.groq.success'] || 0}
+                        </div>
+                        <div className="text-sm text-slate-400">Groq Requests</div>
+                      </div>
+                    )}
+                    {systemStatus.metrics['chat.response.latency'] && (
+                      <div>
+                        <div className="text-2xl font-bold text-cyan-400">
+                          {Math.round(systemStatus.metrics['chat.response.latency'].avg || 0)}ms
+                        </div>
+                        <div className="text-sm text-slate-400">Avg Chat Latency</div>
+                        {systemStatus.metrics['chat.response.latency'].p95 && (
+                          <div className="text-xs text-slate-500 mt-1">
+                            P95: {Math.round(systemStatus.metrics['chat.response.latency'].p95)}ms
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              )}
+
+              {/* Status Banner for Degraded Mode */}
+              {systemStatus?.status === 'degraded' && (
+                <div className="p-4 bg-red-500/10 border-2 border-red-500/30 rounded-xl backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="w-6 h-6 text-red-400" />
+                    <div>
+                      <div className="font-semibold text-red-300">System in Degraded Mode</div>
+                      <div className="text-sm text-red-200/80">
+                        Running in light mode while the cosmos stabilizes. Some features may be reduced.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {systemStatus?.status === 'light' && (
+                <div className="p-4 bg-yellow-500/10 border-2 border-yellow-500/30 rounded-xl backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="w-6 h-6 text-yellow-400" />
+                    <div>
+                      <div className="font-semibold text-yellow-300">System in Light Mode</div>
+                      <div className="text-sm text-yellow-200/80">
+                        Operating at reduced capacity to maintain stability. Full capacity returning soon.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+
           <div className="mb-8 text-center animate-fade-in">
             <h2
               className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient-x"

@@ -1,3 +1,5 @@
-import StudioPage from '../persona-editor/page'
+import StudioBuilder from './studio-builder'
 
-export default StudioPage
+export default function StudioPage() {
+  return <StudioBuilder />
+}

@@ -1,5 +1,3 @@
-"use client"
-
 import MarketingPageClient from './marketing-client'
 
 export default function MarketingPage() {

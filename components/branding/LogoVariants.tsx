@@ -26,3 +26,6 @@ export function SplashLogo() {
     </div>
   )
 }
+
+export { CosmicLogo, CosmicLogoFull, CosmicLogoIcon, CosmicLogoMono, CosmicLogoInverse, CosmicLogoThinking } from './CosmicLogo'
+export { SimpleLogo } from './SimpleLogo'

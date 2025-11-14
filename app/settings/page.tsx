@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +12,7 @@ import { Card } from "@/components/ui/card"
 import { User, Shield, Bell, Eye, Palette, Wrench, CreditCard, ArrowLeft, Check, Sparkles, Zap, TrendingUp, XCircle, Info, Star, ArrowRight, Crown } from "@/components/icons"
 import type { AIProposal } from "@/lib/types/personalization"
 import { useAppearance } from "@/lib/contexts/AppearanceContext"
+import { createClient } from "@/lib/supabase/client"
 
 // Placeholder for the SubscriptionManager component
 // In a real application, this would be imported from "@/components/billing/SubscriptionManager"
@@ -47,17 +49,17 @@ const SubscriptionManager = () => (
         <h3 className="text-lg font-semibold text-white mb-2">Past Invoices</h3>
         <ul className="space-y-2">
           <li>
-            <Link href="#" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
+            <Link href="/billing?invoice=INV-005678" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
               Invoice #INV-005678 <span className="text-gray-400">(Aug 2024)</span> <ArrowRight className="w-3 h-3" />
             </Link>
           </li>
           <li>
-            <Link href="#" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
+            <Link href="/billing?invoice=INV-004567" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
               Invoice #INV-004567 <span className="text-gray-400">(Jul 2024)</span> <ArrowRight className="w-3 h-3" />
             </Link>
           </li>
           <li>
-            <Link href="#" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
+            <Link href="/billing?invoice=INV-003456" className="text-sm text-cyan-400 hover:underline flex items-center justify-between">
               Invoice #INV-003456 <span className="text-gray-400">(Jun 2024)</span> <ArrowRight className="w-3 h-3" />
             </Link>
           </li>
@@ -69,6 +71,8 @@ const SubscriptionManager = () => (
 
 
 export default function SettingsPage() {
+  const router = useRouter()
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState<string | null>(null)
   const [settings, setSettings] = useState({
     // Profile
@@ -120,37 +124,72 @@ export default function SettingsPage() {
   const [loadingSpotify, setLoadingSpotify] = useState(false)
 
   useEffect(() => {
-    // Check Spotify connection status on mount
-    fetch('/api/spotify/status')
-      .then(res => res.json())
-      .then(data => setSpotifyStatus(data))
-      .catch(err => console.error('Failed to check Spotify status:', err))
-      
-    // Check for connection success/error in URL
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('spotify') === 'connected') {
-      setSaveStatus('Spotify connected successfully!')
-      setTimeout(() => setSaveStatus(null), 3000)
-      // Refresh status
-      fetch('/api/spotify/status')
-        .then(res => res.json())
-        .then(data => setSpotifyStatus(data))
-    }
+    const checkAuth = async () => {
+      try {
+        const supabase = createClient()
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('[v0] [Settings] Auth error:', error)
+          router.push('/auth/login?redirect=/settings')
+          return
+        }
+        
+        if (!session) {
+          console.log('[v0] [Settings] No session, redirecting to login')
+          router.push('/auth/login?redirect=/settings')
+          return
+        }
+        
+        setIsAuthLoading(false)
+        
+        // Check Spotify connection status on mount
+        fetch('/api/spotify/status')
+          .then(res => res.json())
+          .then(data => setSpotifyStatus(data))
+          .catch(err => console.error('[v0] Failed to check Spotify status:', err))
+          
+        // Check for connection success/error in URL
+        const params = new URLSearchParams(window.location.search)
+        if (params.get('spotify') === 'connected') {
+          setSaveStatus('Spotify connected successfully!')
+          setTimeout(() => setSaveStatus(null), 3000)
+          // Refresh status
+          fetch('/api/spotify/status')
+            .then(res => res.json())
+            .then(data => setSpotifyStatus(data))
+        }
 
-    loadAIProposals()
-    loadDesignKarma()
-  }, [])
+        loadAIProposals()
+        loadDesignKarma()
+      } catch (error) {
+        console.error('[v0] [Settings] Failed to check auth:', error)
+        setIsAuthLoading(false)
+      }
+    }
+    
+    checkAuth()
+  }, [router])
 
   const loadAIProposals = async () => {
     try {
       setLoadingProposals(true)
       const res = await fetch('/api/personalization')
-      if (res.ok) {
-        const data = await res.json()
-        setAiProposals(data.ai_proposals?.pendingChanges || [])
+      
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.error('[v0] [Settings] Unauthorized, redirecting to login')
+          router.push('/auth/login?redirect=/settings')
+          return
+        }
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       }
+      
+      const data = await res.json()
+      setAiProposals(data.ai_proposals?.pendingChanges || [])
     } catch (error) {
-      console.error('Failed to load AI proposals:', error)
+      console.error('[v0] Failed to load AI proposals:', error)
+      setSaveStatus('Failed to load suggestions - please refresh')
     } finally {
       setLoadingProposals(false)
     }
@@ -159,12 +198,20 @@ export default function SettingsPage() {
   const loadDesignKarma = async () => {
     try {
       const res = await fetch('/api/design-karma')
-      if (res.ok) {
-        const data = await res.json()
-        setDesignKarma(data)
+      
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.error('[v0] [Settings] Unauthorized, redirecting to login')
+          router.push('/auth/login?redirect=/settings')
+          return
+        }
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       }
+      
+      const data = await res.json()
+      setDesignKarma(data)
     } catch (error) {
-      console.error('Failed to load design karma:', error)
+      console.error('[v0] Failed to load design karma:', error)
     }
   }
 
@@ -367,6 +414,17 @@ export default function SettingsPage() {
     await new Promise((resolve) => setTimeout(resolve, 500))
     setSaveStatus("saved")
     setTimeout(() => setSaveStatus(null), 2000)
+  }
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <Sparkles className="w-12 h-12 text-purple-400 animate-spin mx-auto mb-4" />
+          <p className="text-gray-300 text-lg">Loading settings...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

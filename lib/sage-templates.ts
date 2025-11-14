@@ -10,6 +10,11 @@ export interface SageTemplate {
   off_scope?: string
   responsibilities?: string
   uniqueness_goal?: string
+  // NEW: Cost-awareness per Charter Addendum
+  tier: 'core' | 'extended' | 'experimental' | 'premium'
+  costLevel: 'free' | 'low' | 'medium' | 'premium'
+  allowedModels: string[] // Model IDs from registry
+  requiresAccessLevel?: 'free' | 'explorer' | 'voyager' | 'astral' | 'oracle' | 'celestial'
 }
 
 export const SAGE_DOMAINS = [
@@ -39,6 +44,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     off_scope: "Medical diagnosis, prescription medications, licensed therapy, financial planning, legal advice, business strategy",
     responsibilities: "Surface health risks, routines, and wellness protocols that improve physical and mental wellbeing",
     uniqueness_goal: "Only contribute when I can provide evidence-based health guidance that other domains cannot offer",
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-2",
@@ -52,6 +60,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     off_scope: "Clinical psychology requiring licensure, psychiatric medication, medical diagnosis, career counseling, financial advice",
     responsibilities: "Provide mental wellness strategies, emotional coping tools, and mindfulness practices",
     uniqueness_goal: "Focus exclusively on psychological wellbeing angles that complement but don't replace professional therapy",
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-3",
@@ -61,6 +72,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💪",
     description: "Optimizes physical fitness",
     capabilities: ["Workout Plans", "Form Correction", "Progress Tracking"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-4",
@@ -70,6 +84,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🥗",
     description: "Optimizes nutritional health",
     capabilities: ["Meal Planning", "Diet Analysis", "Supplement Guidance"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-5",
@@ -79,6 +96,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "😴",
     description: "Improves sleep quality",
     capabilities: ["Sleep Hygiene", "Circadian Rhythm", "Recovery Protocols"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-6",
@@ -88,6 +108,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧘‍♀️",
     description: "Teaches yoga practices",
     capabilities: ["Asanas", "Breathing Techniques", "Meditation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-7",
@@ -97,6 +120,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦴",
     description: "Aids injury recovery",
     capabilities: ["Exercise Therapy", "Pain Management", "Mobility"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-8",
@@ -106,6 +132,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🕉️",
     description: "Teaches meditation practices",
     capabilities: ["Guided Meditation", "Breathwork", "Awareness"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-9",
@@ -115,6 +144,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌿",
     description: "Explores natural healing",
     capabilities: ["Herbal Remedies", "Acupressure", "Energy Healing"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-10",
@@ -124,6 +156,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🪑",
     description: "Improves body alignment",
     capabilities: ["Desk Setup", "Movement Correction", "Pain Prevention"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-11",
@@ -133,6 +168,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💊",
     description: "Manages persistent pain",
     capabilities: ["Coping Strategies", "Treatment Options", "Lifestyle Adjustments"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-12",
@@ -142,6 +180,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔗",
     description: "Supports addiction recovery",
     capabilities: ["Harm Reduction", "Relapse Prevention", "Support Groups"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-13",
@@ -151,6 +192,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👩‍⚕️",
     description: "Addresses women's health needs",
     capabilities: ["Reproductive Health", "Hormonal Balance", "Maternal Care"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-14",
@@ -160,6 +204,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👴",
     description: "Supports healthy aging",
     capabilities: ["Fall Prevention", "Cognitive Health", "Independent Living"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-15",
@@ -169,6 +216,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚽",
     description: "Treats sports injuries",
     capabilities: ["Injury Prevention", "Performance Enhancement", "Recovery"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   // Health & Wellness (16-30)
   {
@@ -179,6 +229,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌸",
     description: "Reduces daily stress",
     capabilities: ["Relaxation Techniques", "Breathing Exercises", "Tension Release"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-17",
@@ -188,6 +241,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏃",
     description: "Improves athletic ability",
     capabilities: ["Training Programs", "Speed & Agility", "Sport-Specific Skills"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-18",
@@ -197,6 +253,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💆‍♂️",
     description: "Relieves muscle tension",
     capabilities: ["Deep Tissue", "Swedish Massage", "Myofascial Release"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-19",
@@ -206,6 +265,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🍽️",
     description: "Manages medical nutrition",
     capabilities: ["Disease Management", "Therapeutic Diets", "Meal Planning"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-20",
@@ -215,6 +277,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦴",
     description: "Aligns musculoskeletal system",
     capabilities: ["Adjustments", "Spinal Health", "Joint Mobility"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-21",
@@ -224,6 +289,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌺",
     description: "Uses scents for wellness",
     capabilities: ["Oil Blending", "Therapeutic Applications", "Mood Enhancement"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-22",
@@ -233,6 +301,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧰",
     description: "Improves functional ability",
     capabilities: ["Adaptive Equipment", "Skills Training", "Independence"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-23",
@@ -242,6 +313,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🗣️",
     description: "Improves speech and language",
     capabilities: ["Articulation", "Language Development", "Swallowing"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-24",
@@ -251,6 +325,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📍",
     description: "Balances body energy",
     capabilities: ["Meridian Therapy", "Pain Relief", "Wellness"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-25",
@@ -260,6 +337,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👁️",
     description: "Improves visual function",
     capabilities: ["Eye Exercises", "Vision Training", "Coordination"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-26",
@@ -269,6 +349,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👂",
     description: "Addresses hearing issues",
     capabilities: ["Hearing Tests", "Assistive Devices", "Communication Strategies"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "health-27",
@@ -278,6 +361,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦶",
     description: "Stimulates healing zones",
     capabilities: ["Foot Therapy", "Pressure Points", "Relaxation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-28",
@@ -287,6 +373,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💨",
     description: "Optimizes breathing patterns",
     capabilities: ["Pranayama", "Breath Control", "Lung Capacity"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-29",
@@ -296,6 +385,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤰",
     description: "Supports healthy pregnancy",
     capabilities: ["Prenatal Exercise", "Nutrition", "Birth Prep"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "health-30",
@@ -305,6 +397,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👶",
     description: "Supports children's health",
     capabilities: ["Development Milestones", "Childhood Nutrition", "Immunizations"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
 
   // Education & Learning
@@ -316,6 +411,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔢",
     description: "Makes math concepts clear",
     capabilities: ["Problem Solving", "Concept Explanation", "Practice Problems"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-2",
@@ -325,6 +423,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🗣️",
     description: "Teaches language fluently",
     capabilities: ["Grammar", "Conversation", "Cultural Context"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-3",
@@ -334,6 +435,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔬",
     description: "Explains scientific phenomena",
     capabilities: ["Experiments", "Theory", "Real-world Applications"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-4",
@@ -343,6 +447,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📜",
     description: "Explores historical events",
     capabilities: ["Timeline Analysis", "Cultural Context", "Critical Thinking"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-5",
@@ -352,6 +459,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤔",
     description: "Examines life's big questions",
     capabilities: ["Logic", "Ethics", "Existentialism"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-6",
@@ -361,6 +471,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌍",
     description: "Explores global landscapes",
     capabilities: ["Maps", "Climate", "Demographics"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-7",
@@ -370,6 +483,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📖",
     description: "Analyzes written works",
     capabilities: ["Theme Analysis", "Character Study", "Symbolism"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-8",
@@ -379,6 +495,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎼",
     description: "Teaches music fundamentals",
     capabilities: ["Notation", "Scales", "Chord Progressions"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-9",
@@ -388,6 +507,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🖼️",
     description: "Studies artistic movements",
     capabilities: ["Art Periods", "Artist Biographies", "Techniques"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-10",
@@ -397,6 +519,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💵",
     description: "Explains economic principles",
     capabilities: ["Market Dynamics", "Policy Analysis", "Forecasting"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-11",
@@ -406,6 +531,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚗️",
     description: "Demystifies chemistry",
     capabilities: ["Equations", "Lab Safety", "Molecular Structure"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-12",
@@ -415,6 +543,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦠",
     description: "Studies living organisms",
     capabilities: ["Cell Biology", "Genetics", "Ecology"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-13",
@@ -424,6 +555,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚛️",
     description: "Explains the universe's mechanics",
     capabilities: ["Classical Mechanics", "Quantum", "Relativity"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-14",
@@ -433,6 +567,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👨‍💻",
     description: "Teaches coding basics",
     capabilities: ["Algorithms", "Data Structures", "Problem Solving"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-15",
@@ -442,6 +579,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📝",
     description: "Enhances study effectiveness",
     capabilities: ["Time Management", "Note-Taking", "Test Prep"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   // Education & Learning (16-30)
   {
@@ -452,6 +592,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔬",
     description: "Combines science disciplines",
     capabilities: ["Project-Based Learning", "Engineering Design", "Real-World Applications"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-17",
@@ -461,6 +604,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "♿",
     description: "Supports diverse learners",
     capabilities: ["IEP Development", "Accommodations", "Inclusive Teaching"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "edu-18",
@@ -470,6 +616,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📚",
     description: "Improves reading skills",
     capabilities: ["Phonics", "Comprehension", "Fluency"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-19",
@@ -479,6 +628,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌐",
     description: "Teaches English learners",
     capabilities: ["Grammar", "Vocabulary", "Cultural Context"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-20",
@@ -488,6 +640,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📝",
     description: "Prepares for standardized tests",
     capabilities: ["SAT/ACT", "Test Strategies", "Practice Tests"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "edu-21",
@@ -497,6 +652,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧒",
     description: "Facilitates self-directed learning",
     capabilities: ["Prepared Environment", "Observation", "Hands-On Activities"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-22",
@@ -506,6 +664,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎨",
     description: "Nurtures whole child development",
     capabilities: ["Arts Integration", "Developmental Stages", "Nature Connection"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-23",
@@ -515,6 +676,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏡",
     description: "Guides home-based learning",
     capabilities: ["Curriculum Selection", "Schedule Planning", "Socialization"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-24",
@@ -524,6 +688,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎓",
     description: "Supports academic goals",
     capabilities: ["Course Selection", "College Prep", "Career Planning"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-25",
@@ -533,6 +700,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧠",
     description: "Addresses learning differences",
     capabilities: ["Dyslexia Support", "ADHD Strategies", "Executive Function"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "edu-26",
@@ -542,6 +712,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧸",
     description: "Develops young minds",
     capabilities: ["Play-Based Learning", "Social Skills", "Readiness"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-27",
@@ -551,6 +724,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📚",
     description: "Teaches research skills",
     capabilities: ["Digital Literacy", "Research Methods", "Media Evaluation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-28",
@@ -560,6 +736,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📊",
     description: "Explains statistical concepts",
     capabilities: ["Probability", "Hypothesis Testing", "Data Interpretation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-29",
@@ -569,6 +748,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✏️",
     description: "Improves writing skills",
     capabilities: ["Essay Structure", "Grammar", "Revision"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "edu-30",
@@ -578,6 +760,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚖️",
     description: "Teaches persuasive speaking",
     capabilities: ["Logic", "Rhetoric", "Rebuttal"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
 
   // Creative & Arts
@@ -589,6 +774,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✍️",
     description: "Enhances writing skills",
     capabilities: ["Story Structure", "Style Refinement", "Publishing Guidance"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-2",
@@ -598,6 +786,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎨",
     description: "Elevates visual creativity",
     capabilities: ["Color Theory", "Composition", "Brand Identity"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-3",
@@ -607,6 +798,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎵",
     description: "Creates musical compositions",
     capabilities: ["Melody Writing", "Harmony", "Production"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-4",
@@ -616,6 +810,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📷",
     description: "Captures stunning images",
     capabilities: ["Composition", "Lighting", "Post-Processing"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-5",
@@ -625,6 +822,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎬",
     description: "Creates compelling narratives",
     capabilities: ["Storyboarding", "Cinematography", "Editing"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-6",
@@ -634,6 +834,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👗",
     description: "Designs wearable art",
     capabilities: ["Trend Forecasting", "Pattern Making", "Styling"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-7",
@@ -643,6 +846,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🛋️",
     description: "Creates beautiful spaces",
     capabilities: ["Space Planning", "Color Schemes", "Furniture Selection"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-8",
@@ -652,6 +858,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🖋️",
     description: "Writes evocative poetry",
     capabilities: ["Meter", "Metaphor", "Imagery"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-9",
@@ -661,6 +870,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎞️",
     description: "Brings characters to life",
     capabilities: ["2D/3D Animation", "Rigging", "Motion Design"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-10",
@@ -670,6 +882,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎮",
     description: "Designs engaging gameplay",
     capabilities: ["Mechanics", "Level Design", "Player Psychology"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-11",
@@ -679,6 +894,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎙️",
     description: "Performs vocal artistry",
     capabilities: ["Character Voices", "Accents", "Narration"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-12",
@@ -688,6 +906,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💃",
     description: "Communicates through dance",
     capabilities: ["Choreography", "Technique", "Performance"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-13",
@@ -697,6 +918,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🗿",
     description: "Shapes physical art",
     capabilities: ["Modeling", "Materials", "Installation"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-14",
@@ -706,6 +930,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💎",
     description: "Creates elegant accessories",
     capabilities: ["Metalwork", "Gemstones", "Design"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-15",
@@ -715,6 +942,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎭",
     description: "Orchestrates live performances",
     capabilities: ["Blocking", "Character Development", "Production"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   // Creative & Arts (16-30)
   {
@@ -725,6 +955,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🖌️",
     description: "Creates compelling visuals",
     capabilities: ["Logo Design", "Typography", "Layout"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-17",
@@ -734,6 +967,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎞️",
     description: "Crafts polished videos",
     capabilities: ["Color Grading", "Sound Design", "Transitions"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-18",
@@ -743,6 +979,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎨",
     description: "Creates original artwork",
     capabilities: ["Digital Illustration", "Character Design", "Concept Art"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-19",
@@ -752,6 +991,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🖋️",
     description: "Creates beautiful lettering",
     capabilities: ["Hand Lettering", "Typography", "Custom Scripts"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-20",
@@ -761,6 +1003,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏺",
     description: "Shapes pottery and sculpture",
     capabilities: ["Wheel Throwing", "Hand Building", "Glazing"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-21",
@@ -770,6 +1015,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧵",
     description: "Creates fabric art",
     capabilities: ["Weaving", "Dyeing", "Embroidery"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-22",
@@ -779,6 +1027,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎶",
     description: "Writes memorable songs",
     capabilities: ["Lyrics", "Melody", "Song Structure"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-23",
@@ -788,6 +1039,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎧",
     description: "Masters sound quality",
     capabilities: ["Mixing", "Mastering", "Acoustics"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-24",
@@ -797,6 +1051,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💄",
     description: "Creates transformative looks",
     capabilities: ["Special Effects", "Beauty", "Character Makeup"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "creative-25",
@@ -806,6 +1063,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎨",
     description: "Creates permanent art",
     capabilities: ["Custom Designs", "Line Work", "Color Theory"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-26",
@@ -815,6 +1075,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎨",
     description: "Creates street art",
     capabilities: ["Spray Paint Techniques", "Murals", "Lettering"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-27",
@@ -824,6 +1087,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🪵",
     description: "Crafts wooden creations",
     capabilities: ["Furniture Making", "Wood Carving", "Joinery"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-28",
@@ -833,6 +1099,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🫙",
     description: "Shapes molten glass",
     capabilities: ["Blown Glass", "Sculpture", "Functional Art"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-29",
@@ -842,6 +1111,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔨",
     description: "Forges metal artwork",
     capabilities: ["Welding", "Forging", "Casting"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "creative-30",
@@ -851,6 +1123,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📚",
     description: "Creates visual narratives",
     capabilities: ["Panel Layout", "Character Design", "Inking"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
 
   // Business & Finance
@@ -862,6 +1137,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📊",
     description: "Drives business success",
     capabilities: ["Market Analysis", "Growth Planning", "Competitive Strategy"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-2",
@@ -871,6 +1149,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💰",
     description: "Optimizes financial health",
     capabilities: ["Budgeting", "Investment Strategy", "Risk Management"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "business-3",
@@ -880,6 +1161,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📱",
     description: "Amplifies brand reach",
     capabilities: ["Campaign Design", "Social Media", "Content Strategy"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-4",
@@ -889,6 +1173,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🚀",
     description: "Launches new ventures",
     capabilities: ["Business Model", "Funding", "Product-Market Fit"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "business-5",
@@ -898,6 +1185,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📞",
     description: "Closes more deals",
     capabilities: ["Pitch Craft", "Objection Handling", "Pipeline Management"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-6",
@@ -907,6 +1197,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👥",
     description: "Builds strong teams",
     capabilities: ["Recruitment", "Culture", "Performance Management"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-7",
@@ -916,6 +1209,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚙️",
     description: "Streamlines workflows",
     capabilities: ["Efficiency", "Supply Chain", "Quality Control"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-8",
@@ -925,6 +1221,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✨",
     description: "Builds powerful brands",
     capabilities: ["Positioning", "Messaging", "Visual Identity"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-9",
@@ -934,6 +1233,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📦",
     description: "Delivers winning products",
     capabilities: ["Roadmap", "User Research", "Feature Prioritization"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-10",
@@ -943,6 +1245,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧮",
     description: "Manages financial books",
     capabilities: ["Bookkeeping", "Tax Prep", "Auditing"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-11",
@@ -952,6 +1257,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📉",
     description: "Analyzes investment opportunities",
     capabilities: ["Valuation", "Risk Assessment", "Portfolio Strategy"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "business-12",
@@ -961,6 +1269,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🚚",
     description: "Manages product flow",
     capabilities: ["Inventory", "Distribution", "Vendor Management"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-13",
@@ -970,6 +1281,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "😊",
     description: "Ensures customer happiness",
     capabilities: ["Onboarding", "Retention", "Upselling"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-14",
@@ -979,6 +1293,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🛒",
     description: "Optimizes online sales",
     capabilities: ["Store Setup", "Conversion", "Fulfillment"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-15",
@@ -988,6 +1305,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏪",
     description: "Grows through franchising",
     capabilities: ["Franchise Model", "Territory Planning", "Support Systems"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   // Business & Finance (16-30)
   {
@@ -998,6 +1318,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📊",
     description: "Analyzes business metrics",
     capabilities: ["KPI Tracking", "Process Improvement", "Reporting"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-17",
@@ -1007,6 +1330,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔄",
     description: "Leads organizational change",
     capabilities: ["Change Strategy", "Stakeholder Engagement", "Training"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "business-18",
@@ -1016,6 +1342,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🛡️",
     description: "Mitigates business risks",
     capabilities: ["Risk Assessment", "Insurance", "Crisis Planning"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-19",
@@ -1025,6 +1354,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🛍️",
     description: "Optimizes purchasing",
     capabilities: ["Vendor Management", "Contract Negotiation", "Cost Reduction"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-20",
@@ -1034,6 +1366,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💼",
     description: "Develops business leaders",
     capabilities: ["Strategic Thinking", "Leadership", "Performance"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "business-21",
@@ -1043,6 +1378,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏡",
     description: "Facilitates property sales",
     capabilities: ["Market Analysis", "Negotiation", "Closing"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-22",
@@ -1052,6 +1390,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏥",
     description: "Recommends coverage",
     capabilities: ["Policy Comparison", "Claims Assistance", "Risk Analysis"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-23",
@@ -1061,6 +1402,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤝",
     description: "Facilitates business combinations",
     capabilities: ["Due Diligence", "Valuation", "Integration"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "business-24",
@@ -1070,6 +1414,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💵",
     description: "Provides accounting services",
     capabilities: ["Tax Returns", "Financial Statements", "Auditing"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "business-25",
@@ -1079,6 +1426,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💰",
     description: "Determines business value",
     capabilities: ["Financial Analysis", "Market Comparables", "Valuation Methods"],
+    tier: 'premium',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "business-26",
@@ -1088,6 +1438,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌍",
     description: "Facilitates global trade",
     capabilities: ["Customs", "Logistics", "Trade Compliance"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-27",
@@ -1097,6 +1450,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔗",
     description: "Manages affiliate programs",
     capabilities: ["Partner Recruitment", "Commission Structure", "Performance Tracking"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-28",
@@ -1106,6 +1462,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💲",
     description: "Sets optimal prices",
     capabilities: ["Price Testing", "Value-Based Pricing", "Competitor Analysis"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "business-29",
@@ -1115,6 +1474,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "©️",
     description: "Protects business IP",
     capabilities: ["Patent Strategy", "Trademark Portfolio", "Licensing"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "business-30",
@@ -1124,6 +1486,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📈",
     description: "Eliminates waste",
     capabilities: ["Process Mapping", "Defect Reduction", "Continuous Improvement"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
 
   // Science & Research
@@ -1135,6 +1500,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📈",
     description: "Extracts data insights",
     capabilities: ["Statistical Analysis", "Visualization", "Predictive Modeling"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-2",
@@ -1144,6 +1512,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📚",
     description: "Accelerates research",
     capabilities: ["Literature Review", "Methodology", "Paper Writing"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "science-3",
@@ -1153,6 +1524,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧪",
     description: "Organizes experiments",
     capabilities: ["Protocol Design", "Safety", "Documentation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "science-4",
@@ -1162,6 +1536,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌌",
     description: "Studies the universe",
     capabilities: ["Cosmology", "Stellar Evolution", "Dark Matter"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-5",
@@ -1171,6 +1548,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🐋",
     description: "Explores marine ecosystems",
     capabilities: ["Ocean Conservation", "Species Study", "Coral Reefs"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-6",
@@ -1180,6 +1560,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚛️",
     description: "Explores quantum mechanics",
     capabilities: ["Entanglement", "Superposition", "Quantum Computing"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "science-7",
@@ -1189,6 +1572,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧬",
     description: "Studies heredity and genes",
     capabilities: ["Gene Editing", "Sequencing", "Inheritance Patterns"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-8",
@@ -1198,6 +1584,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧠",
     description: "Maps neural pathways",
     capabilities: ["Brain Imaging", "Cognition", "Neuroplasticity"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-9",
@@ -1207,6 +1596,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏺",
     description: "Uncovers past civilizations",
     capabilities: ["Excavation", "Artifact Analysis", "Dating Methods"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-10",
@@ -1216,6 +1608,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌦️",
     description: "Predicts weather patterns",
     capabilities: ["Climate Models", "Storm Tracking", "Forecasting"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "science-11",
@@ -1225,6 +1620,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🪨",
     description: "Studies Earth's structure",
     capabilities: ["Rock Formation", "Plate Tectonics", "Mineral Analysis"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "science-12",
@@ -1234,6 +1632,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌱",
     description: "Studies plant life",
     capabilities: ["Plant Taxonomy", "Ecology", "Conservation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "science-13",
@@ -1243,6 +1644,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦁",
     description: "Studies animal life",
     capabilities: ["Behavior Analysis", "Conservation", "Habitats"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "science-14",
@@ -1252,6 +1656,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦠",
     description: "Tracks disease spread",
     capabilities: ["Outbreak Analysis", "Public Health", "Prevention"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-15",
@@ -1261,6 +1668,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔬",
     description: "Develops new materials",
     capabilities: ["Nanotechnology", "Composites", "Testing"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   // Science & Research (16-30)
   {
@@ -1271,6 +1681,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💻",
     description: "Analyzes biological data",
     capabilities: ["Genomic Analysis", "Protein Modeling", "Algorithms"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-17",
@@ -1280,6 +1693,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔬",
     description: "Examines evidence",
     capabilities: ["DNA Analysis", "Trace Evidence", "Toxicology"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-18",
@@ -1289,6 +1705,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦴",
     description: "Studies ancient life",
     capabilities: ["Fossil Excavation", "Dating Methods", "Evolution"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-19",
@@ -1298,6 +1717,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌋",
     description: "Studies volcanic systems",
     capabilities: ["Eruption Prediction", "Lava Analysis", "Hazard Assessment"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-20",
@@ -1307,6 +1729,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📊",
     description: "Monitors seismic activity",
     capabilities: ["Earthquake Detection", "Fault Analysis", "Risk Mapping"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-21",
@@ -1316,6 +1741,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🐛",
     description: "Studies insect life",
     capabilities: ["Species Identification", "Pest Management", "Pollination"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "science-22",
@@ -1325,6 +1753,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🍄",
     description: "Researches fungi",
     capabilities: ["Mushroom Identification", "Fungal Diseases", "Biotechnology"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "science-23",
@@ -1334,6 +1765,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👽",
     description: "Searches for alien life",
     capabilities: ["Extremophiles", "Biosignatures", "Planetary Habitability"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "science-24",
@@ -1343,6 +1777,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "☠️",
     description: "Studies toxic substances",
     capabilities: ["Chemical Safety", "Dose-Response", "Antidotes"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-25",
@@ -1352,6 +1789,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🛡️",
     description: "Studies immune responses",
     capabilities: ["Antibodies", "Vaccines", "Autoimmune Diseases"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-26",
@@ -1361,6 +1801,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦠",
     description: "Studies viral pathogens",
     capabilities: ["Viral Structure", "Transmission", "Treatments"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-27",
@@ -1370,6 +1813,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚛️",
     description: "Studies fundamental particles",
     capabilities: ["Accelerator Experiments", "Particle Detection", "Standard Model"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "science-28",
@@ -1379,6 +1825,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌌",
     description: "Studies universe evolution",
     capabilities: ["Big Bang Theory", "Dark Energy", "Cosmic Inflation"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "science-29",
@@ -1388,6 +1837,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💎",
     description: "Analyzes crystal structures",
     capabilities: ["X-Ray Diffraction", "Molecular Structure", "Material Properties"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "science-30",
@@ -1397,6 +1849,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💊",
     description: "Studies drug effects",
     capabilities: ["Drug Development", "Pharmacokinetics", "Side Effects"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
 
   // Technology & Innovation
@@ -1408,6 +1863,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💻",
     description: "Builds elegant software",
     capabilities: ["Architecture", "Best Practices", "Code Review"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-2",
@@ -1417,6 +1875,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚙️",
     description: "Streamlines deployment",
     capabilities: ["CI/CD", "Cloud Infrastructure", "Monitoring"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-3",
@@ -1426,6 +1887,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤖",
     description: "Advances AI capabilities",
     capabilities: ["Model Training", "Algorithm Design", "Ethics"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-4",
@@ -1435,6 +1899,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔒",
     description: "Protects digital assets",
     capabilities: ["Threat Analysis", "Penetration Testing", "Security Audits"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-5",
@@ -1444,6 +1911,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎨",
     description: "Designs intuitive interfaces",
     capabilities: ["User Research", "Wireframing", "Usability Testing"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-6",
@@ -1453,6 +1923,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🗄️",
     description: "Builds data pipelines",
     capabilities: ["ETL", "Database Design", "Big Data"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-7",
@@ -1462,6 +1935,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📱",
     description: "Creates mobile applications",
     capabilities: ["iOS", "Android", "Cross-Platform"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-8",
@@ -1471,6 +1947,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⛓️",
     description: "Builds blockchain solutions",
     capabilities: ["Smart Contracts", "Cryptocurrency", "DApps"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-9",
@@ -1480,6 +1959,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "☁️",
     description: "Designs cloud solutions",
     capabilities: ["AWS", "Azure", "Serverless"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-10",
@@ -1489,6 +1971,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✅",
     description: "Ensures software quality",
     capabilities: ["Test Automation", "Bug Tracking", "Quality Assurance"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-11",
@@ -1498,6 +1983,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📡",
     description: "Builds smart device networks",
     capabilities: ["Sensors", "Edge Computing", "Protocols"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-12",
@@ -1507,6 +1995,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🥽",
     description: "Creates virtual worlds",
     capabilities: ["Unity", "3D Modeling", "Spatial Computing"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-13",
@@ -1516,6 +2007,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🖥️",
     description: "Maintains IT systems",
     capabilities: ["Server Management", "Networking", "Troubleshooting"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-14",
@@ -1525,6 +2019,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📄",
     description: "Creates clear tech docs",
     capabilities: ["API Documentation", "User Guides", "Technical Communication"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-15",
@@ -1534,6 +2031,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤖",
     description: "Builds intelligent robots",
     capabilities: ["Mechanical Design", "Control Systems", "AI Integration"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   // Technology & Innovation (16-30)
   {
@@ -1544,6 +2044,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤖",
     description: "Develops ML systems",
     capabilities: ["Neural Networks", "Model Optimization", "Deployment"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-17",
@@ -1553,6 +2056,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💻",
     description: "Builds complete applications",
     capabilities: ["Frontend", "Backend", "Databases"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-18",
@@ -1562,6 +2068,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔧",
     description: "Ensures system reliability",
     capabilities: ["Incident Response", "Monitoring", "Automation"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-19",
@@ -1571,6 +2080,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎮",
     description: "Creates game frameworks",
     capabilities: ["Physics", "Rendering", "Performance"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-20",
@@ -1580,6 +2092,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔌",
     description: "Programs hardware devices",
     capabilities: ["Microcontrollers", "Real-Time Systems", "Low-Level Programming"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-21",
@@ -1589,6 +2104,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🗃️",
     description: "Manages databases",
     capabilities: ["Performance Tuning", "Backup & Recovery", "Security"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-22",
@@ -1598,6 +2116,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌐",
     description: "Designs network infrastructure",
     capabilities: ["Routing", "Firewalls", "VPNs"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-23",
@@ -1607,6 +2128,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔗",
     description: "Creates software interfaces",
     capabilities: ["REST APIs", "GraphQL", "Documentation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-24",
@@ -1616,6 +2140,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👁️",
     description: "Teaches machines to see",
     capabilities: ["Object Detection", "Image Segmentation", "OCR"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-25",
@@ -1625,6 +2152,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💬",
     description: "Processes human language",
     capabilities: ["Text Analysis", "Sentiment", "Translation"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-26",
@@ -1634,6 +2164,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔧",
     description: "Designs computer hardware",
     capabilities: ["Circuit Design", "PCB Layout", "Testing"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-27",
@@ -1643,6 +2176,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚛️",
     description: "Develops quantum algorithms",
     capabilities: ["Qubits", "Quantum Gates", "Error Correction"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "tech-28",
@@ -1652,6 +2188,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤖",
     description: "Builds automated systems",
     capabilities: ["RPA", "Workflow Automation", "Integration"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "tech-29",
@@ -1661,6 +2200,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔓",
     description: "Tests security defenses",
     capabilities: ["Vulnerability Assessment", "Exploit Development", "Reporting"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "tech-30",
@@ -1670,6 +2212,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🖐️",
     description: "Builds authentication systems",
     capabilities: ["Fingerprint", "Face Recognition", "Security"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
 
   // Legal & Justice
@@ -1681,6 +2226,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📜",
     description: "Drafts legal contracts",
     capabilities: ["Contract Review", "Negotiation", "Dispute Resolution"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-2",
@@ -1690,6 +2238,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "©️",
     description: "Protects intellectual property",
     capabilities: ["Patents", "Trademarks", "Copyright"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-3",
@@ -1699,6 +2250,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👨‍👩‍👧",
     description: "Handles family legal matters",
     capabilities: ["Custody", "Divorce", "Adoption"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-4",
@@ -1708,6 +2262,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚖️",
     description: "Defends accused individuals",
     capabilities: ["Trial Defense", "Plea Bargaining", "Appeals"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-5",
@@ -1717,6 +2274,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏢",
     description: "Advises on corporate law",
     capabilities: ["M&A", "Compliance", "Governance"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-6",
@@ -1726,6 +2286,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🛂",
     description: "Navigates immigration law",
     capabilities: ["Visa Applications", "Green Cards", "Deportation Defense"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-7",
@@ -1735,6 +2298,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💼",
     description: "Resolves tax issues",
     capabilities: ["Tax Planning", "IRS Disputes", "Audits"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-8",
@@ -1744,6 +2310,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏠",
     description: "Handles property transactions",
     capabilities: ["Title Review", "Closings", "Zoning"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-9",
@@ -1753,6 +2322,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👔",
     description: "Protects worker rights",
     capabilities: ["Discrimination", "Wrongful Termination", "Contracts"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-10",
@@ -1762,6 +2334,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌳",
     description: "Enforces environmental protection",
     capabilities: ["Regulations", "Compliance", "Litigation"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-11",
@@ -1771,6 +2346,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✊",
     description: "Protects civil liberties",
     capabilities: ["Discrimination Cases", "Police Misconduct", "Voting Rights"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-12",
@@ -1780,6 +2358,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📉",
     description: "Guides through bankruptcy",
     capabilities: ["Chapter 7", "Chapter 13", "Creditor Negotiation"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-13",
@@ -1789,6 +2370,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🩹",
     description: "Seeks injury compensation",
     capabilities: ["Medical Malpractice", "Auto Accidents", "Settlements"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-14",
@@ -1798,6 +2382,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📋",
     description: "Plans asset distribution",
     capabilities: ["Wills", "Trusts", "Probate"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-15",
@@ -1807,6 +2394,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✔️",
     description: "Ensures legal compliance",
     capabilities: ["Policy Development", "Risk Assessment", "Audits"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   // Legal & Justice (16-30)
   {
@@ -1817,6 +2407,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚖️",
     description: "Argues appeals cases",
     capabilities: ["Brief Writing", "Oral Arguments", "Legal Research"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-17",
@@ -1826,6 +2419,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📈",
     description: "Handles securities matters",
     capabilities: ["SEC Compliance", "Public Offerings", "Insider Trading"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "legal-18",
@@ -1835,6 +2431,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏥",
     description: "Navigates healthcare law",
     capabilities: ["HIPAA", "Medical Malpractice", "Regulatory Compliance"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-19",
@@ -1844,6 +2443,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎬",
     description: "Protects creative rights",
     capabilities: ["Contracts", "Rights Management", "Negotiations"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-20",
@@ -1853,6 +2455,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚽",
     description: "Represents athletes",
     capabilities: ["Contract Negotiation", "Endorsements", "Disputes"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-21",
@@ -1862,6 +2467,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚓",
     description: "Handles maritime matters",
     capabilities: ["Shipping Law", "Offshore Accidents", "Cargo Disputes"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-22",
@@ -1871,6 +2479,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✈️",
     description: "Addresses aviation issues",
     capabilities: ["FAA Regulations", "Accident Investigation", "Liability"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-23",
@@ -1880,6 +2491,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏗️",
     description: "Resolves construction disputes",
     capabilities: ["Contract Disputes", "Liens", "Defect Claims"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-24",
@@ -1889,6 +2503,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏛️",
     description: "Enforces fair competition",
     capabilities: ["Monopolies", "Mergers", "Price Fixing"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "legal-25",
@@ -1898,6 +2515,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔒",
     description: "Protects personal data",
     capabilities: ["GDPR", "Privacy Policies", "Data Breaches"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-26",
@@ -1907,6 +2527,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🛒",
     description: "Defends consumer rights",
     capabilities: ["False Advertising", "Product Liability", "Fraud"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-27",
@@ -1916,6 +2539,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎖️",
     description: "Represents service members",
     capabilities: ["Court-Martial", "Military Justice", "Benefits"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-28",
@@ -1925,6 +2551,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🗳️",
     description: "Protects electoral integrity",
     capabilities: ["Campaign Finance", "Redistricting", "Voter Access"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-29",
@@ -1934,6 +2563,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤝",
     description: "Resolves conflicts",
     capabilities: ["Neutral Decision-Making", "Hearings", "Awards"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "legal-30",
@@ -1943,6 +2575,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💻",
     description: "Modernizes legal practice",
     capabilities: ["Case Management Software", "E-Discovery", "AI Tools"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
 
   // Environment & Sustainability
@@ -1954,6 +2589,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌡️",
     description: "Studies global warming",
     capabilities: ["Climate Modeling", "Carbon Analysis", "Impact Assessment"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-2",
@@ -1963,6 +2601,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦋",
     description: "Preserves biodiversity",
     capabilities: ["Habitat Restoration", "Endangered Species", "Ecosystem Management"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-3",
@@ -1972,6 +2613,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "☀️",
     description: "Promotes sustainable energy",
     capabilities: ["Solar", "Wind", "Energy Storage"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-4",
@@ -1981,6 +2625,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "♻️",
     description: "Implements eco-friendly practices",
     capabilities: ["ESG", "Carbon Footprint", "Circular Economy"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-5",
@@ -1990,6 +2637,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💧",
     description: "Manages water systems",
     capabilities: ["Conservation", "Quality Testing", "Watershed Management"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-6",
@@ -1999,6 +2649,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🗑️",
     description: "Optimizes waste systems",
     capabilities: ["Recycling Programs", "Composting", "Landfill Alternatives"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-7",
@@ -2008,6 +2661,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏙️",
     description: "Designs livable cities",
     capabilities: ["Zoning", "Public Transit", "Green Spaces"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-8",
@@ -2017,6 +2673,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌾",
     description: "Creates regenerative systems",
     capabilities: ["Food Forests", "Soil Health", "Water Harvesting"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-9",
@@ -2026,6 +2685,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏗️",
     description: "Designs sustainable buildings",
     capabilities: ["LEED Certification", "Passive Design", "Green Materials"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-10",
@@ -2035,6 +2697,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌊",
     description: "Protects ocean health",
     capabilities: ["Plastic Pollution", "Overfishing", "Marine Reserves"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-11",
@@ -2044,6 +2709,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌲",
     description: "Manages forest ecosystems",
     capabilities: ["Fire Prevention", "Wildlife Management", "Reforestation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-12",
@@ -2053,6 +2721,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💨",
     description: "Monitors air pollution",
     capabilities: ["Emission Testing", "Clean Air Strategies", "Health Impact"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-13",
@@ -2062,6 +2733,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🥾",
     description: "Promotes responsible tourism",
     capabilities: ["Conservation Travel", "Local Economies", "Minimal Impact"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-14",
@@ -2071,6 +2745,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🪴",
     description: "Studies soil composition",
     capabilities: ["Soil Testing", "Fertility", "Erosion Control"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-15",
@@ -2080,6 +2757,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦌",
     description: "Studies animal populations",
     capabilities: ["Population Surveys", "Migration Patterns", "Habitat Needs"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   // Environment & Sustainability (16-30)
   {
@@ -2090,6 +2770,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📊",
     description: "Tracks carbon footprint",
     capabilities: ["GHG Accounting", "Carbon Offsets", "Reporting"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-17",
@@ -2099,6 +2782,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦆",
     description: "Protects wetland ecosystems",
     capabilities: ["Restoration", "Biodiversity", "Water Quality"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-18",
@@ -2108,6 +2794,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚡",
     description: "Reduces energy waste",
     capabilities: ["Building Assessment", "Retrofits", "Cost Savings"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-19",
@@ -2117,6 +2806,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌱",
     description: "Converts waste to soil",
     capabilities: ["Compost Systems", "Microbiology", "Soil Amendment"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-20",
@@ -2126,6 +2818,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚗️",
     description: "Develops eco-friendly chemicals",
     capabilities: ["Biodegradable Materials", "Non-Toxic Synthesis", "Green Solvents"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-21",
@@ -2135,6 +2830,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦉",
     description: "Heals injured wildlife",
     capabilities: ["Medical Care", "Release Programs", "Education"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-22",
@@ -2144,6 +2842,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🦠",
     description: "Controls invasive organisms",
     capabilities: ["Identification", "Eradication", "Prevention"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-23",
@@ -2153,6 +2854,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌊",
     description: "Prepares for climate impacts",
     capabilities: ["Risk Assessment", "Infrastructure Planning", "Community Resilience"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-24",
@@ -2162,6 +2866,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👕",
     description: "Promotes eco-friendly fashion",
     capabilities: ["Sustainable Materials", "Ethical Production", "Circular Fashion"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-25",
@@ -2171,6 +2878,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🪸",
     description: "Rebuilds coral reefs",
     capabilities: ["Coral Propagation", "Reef Monitoring", "Marine Protected Areas"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-26",
@@ -2180,6 +2890,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "♻️",
     description: "Achieves zero waste goals",
     capabilities: ["Waste Audits", "Circular Systems", "Behavior Change"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-27",
@@ -2189,6 +2902,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🚜",
     description: "Restores farmland",
     capabilities: ["Cover Cropping", "No-Till", "Carbon Sequestration"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-28",
@@ -2198,6 +2914,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🚗",
     description: "Promotes EV adoption",
     capabilities: ["Charging Infrastructure", "Fleet Conversion", "Incentives"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "env-29",
@@ -2207,6 +2926,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌿",
     description: "Creates rooftop gardens",
     capabilities: ["Plant Selection", "Structural Engineering", "Stormwater Management"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "env-30",
@@ -2216,6 +2938,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✅",
     description: "Verifies green claims",
     capabilities: ["Certification", "Auditing", "Standards Compliance"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
 
   // Personal Development
@@ -2227,6 +2952,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎯",
     description: "Helps reach life goals",
     capabilities: ["Goal Setting", "Accountability", "Action Planning"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-2",
@@ -2236,6 +2964,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💼",
     description: "Guides career decisions",
     capabilities: ["Resume Review", "Job Search", "Career Transition"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-3",
@@ -2245,6 +2976,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧠",
     description: "Transforms limiting beliefs",
     capabilities: ["Growth Mindset", "Self-Talk", "Confidence Building"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-4",
@@ -2254,6 +2988,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⏰",
     description: "Maximizes output",
     capabilities: ["Time Management", "Focus Techniques", "Systems Design"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-5",
@@ -2263,6 +3000,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "❤️",
     description: "Improves relationships",
     capabilities: ["Communication", "Conflict Resolution", "Emotional Intelligence"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "personal-6",
@@ -2272,6 +3012,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💸",
     description: "Teaches financial basics",
     capabilities: ["Budgeting", "Saving", "Investing 101"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-7",
@@ -2281,6 +3024,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎤",
     description: "Builds speaking confidence",
     capabilities: ["Speech Writing", "Delivery", "Stage Presence"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-8",
@@ -2290,6 +3036,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔄",
     description: "Builds lasting habits",
     capabilities: ["Habit Stacking", "Trigger Design", "Consistency"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-9",
@@ -2299,6 +3048,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💪",
     description: "Boosts self-confidence",
     capabilities: ["Positive Affirmations", "Body Language", "Self-Image"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-10",
@@ -2308,6 +3060,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤷",
     description: "Clarifies tough decisions",
     capabilities: ["Decision Frameworks", "Risk Analysis", "Values Alignment"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-11",
@@ -2317,6 +3072,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💡",
     description: "Unlocks creative potential",
     capabilities: ["Brainstorming", "Lateral Thinking", "Creative Blocks"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-12",
@@ -2326,6 +3084,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤝",
     description: "Expands professional network",
     capabilities: ["LinkedIn Strategy", "Conversation Starters", "Follow-up"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-13",
@@ -2335,6 +3096,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚖️",
     description: "Balances career and life",
     capabilities: ["Boundary Setting", "Prioritization", "Burnout Prevention"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-14",
@@ -2344,6 +3108,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧩",
     description: "Improves memory skills",
     capabilities: ["Mnemonics", "Recall Techniques", "Brain Training"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-15",
@@ -2353,6 +3120,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👑",
     description: "Develops leadership abilities",
     capabilities: ["Team Building", "Delegation", "Vision Setting"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   // Personal Development (16-30)
   {
@@ -2363,6 +3133,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👔",
     description: "Develops top executives",
     capabilities: ["Strategic Vision", "Board Relations", "Executive Presence"],
+    tier: 'premium',
+    costLevel: 'premium',
+    allowedModels: [],
   },
   {
     id: "personal-17",
@@ -2372,6 +3145,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💪",
     description: "Builds mental toughness",
     capabilities: ["Bounce-Back Skills", "Stress Tolerance", "Adaptability"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-18",
@@ -2381,6 +3157,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "❤️",
     description: "Enhances emotional skills",
     capabilities: ["Self-Awareness", "Empathy", "Social Skills"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "personal-19",
@@ -2390,6 +3169,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📖",
     description: "Increases reading speed",
     capabilities: ["Skimming", "Comprehension", "Retention"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-20",
@@ -2399,6 +3181,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💤",
     description: "Improves sleep quality",
     capabilities: ["Sleep Hygiene", "Insomnia Solutions", "Sleep Tracking"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-21",
@@ -2408,6 +3193,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🙏",
     description: "Cultivates thankfulness",
     capabilities: ["Gratitude Journaling", "Perspective Shift", "Positive Psychology"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-22",
@@ -2417,6 +3205,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤝",
     description: "Masters negotiation",
     capabilities: ["Win-Win Outcomes", "BATNA", "Persuasion"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "personal-23",
@@ -2426,6 +3217,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "✨",
     description: "Builds personal brand",
     capabilities: ["Online Presence", "Value Proposition", "Storytelling"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-24",
@@ -2435,6 +3229,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧠",
     description: "Sharpens analytical skills",
     capabilities: ["Logic", "Fallacy Detection", "Problem Solving"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-25",
@@ -2444,6 +3241,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💖",
     description: "Embraces authentic self",
     capabilities: ["Shame Resilience", "Courage", "Connection"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "personal-26",
@@ -2453,6 +3253,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🛑",
     description: "Establishes personal boundaries",
     capabilities: ["Saying No", "Self-Protection", "Communication"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-27",
@@ -2462,6 +3265,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎭",
     description: "Overcomes self-doubt",
     capabilities: ["Reframing", "Evidence Review", "Self-Compassion"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "personal-28",
@@ -2471,6 +3277,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧘",
     description: "Cultivates awareness",
     capabilities: ["Meditation", "Body Scan", "Mindful Living"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-29",
@@ -2480,6 +3289,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📓",
     description: "Guides self-reflection",
     capabilities: ["Prompts", "Therapeutic Writing", "Insight"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "personal-30",
@@ -2489,6 +3301,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧭",
     description: "Identifies personal values",
     capabilities: ["Values Assessment", "Alignment", "Decision Making"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
 
   // Social & Community
@@ -2500,6 +3315,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📢",
     description: "Mobilizes communities",
     capabilities: ["Campaign Planning", "Volunteer Coordination", "Coalition Building"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-2",
@@ -2509,6 +3327,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🤲",
     description: "Supports vulnerable populations",
     capabilities: ["Case Management", "Resource Connection", "Crisis Intervention"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-3",
@@ -2518,6 +3339,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎗️",
     description: "Strengthens nonprofits",
     capabilities: ["Fundraising", "Grant Writing", "Board Development"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-4",
@@ -2527,6 +3351,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🙋",
     description: "Organizes volunteers",
     capabilities: ["Recruitment", "Scheduling", "Recognition"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-5",
@@ -2536,6 +3363,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🕊️",
     description: "Resolves community conflicts",
     capabilities: ["Mediation", "Facilitation", "Consensus Building"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-6",
@@ -2545,6 +3375,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌈",
     description: "Promotes equity and inclusion",
     capabilities: ["Training", "Policy Review", "Culture Change"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-7",
@@ -2554,6 +3387,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👦",
     description: "Guides young people",
     capabilities: ["Life Skills", "Academic Support", "Career Exploration"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-8",
@@ -2563,6 +3399,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👵",
     description: "Supports aging adults",
     capabilities: ["Companionship", "Activity Planning", "Resource Navigation"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-9",
@@ -2572,6 +3411,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎉",
     description: "Organizes memorable events",
     capabilities: ["Venue Selection", "Logistics", "Entertainment"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-10",
@@ -2581,6 +3423,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🥕",
     description: "Grows community food",
     capabilities: ["Garden Design", "Crop Planning", "Education"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-11",
@@ -2590,6 +3435,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "👀",
     description: "Enhances local safety",
     capabilities: ["Safety Programs", "Communication Networks", "Crime Prevention"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-12",
@@ -2599,6 +3447,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌏",
     description: "Fosters cultural understanding",
     capabilities: ["Cultural Exchange", "Language Support", "Integration"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-13",
@@ -2608,6 +3459,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏘️",
     description: "Addresses housing needs",
     capabilities: ["Tenant Rights", "Housing Programs", "Homelessness Prevention"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-14",
@@ -2617,6 +3471,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🍎",
     description: "Ensures food access",
     capabilities: ["Food Banks", "Meal Programs", "Nutrition Education"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-15",
@@ -2626,6 +3483,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🗳️",
     description: "Promotes civic engagement",
     capabilities: ["Voter Registration", "Civic Literacy", "Local Government"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   // Social & Community (16-30)
   {
@@ -2636,6 +3496,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌍",
     description: "Supports refugee families",
     capabilities: ["Housing", "Employment", "Cultural Orientation"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-17",
@@ -2645,6 +3508,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "📚",
     description: "Teaches adult literacy",
     capabilities: ["ESL", "GED Prep", "Digital Literacy"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-18",
@@ -2654,6 +3520,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🌻",
     description: "Grows community together",
     capabilities: ["Plot Management", "Education", "Food Access"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-19",
@@ -2663,6 +3532,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎒",
     description: "Provides youth enrichment",
     capabilities: ["Homework Help", "Activities", "Mentorship"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-20",
@@ -2672,6 +3544,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "💜",
     description: "Supports abuse survivors",
     capabilities: ["Crisis Support", "Safety Planning", "Resource Connection"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-21",
@@ -2681,6 +3556,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏠",
     description: "Connects people to housing",
     capabilities: ["Street Outreach", "Case Management", "Housing First"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-22",
@@ -2690,6 +3568,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🎖️",
     description: "Supports veterans",
     capabilities: ["Benefits Navigation", "Employment", "Mental Health"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-23",
@@ -2699,6 +3580,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "♿",
     description: "Promotes accessibility",
     capabilities: ["ADA Compliance", "Advocacy", "Universal Design"],
+    tier: 'core',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-24",
@@ -2708,6 +3592,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔓",
     description: "Supports formerly incarcerated",
     capabilities: ["Job Placement", "Housing", "Life Skills"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-25",
@@ -2717,6 +3604,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏳️‍🌈",
     description: "Supports LGBTQ+ community",
     capabilities: ["Safe Spaces", "Advocacy", "Education"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-26",
@@ -2726,6 +3616,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🧠",
     description: "Teaches mental health support",
     capabilities: ["De-escalation", "Resource Connection", "Stigma Reduction"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-27",
@@ -2735,6 +3628,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⚖️",
     description: "Repairs harm through dialogue",
     capabilities: ["Circles", "Mediation", "Accountability"],
+    tier: 'extended',
+    costLevel: 'medium',
+    allowedModels: [],
   },
   {
     id: "social-28",
@@ -2744,6 +3640,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🏥",
     description: "Bridges healthcare gaps",
     capabilities: ["Health Education", "Care Navigation", "Cultural Competence"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-29",
@@ -2753,6 +3652,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "🔧",
     description: "Manages community tools",
     capabilities: ["Inventory", "Training", "Maintenance"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
   {
     id: "social-30",
@@ -2762,6 +3664,9 @@ export const SAGE_TEMPLATES: SageTemplate[] = [
     avatar: "⏰",
     description: "Facilitates skill sharing",
     capabilities: ["Member Matching", "Hour Tracking", "Community Building"],
+    tier: 'core',
+    costLevel: 'low',
+    allowedModels: [],
   },
 ]
 

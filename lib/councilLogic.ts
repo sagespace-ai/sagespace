@@ -1,6 +1,8 @@
 import { generateText } from "ai"
 import { createGroq } from "@ai-sdk/groq"
 import { buildSageSystemPrompt, filterContextForSage, extractDomainFacets, type SageWithCharter } from "./sage-prompt-builder"
+import { routedGenerateText } from './ai/model-router'
+import type { AccessLevel } from './ai/model-registry'
 
 const groq = createGroq({
   apiKey: process.env.API_KEY_GROQ_API_KEY || process.env.GROQ_API_KEY,
@@ -27,20 +29,35 @@ export interface UnifiedInsight {
 
 /**
  * Run parallel LLM calls for multiple sages with domain charter enforcement
+ * OPTIMIZED: Delta-only contributions, streaming disabled, Groq-first routing
  */
 export async function generateMultiSagePerspectives(
   query: string,
   sages: Array<{ id: string; name: string; avatar: string; role: string; domain: string; systemPrompt?: string }>,
+  userAccessLevel: AccessLevel = 'free', // Add user access level
 ): Promise<SagePerspective[]> {
-  console.log("[Council Logic] Generating perspectives for", sages.length, "sages")
+  console.log("[v0] [Council] Generating perspectives for", sages.length, "sages (cost-optimized)")
 
   const allPerspectives: SagePerspective[] = []
   const queryFacets = extractDomainFacets(query)
 
-  console.log("[Council Logic] Query facets:", queryFacets)
+  console.log("[v0] [Council] Query facets:", queryFacets)
+
+  const relevantSages = sages.filter(sage => {
+    const isRelevant = queryFacets.includes(sage.domain)
+    if (!isRelevant) {
+      console.log("[v0] [Council] Skipping", sage.name, "- domain not relevant")
+    }
+    return isRelevant
+  })
+
+  const cappedSages = relevantSages.slice(0, 5)
+  if (relevantSages.length > 5) {
+    console.log("[v0] [Council] Capped at 5 sages (had", relevantSages.length, "relevant)")
+  }
 
   // Round 1: Individual Domain Reasoning
-  for (const sage of sages) {
+  for (const sage of cappedSages) { // Use capped sages
     try {
       const systemPrompt = buildSageSystemPrompt(sage as SageWithCharter, "council")
 
@@ -54,15 +71,19 @@ export async function generateMultiSagePerspectives(
         })),
       )
 
-      const result = await generateText({
-        model: groq("llama-3.3-70b-versatile"),
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: context },
-        ],
-        maxTokens: 250,
-        temperature: 0.7,
-      })
+      const result = await routedGenerateText(
+        context,
+        {
+          userAccessLevel,
+          capability: 'reasoning',
+          costLimit: 0, // Zero-cost only for free tier
+        },
+        {
+          system: systemPrompt,
+          maxTokens: 200, // Reduced from 250 to save tokens
+          temperature: 0.7
+        }
+      )
 
       const responseText = result.text.trim()
 
@@ -98,7 +119,7 @@ export async function generateMultiSagePerspectives(
 
       await new Promise((resolve) => setTimeout(resolve, 100))
     } catch (error) {
-      console.error(`[Council Logic] Error generating perspective for ${sage.name}:`, error)
+      console.error(`[v0] [Council] Error generating perspective for ${sage.name}:`, error)
       allPerspectives.push({
         sageId: sage.id,
         sageName: sage.name,
@@ -113,17 +134,22 @@ export async function generateMultiSagePerspectives(
     }
   }
 
+  console.log("[v0] [Council] Generated", allPerspectives.length, "perspectives (cost-optimized)")
+  console.log("[v0] [Council] Novel contributions:", allPerspectives.filter(p => p.hasNovelContribution).length)
+
   return allPerspectives
 }
 
 /**
  * Synthesize multiple perspectives into a unified insight
+ * OPTIMIZED: Shorter synthesis, delta-only, reduced token count
  */
 export async function synthesizeUnifiedInsight(
   query: string,
   perspectives: SagePerspective[],
+  userAccessLevel: AccessLevel = 'free', // Add user access level
 ): Promise<UnifiedInsight> {
-  console.log("[Council Logic] Synthesizing", perspectives.length, "perspectives")
+  console.log("[v0] [Council] Synthesizing", perspectives.length, "perspectives (cost-optimized)")
 
   try {
     const byDomain = perspectives.reduce((acc, p) => {
@@ -143,6 +169,18 @@ export async function synthesizeUnifiedInsight(
       }
     }
 
+    const uniqueDomains = [...new Set(novelPerspectives.map(p => p.domain))]
+    if (uniqueDomains.length === 1 && novelPerspectives.length === 1) {
+      console.log("[v0] [Council] Single perspective, skipping synthesis LLM call")
+      const p = novelPerspectives[0]
+      return {
+        title: `${p.domain} Perspective`,
+        content: p.response,
+        keywords: [p.domain.toLowerCase().replace(/ /g, '-')],
+        tone: p.tone === 'inspired' ? 'inspired' : 'harmony',
+      }
+    }
+
     const domainSummaries = Object.entries(byDomain)
       .map(([domain, domainPerspectives]) => {
         const novelOnes = domainPerspectives.filter(p => p.hasNovelContribution)
@@ -159,31 +197,32 @@ CRITICAL RULES:
 1. Organize the synthesis BY DOMAIN, not as a generic narrative
 2. DROP any duplicated or redundant points
 3. HIGHLIGHT genuine conflicts between domains (don't smooth over disagreements)
-4. Keep it concise and actionable
+4. Keep it concise and actionable - MAXIMUM 4 sentences
 5. If domains conflict, explain the tension clearly
 
 Respond in JSON format:
 {
   "title": "Your Compelling Title (5-8 words)",
-  "content": "Domain-organized synthesis with conflicts highlighted (4-6 sentences)",
+  "content": "Domain-organized synthesis with conflicts highlighted (3-4 sentences MAX)",
   "keywords": ["theme1", "theme2", "theme3"],
   "tone": "inspired" | "conflict" | "harmony" | "curiosity"
 }
 
 Set tone to "conflict" if there are genuine disagreements between domains.`
 
-    const result = await generateText({
-      model: groq("llama-3.3-70b-versatile"),
-      messages: [
-        { role: "system", content: systemPrompt },
-        {
-          role: "user",
-          content: `Question: ${query}\n\nDomain-Specific Insights:\n${domainSummaries}\n\nSynthesize these by domain, highlighting any conflicts.`,
-        },
-      ],
-      maxOutputTokens: 600,
-      temperature: 0.6,
-    })
+    const result = await routedGenerateText(
+      `Question: ${query}\n\nDomain-Specific Insights:\n${domainSummaries}\n\nSynthesize these by domain, highlighting any conflicts.`,
+      {
+        userAccessLevel,
+        capability: 'reasoning',
+        costLimit: 0, // Zero-cost only for free tier
+      },
+      {
+        system: systemPrompt,
+        maxTokens: 400, // Reduced from 600
+        temperature: 0.6
+      }
+    )
 
     const jsonMatch = result.text.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
@@ -203,7 +242,7 @@ Set tone to "conflict" if there are genuine disagreements between domains.`
       tone: perspectives.some(p => p.tone === "challenging" || p.tone === "cautious") ? "conflict" : "harmony",
     }
   } catch (error) {
-    console.error("[Council Logic] Error synthesizing insight:", error)
+    console.error("[v0] [Council] Error synthesizing insight:", error)
     return {
       title: "Council Deliberation Complete",
       content: perspectives

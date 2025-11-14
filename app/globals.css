@@ -516,3 +516,124 @@
   stroke-dashoffset: 1000;
   animation: draw 3s ease-in-out forwards;
 }
+
+/* Added 3D cosmic visual enhancements and gamification animations */
+
+/* Cosmic 3D Animations */
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(100px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(100px) rotate(-360deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.3), 0 0 40px rgba(167, 139, 250, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(167, 139, 250, 0.5), 0 0 60px rgba(167, 139, 250, 0.2);
+  }
+}
+
+@keyframes cosmicShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Cosmic Utility Classes */
+.cosmic-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.cosmic-orbit {
+  animation: orbit 20s linear infinite;
+}
+
+.cosmic-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.cosmic-shimmer {
+  background: linear-gradient(135deg, #60A5FA, #A78BFA, #EC4899, #60A5FA);
+  background-size: 300% 300%;
+  animation: cosmicShimmer 6s ease infinite;
+}
+
+.cosmic-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.2s ease-out;
+}
+
+.cosmic-card-3d:hover {
+  transform: translateZ(20px);
+}
+
+/* Nebula Gradient Backgrounds */
+.bg-nebula-blue {
+  background: radial-gradient(circle at 30% 30%, rgba(96, 165, 250, 0.15), transparent 50%),
+              radial-gradient(circle at 70% 70%, rgba(59, 130, 246, 0.1), transparent 60%);
+}
+
+.bg-nebula-purple {
+  background: radial-gradient(circle at 40% 40%, rgba(167, 139, 250, 0.15), transparent 50%),
+              radial-gradient(circle at 60% 60%, rgba(139, 92, 246, 0.1), transparent 60%);
+}
+
+.bg-nebula-pink {
+  background: radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.15), transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(219, 39, 119, 0.1), transparent 60%);
+}
+
+/* Glass Morphism with Cosmic Glow */
+.cosmic-glass {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.1), inset 0 0 20px rgba(167, 139, 250, 0.05);
+}
+
+/* 3D Transform Utilities */
+.transform-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.rotate-3d-x {
+  transform: rotateX(var(--rotate-x, 0deg));
+}
+
+.rotate-3d-y {
+  transform: rotateY(var(--rotate-y, 0deg));
+}
+
+/* Depth Layers */
+.layer-front {
+  transform: translateZ(50px);
+}
+
+.layer-middle {
+  transform: translateZ(25px);
+}
+
+.layer-back {
+  transform: translateZ(0px);
+}
