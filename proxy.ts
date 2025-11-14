@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Password protection check
   const isAccessGateEnabled = process.env.ENABLE_ACCESS_GATE === "true"
   const isAccessGatePage = request.nextUrl.pathname === "/access-gate"
