@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Plus, Save, Play, Download, Upload, Trash2, AlertCircle, CheckCircle } from "@/components/icons"
-import type { AgentBehaviorConfig, AgentFlowBlock } from "@/lib/agents/agent-builder-types"
+import type { AgentBehaviorConfig, AgentFlowBlock } from "@/lib/agents/agent-builder-types-client"
 
 export default function StudioBuilder() {
   const [config, setConfig] = useState<Partial<AgentBehaviorConfig>>({

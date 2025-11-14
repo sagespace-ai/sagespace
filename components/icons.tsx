@@ -1072,7 +1072,7 @@ export function AlertCircle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export const AlertCircle = AlertCircle
+export const AlertCircleIcon = AlertCircle
 
 export function CheckCircle(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -1094,4 +1094,4 @@ export function CheckCircle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export const CheckCircle = CheckCircle
+export const CheckCircleIcon = CheckCircle

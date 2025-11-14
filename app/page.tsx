@@ -14,11 +14,16 @@ export default function RootPage() {
               Welcome to SageSpace
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-300">
-              Your cosmic journey through specialized AI wisdom. Experience the power of curated AI agents designed to elevate your creativity and productivity.
+              Your cosmic journey through specialized AI wisdom. Experience the
+              power of curated AI agents designed to elevate your creativity and
+              productivity.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link href="/auth/signup">
-                <Button size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
                   Get Started
                   <Sparkles className="ml-2 h-5 w-5" />
                 </Button>
@@ -71,7 +76,10 @@ export default function RootPage() {
               Join SageSpace and start your cosmic AI journey today
             </p>
             <Link href="/auth/signup">
-              <Button size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              >
                 Create Account
               </Button>
             </Link>
@@ -82,7 +90,15 @@ export default function RootPage() {
   )
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode
+  title: string
+  description: string
+}) {
   return (
     <div className="relative p-6 rounded-lg border border-purple-500/20 bg-purple-950/10 backdrop-blur-sm hover:border-purple-500/40 transition-colors">
       <div className="mb-4">{icon}</div>

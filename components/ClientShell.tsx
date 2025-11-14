@@ -1,29 +1,17 @@
 'use client'
 
-import dynamic from 'next/dynamic'
+import React from 'react'
+import { CommandBarWrapper } from '@/components/navigation/CommandBarWrapper'
+import { GlobalSpotifyPlayer } from '@/components/GlobalSpotifyPlayer'
+import CosmicBackground from '@/components/CosmicBackground'
+import { ObservabilityTracker } from '@/components/observability-tracker'
+import StreakBanner from '@/components/engagement/StreakBanner'
 
-// This keeps app/layout.tsx as pure server component
-const CommandBarWrapper = dynamic(() => import("@/components/navigation/CommandBarWrapper"), {
-  ssr: false
-})
+type ClientShellProps = {
+  children: React.ReactNode
+}
 
-const GlobalSpotifyPlayer = dynamic(() => import("@/components/GlobalSpotifyPlayer"), {
-  ssr: false
-})
-
-const CosmicBackground = dynamic(() => import("@/components/CosmicBackground"), {
-  ssr: false
-})
-
-const ObservabilityTracker = dynamic(() => import("@/components/observability-tracker"), {
-  ssr: false
-})
-
-const StreakBanner = dynamic(() => import("@/components/engagement/StreakBanner"), {
-  ssr: false
-})
-
-export default function ClientShell({ children }: { children: React.ReactNode }) {
+export default function ClientShell({ children }: ClientShellProps) {
   return (
     <>
       <CosmicBackground />
