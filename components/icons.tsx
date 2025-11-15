@@ -731,7 +731,7 @@ export function VideoIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5" />
+      <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 1-.752-.432L16 10.5" />
       <rect x="2" y="6" width="14" height="12" rx="2" />
     </svg>
   )
@@ -1224,12 +1224,55 @@ export function RefreshCwIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-      <path d="M21 3v5h-5" />
-      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-      <path d="M8 16H3v5" />
+      <path d="M3 12a9 9 0 1 1-1.76-5.29" />
+      <polyline points="21 3 21 9 15 9" />
     </svg>
   )
 }
 
 export const RefreshCw = RefreshCwIcon
+
+export function BookmarkPlusIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+      <line x1="12" x2="12" y1="7" y2="13" />
+      <line x1="15" x2="9" y1="10" y2="10" />
+    </svg>
+  )
+}
+
+export const BookmarkPlus = BookmarkPlusIcon
+
+export function RotateCwIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M21 12a9 9 0 1 1-1.76-5.29" />
+      <polyline points="21 3 21 9 15 9" />
+    </svg>
+  )
+}
+
+export const RotateCw = RotateCwIcon

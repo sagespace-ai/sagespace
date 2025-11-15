@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import {
@@ -211,7 +211,9 @@ export default function UniverseMapPage() {
 
   const handleChatNow = (sage: FloatingSage) => {
     console.log("[v0] Navigating to playground with sage:", sage.name)
-    router.push(`/playground?sage=${encodeURIComponent(sage.name)}`)
+    const sageTemplate = SAGE_TEMPLATES.find(s => s.name === sage.name)
+    const sageId = sageTemplate?.id || sage.id
+    router.push(`/playground?sage=${encodeURIComponent(sageId)}`)
   }
 
   const handleStartRandomChat = () => {

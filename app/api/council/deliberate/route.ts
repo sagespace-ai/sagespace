@@ -20,17 +20,24 @@ async function councilHandler(request: Request) {
       return NextResponse.json({ error: 'At least one agent ID is required' }, { status: 400 })
     }
 
-    const supabase = await createServerClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    // Template IDs don't exist in database, so skip the DB query for them
+    const firstId = agentIds[0]
+    const isTemplateId = typeof firstId === 'string' && firstId.includes('-') && !firstId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
 
-    console.log('[v0] [Council API] User:', user?.id || 'anonymous')
+    let councilAgents = []
 
-    const { data: agents } = await supabase.from('agents').select('*').in('id', agentIds).limit(5)
+    if (!isTemplateId) {
+      // Only query database if we have actual UUIDs
+      const supabase = await createServerClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      console.log('[v0] [Council API] User:', user?.id || 'anonymous')
 
-    const councilAgents = agents && agents.length > 0 ? agents : []
+      const { data: agents } = await supabase.from('agents').select('*').in('id', agentIds).limit(5)
+      councilAgents = agents || []
+    }
 
     if (councilAgents.length === 0) {
-      console.warn('[v0] [Council API] No agents found in DB, using template sages')
+      console.log('[v0] [Council API] Using template sages')
       const { SAGE_TEMPLATES } = await import('@/lib/sage-templates')
 
       const templateSages = agentIds
@@ -91,7 +98,7 @@ Provide a balanced response that synthesizes perspectives from all council membe
       stack: error.stack?.split('\n').slice(0, 5),
     })
 
-    const aiGatewayKeyPresent = !!process.env.AI_GATEWAY_API_KEY
+    const groqKeyPresent = !!(process.env.GROQ_API_KEY || process.env.API_KEY_GROQ_API_KEY)
 
     return NextResponse.json(
       {
@@ -99,10 +106,10 @@ Provide a balanced response that synthesizes perspectives from all council membe
         message: error.message || 'Council deliberation failed',
         details: error.message,
         envStatus: {
-          aiGatewayKeyPresent,
+          groqKeyPresent,
         },
-        helpMessage: !aiGatewayKeyPresent
-          ? 'AI_GATEWAY_API_KEY is not configured. Please add it in Settings → Vars section.'
+        helpMessage: !groqKeyPresent
+          ? 'GROQ_API_KEY is not configured. Please add it in Settings → Vars section.'
           : 'The council service encountered an error. Please try again.',
       },
       { status: 500 },
