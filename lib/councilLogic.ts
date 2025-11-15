@@ -1,42 +1,13 @@
-import { generateText } from "ai"
-import { createGroq } from "@ai-sdk/groq"
+import { runChat } from '@/lib/ai/chatClient'
 import { buildSageSystemPrompt, filterContextForSage, extractDomainFacets, type SageWithCharter } from "./sage-prompt-builder"
-import { routedGenerateText } from './ai/model-router'
-import type { AccessLevel } from './ai/model-registry'
+import type { SagePerspective, UnifiedInsight } from './types'
 
-const groq = createGroq({
-  apiKey: process.env.API_KEY_GROQ_API_KEY || process.env.GROQ_API_KEY,
-})
-
-export interface SagePerspective {
-  sageId: string
-  sageName: string
-  sageAvatar: string
-  response: string
-  tone: "inspired" | "analytical" | "cautious" | "supportive" | "challenging"
-  confidence: number
-  domain: string
-  hasNovelContribution: boolean
-  domainRelevance: number // 0-1 score
-}
-
-export interface UnifiedInsight {
-  title: string
-  content: string
-  keywords: string[]
-  tone: "inspired" | "conflict" | "harmony" | "curiosity"
-}
-
-/**
- * Run parallel LLM calls for multiple sages with domain charter enforcement
- * OPTIMIZED: Delta-only contributions, streaming disabled, Groq-first routing
- */
 export async function generateMultiSagePerspectives(
   query: string,
   sages: Array<{ id: string; name: string; avatar: string; role: string; domain: string; systemPrompt?: string }>,
-  userAccessLevel: AccessLevel = 'free', // Add user access level
+  userAccessLevel: string = 'free',
 ): Promise<SagePerspective[]> {
-  console.log("[v0] [Council] Generating perspectives for", sages.length, "sages (cost-optimized)")
+  console.log("[v0] [Council] Generating perspectives for", sages.length, "sages")
 
   const allPerspectives: SagePerspective[] = []
   const queryFacets = extractDomainFacets(query)
@@ -57,7 +28,7 @@ export async function generateMultiSagePerspectives(
   }
 
   // Round 1: Individual Domain Reasoning
-  for (const sage of cappedSages) { // Use capped sages
+  for (const sage of cappedSages) {
     try {
       const systemPrompt = buildSageSystemPrompt(sage as SageWithCharter, "council")
 
@@ -71,21 +42,14 @@ export async function generateMultiSagePerspectives(
         })),
       )
 
-      const result = await routedGenerateText(
-        context,
-        {
-          userAccessLevel,
-          capability: 'reasoning',
-          costLimit: 0, // Zero-cost only for free tier
-        },
-        {
-          system: systemPrompt,
-          maxTokens: 200, // Reduced from 250 to save tokens
-          temperature: 0.7
-        }
-      )
+      const result = await runChat({
+        messages: [{ role: 'user', content: context }],
+        systemPrompt,
+        maxTokens: 200,
+        temperature: 0.7
+      })
 
-      const responseText = result.text.trim()
+      const responseText = result.content.trim()
 
       const hasNovelContribution = !responseText.toLowerCase().includes("no major additions")
 
@@ -134,22 +98,18 @@ export async function generateMultiSagePerspectives(
     }
   }
 
-  console.log("[v0] [Council] Generated", allPerspectives.length, "perspectives (cost-optimized)")
+  console.log("[v0] [Council] Generated", allPerspectives.length, "perspectives")
   console.log("[v0] [Council] Novel contributions:", allPerspectives.filter(p => p.hasNovelContribution).length)
 
   return allPerspectives
 }
 
-/**
- * Synthesize multiple perspectives into a unified insight
- * OPTIMIZED: Shorter synthesis, delta-only, reduced token count
- */
 export async function synthesizeUnifiedInsight(
   query: string,
   perspectives: SagePerspective[],
-  userAccessLevel: AccessLevel = 'free', // Add user access level
+  userAccessLevel: string = 'free',
 ): Promise<UnifiedInsight> {
-  console.log("[v0] [Council] Synthesizing", perspectives.length, "perspectives (cost-optimized)")
+  console.log("[v0] [Council] Synthesizing", perspectives.length, "perspectives")
 
   try {
     const byDomain = perspectives.reduce((acc, p) => {
@@ -210,26 +170,19 @@ Respond in JSON format:
 
 Set tone to "conflict" if there are genuine disagreements between domains.`
 
-    const result = await routedGenerateText(
-      `Question: ${query}\n\nDomain-Specific Insights:\n${domainSummaries}\n\nSynthesize these by domain, highlighting any conflicts.`,
-      {
-        userAccessLevel,
-        capability: 'reasoning',
-        costLimit: 0, // Zero-cost only for free tier
-      },
-      {
-        system: systemPrompt,
-        maxTokens: 400, // Reduced from 600
-        temperature: 0.6
-      }
-    )
+    const result = await runChat({
+      messages: [{ role: 'user', content: `Question: ${query}\n\nDomain-Specific Insights:\n${domainSummaries}\n\nSynthesize these by domain, highlighting any conflicts.` }],
+      systemPrompt,
+      maxTokens: 400,
+      temperature: 0.6
+    })
 
-    const jsonMatch = result.text.match(/\{[\s\S]*\}/)
+    const jsonMatch = result.content.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0])
       return {
         title: parsed.title || "Council Consensus",
-        content: parsed.content || result.text,
+        content: parsed.content || result.content,
         keywords: parsed.keywords || [],
         tone: parsed.tone || "harmony",
       }
@@ -237,7 +190,7 @@ Set tone to "conflict" if there are genuine disagreements between domains.`
 
     return {
       title: "Multi-Domain Perspective",
-      content: result.text,
+      content: result.content,
       keywords: Object.keys(byDomain),
       tone: perspectives.some(p => p.tone === "challenging" || p.tone === "cautious") ? "conflict" : "harmony",
     }
@@ -255,9 +208,6 @@ Set tone to "conflict" if there are genuine disagreements between domains.`
   }
 }
 
-/**
- * Map emotional tone to scene gradient
- */
 export function getToneGradient(tone: string): string {
   const gradients: Record<string, string> = {
     inspired: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",

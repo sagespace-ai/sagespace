@@ -6,6 +6,7 @@ import { ISO42001ComplianceEngine, type ComplianceContext } from '@/lib/complian
 import { GovernanceChecker } from '@/lib/governance/policy'
 import { IntegrationManager, type IntegrationType } from '@/lib/integrations/integration-registry'
 import type { AgentBehaviorConfig, AgentFlowBlock } from './agent-builder-types'
+import { runChat } from '@/lib/ai/chatClient'
 
 export interface AgentExecutionContext {
   userId: string
@@ -309,34 +310,20 @@ Style: ${stylePrompt}
 
 Respond to the user's message while staying within your domain boundaries.`
     
-    // Use Groq for response (Charter-mandated)
     try {
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.API_KEY_GROQ_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            ...context.conversationHistory,
-            { role: 'user', content: context.userMessage },
-          ],
-          temperature: personality.creativity / 100,
-          max_tokens: 1000,
-        }),
+      const result = await runChat({
+        messages: [
+          ...context.conversationHistory,
+          { role: 'user', content: context.userMessage },
+        ],
+        systemPrompt,
+        temperature: personality.creativity / 100,
+        maxTokens: 1000,
       })
       
-      if (!response.ok) {
-        throw new Error('Groq API error')
-      }
-      
-      const data = await response.json()
-      return data.choices[0].message.content
+      return result.content
     } catch (error) {
-      console.error('[Agent Runtime] Groq API error:', error)
+      console.error('[Agent Runtime] AI Gateway error:', error)
       return `I apologize, but I'm having trouble generating a response right now. Please try again.`
     }
   }

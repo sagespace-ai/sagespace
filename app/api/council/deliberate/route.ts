@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { runChat } from '@/lib/ai/chatClient'
 import { monitoredAPIRoute } from '@/lib/self-healing/middleware'
-import type { AccessLevel } from '@/lib/ai/model-registry'
 
 async function councilHandler(request: Request) {
   console.log('[v0] [Council API] Request received')

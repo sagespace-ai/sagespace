@@ -1,12 +1,24 @@
 /**
- * Centralized AI Chat Client for SageSpace
+ * ═══════════════════════════════════════════════════════════════════════════
+ * ROOT CAUSES IDENTIFIED & FIXED:
+ * ═══════════════════════════════════════════════════════════════════════════
  * 
- * This is the ONLY source of truth for all LLM requests in SageSpace.
- * All chat UIs must use this module instead of calling providers directly.
+ * PROBLEMS BEFORE THIS FIX:
+ * 1. Using Groq API directly (https://api.groq.com) instead of AI Gateway
+ * 2. Multiple scattered AI clients across codebase (aiGateway.ts, model-router.ts, etc.)
+ * 3. AI SDK (generateText, streamText) usage that requires OIDC authentication
+ * 4. Inconsistent env var names (AI_GATEWAY_API_KEY, GROQ_API_KEY, API_KEY_GROQ_API_KEY, etc.)
+ * 5. Components making direct provider API calls instead of using server routes
+ * 6. Error messages referencing wrong env vars or suggesting OIDC token setup
  * 
- * Environment Variables:
- * - GROQ_API_KEY or API_KEY_GROQ_API_KEY: Groq API key (REQUIRED)
- * - TEXT_MODEL: Model identifier (defaults to llama-3.3-70b-versatile)
+ * HOW THIS FIX RESOLVES IT:
+ * - Single source of truth: this file is the ONLY AI chat client
+ * - Uses Vercel AI Gateway URL: https://ai-gateway.vercel.sh/v1/chat/completions
+ * - Uses only AI_GATEWAY_API_KEY with Bearer token auth (no OIDC)
+ * - Standardized error handling with helpful messages
+ * - All chat UIs now call /api/chat which uses this module
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════
  */
 
 export interface ChatMessage {
@@ -26,47 +38,23 @@ export interface ChatResponse {
   model: string
 }
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
-function getModel(): string {
-  const textModel = process.env.TEXT_MODEL || '';
-  
-  // If TEXT_MODEL is set to a GPT or OpenAI model, ignore it and use Groq model
-  if (textModel.includes('gpt-') || textModel.includes('openai/')) {
-    console.log('[v0] [chatClient] Ignoring incompatible TEXT_MODEL:', textModel);
-    return 'llama-3.3-70b-versatile';
-  }
-  
-  // If TEXT_MODEL is a valid Groq model, use it
-  if (textModel) {
-    return textModel;
-  }
-  
-  // Default to fast Groq model
-  return 'llama-3.3-70b-versatile';
-}
+// Default model from TEXT_MODEL env or fallback
+const DEFAULT_MODEL = process.env.TEXT_MODEL ?? "openai/gpt-4o-mini"
 
 /**
- * Main chat function - handles all LLM requests through Groq API
- * Uses Groq API key authentication
+ * Main chat function - handles ALL LLM requests through Vercel AI Gateway
+ * Uses AI_GATEWAY_API_KEY with standard Bearer token auth (NOT OIDC)
  */
 export async function runChat(options: ChatOptions): Promise<ChatResponse> {
   const { messages, systemPrompt, temperature = 0.7, maxTokens = 2000 } = options
-  
-  const model = getModel();
 
   console.log('[v0] [chatClient] Starting chat request')
   console.log('[v0] [chatClient] Messages count:', messages.length)
-  console.log('[v0] [chatClient] Model:', model)
+  console.log('[v0] [chatClient] Model:', DEFAULT_MODEL)
 
-  const apiKey = process.env.GROQ_API_KEY || process.env.API_KEY_GROQ_API_KEY
-
-  if (!apiKey) {
-    const error = new Error(
-      'GROQ_API_KEY is not configured. Please set GROQ_API_KEY in your environment variables (Settings → Vars section).'
-    )
-    console.error('[v0] [chatClient] FATAL: GROQ_API_KEY not found')
-    throw error
+  // Validate API key presence
+  if (!process.env.AI_GATEWAY_API_KEY) {
+    throw new Error("AI_GATEWAY_API_KEY is not set.")
   }
 
   // Build final messages array
@@ -74,51 +62,50 @@ export async function runChat(options: ChatOptions): Promise<ChatResponse> {
     ? [{ role: "system", content: systemPrompt }, ...messages]
     : messages
 
-  console.log('[v0] [chatClient] Calling Groq API at:', GROQ_API_URL)
-  console.log('[v0] [chatClient] Using API key auth (length:', apiKey.length, ')')
+  console.log('[v0] [chatClient] Calling AI Gateway at: https://ai-gateway.vercel.sh/v1/chat/completions')
 
   try {
-    const response = await fetch(GROQ_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: finalMessages,
-        temperature,
-        max_tokens: maxTokens,
-      }),
-    })
+    const response = await fetch(
+      "https://ai-gateway.vercel.sh/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.AI_GATEWAY_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: DEFAULT_MODEL,
+          messages: finalMessages,
+          temperature,
+          max_tokens: maxTokens,
+        }),
+      }
+    )
 
-    console.log('[v0] [chatClient] Groq API response status:', response.status)
+    console.log('[v0] [chatClient] AI Gateway response status:', response.status)
 
     if (!response.ok) {
-      const errorText = await response.text()
-      console.error('[v0] [chatClient] Groq API error:', errorText.slice(0, 500))
-      throw new Error(`Groq API HTTP ${response.status}: ${errorText.slice(0, 200)}`)
+      const text = await response.text()
+      console.error('[v0] [chatClient] AI Gateway error:', text.slice(0, 500))
+      throw new Error(`Upstream AI error (${response.status}): ${text.slice(0, 200)}`)
     }
 
     const data = await response.json()
-    
-    if (!data.choices || data.choices.length === 0) {
-      throw new Error('Groq API returned no choices')
+
+    const reply = data.choices?.[0]?.message?.content
+
+    if (!reply) {
+      throw new Error("No reply content from AI Gateway.")
     }
 
-    const content = data.choices[0].message?.content
-    if (!content) {
-      throw new Error('Groq API returned empty content')
-    }
-
-    console.log('[v0] [chatClient] Groq API success, response length:', content.length)
+    console.log('[v0] [chatClient] Success, response length:', reply.length)
 
     return {
-      content,
-      model: data.model || model,
+      content: reply,
+      model: data.model || DEFAULT_MODEL,
     }
   } catch (error: any) {
-    console.error('[v0] [chatClient] Groq API call failed:', error.message)
-    throw new Error(`Groq API error: ${error.message}`)
+    console.error('[v0] [chatClient] AI Gateway call failed:', error.message)
+    throw new Error(`AI Gateway error: ${error.message}`)
   }
 }
