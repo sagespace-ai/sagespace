@@ -8,7 +8,8 @@
  * - AI_GATEWAY_API_KEY: Vercel AI Gateway authentication (REQUIRED)
  * - TEXT_MODEL: Model identifier (defaults to "openai/gpt-4o-mini")
  * 
- * Never reference OPENAI_API_KEY, GROQ_API_KEY, or other deprecated keys.
+ * IMPORTANT: Uses API key authentication only, NOT OIDC tokens.
+ * Never reference VERCEL_OIDC_TOKEN or x-vercel-oidc-token.
  */
 
 export interface ChatMessage {
@@ -33,6 +34,7 @@ const DEFAULT_MODEL = process.env.TEXT_MODEL || "openai/gpt-4o-mini";
 
 /**
  * Main chat function - handles all LLM requests through Vercel AI Gateway
+ * Uses API key authentication, NOT OIDC
  */
 export async function runChat(options: ChatOptions): Promise<ChatResponse> {
   const { messages, systemPrompt, temperature = 0.7, maxTokens = 2000 } = options
@@ -57,6 +59,7 @@ export async function runChat(options: ChatOptions): Promise<ChatResponse> {
     : messages
 
   console.log('[v0] [chatClient] Calling AI Gateway at:', AI_GATEWAY_URL)
+  console.log('[v0] [chatClient] Using API key auth (length:', apiKey.length, ')')
 
   try {
     const response = await fetch(AI_GATEWAY_URL, {
@@ -64,6 +67,7 @@ export async function runChat(options: ChatOptions): Promise<ChatResponse> {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
+        // NO x-vercel-oidc-token header
       },
       body: JSON.stringify({
         model: DEFAULT_MODEL,
