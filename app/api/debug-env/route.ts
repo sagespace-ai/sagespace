@@ -1,4 +1,4 @@
-import { NextResponse } from "next/router";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const aiGatewayKey = process.env.AI_GATEWAY_API_KEY;
