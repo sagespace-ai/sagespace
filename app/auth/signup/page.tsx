@@ -72,7 +72,7 @@ export default function SignupPage() {
         <CardContent>
           {success ? (
             <div className="text-center space-y-4">
-              <p className="text-green-400">Success! Check your email to confirm your account.</p>
+              <p className="text-primary-foreground">Success! Check your email to confirm your account.</p>
               <Link href="/auth/login">
                 <Button className="w-full bg-gradient-to-r from-cyan-500 to-purple-500">Go to Login</Button>
               </Link>
@@ -108,7 +108,7 @@ export default function SignupPage() {
                   className="bg-slate-800 border-slate-700 text-white"
                 />
               </div>
-              {error && <p className="text-red-400 text-sm">{error}</p>}
+              {error && <p className="text-destructive-foreground text-sm">{error}</p>}
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"

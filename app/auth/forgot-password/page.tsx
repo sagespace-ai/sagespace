@@ -73,8 +73,8 @@ export default function ForgotPasswordPage() {
         <CardContent>
           {success ? (
             <div className="space-y-4">
-              <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <p className="text-green-400 text-sm text-center">
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <p className="text-primary-foreground text-sm text-center">
                   Password reset link sent! Check your email inbox (and spam folder) for instructions.
                 </p>
               </div>
@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
                   className="bg-slate-800 border-slate-700 text-white"
                 />
               </div>
-              {error && <p className="text-red-400 text-sm">{error}</p>}
+              {error && <p className="text-destructive-foreground text-sm">{error}</p>}
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"

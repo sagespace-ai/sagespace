@@ -23,7 +23,7 @@ export default function StreakBanner() {
   if (!streak || streak.currentStreak === 0) return null
 
   return (
-    <div className="fixed top-20 right-4 z-50 animate-in slide-in-from-right">
+    <div className="fixed top-20 right-4 z-50 animate-slide-down">
       <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4 shadow-lg">
         <div className="flex items-center gap-3">
           <Flame className="w-6 h-6 text-orange-400 animate-pulse" />

@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
-import { streamText } from 'ai'
-import { createGroq } from '@ai-sdk/groq'
-
-const groq = createGroq({
-  apiKey: process.env.API_KEY_GROQ_API_KEY,
-})
+import { runChat } from '@/lib/ai/chatClient'
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +15,6 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { messages, passportContext } = body
 
-    // Build system prompt with user context
     const systemPrompt = `You are the Origin Sage, the default companion guide for SageSpace Passport. You help users:
 - Configure their profile and preferences
 - Discover features and navigate the platform
@@ -36,19 +30,25 @@ Current User Context:
 
 Always be encouraging, mystical, and reference their progress. Keep responses concise (2-3 sentences max unless explaining complex features).`
 
-    const result = await streamText({
-      model: groq('llama-3.3-70b-versatile'),
+    const result = await runChat({
       messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages,
+        ...messages.map((m: any) => ({ role: m.role, content: m.content })),
       ],
+      systemPrompt,
       temperature: 0.7,
       maxTokens: 300,
     })
 
-    return result.toUIMessageStreamResponse()
-  } catch (error) {
-    console.error('[API] Error in /api/companion/chat:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ response: result.content })
+  } catch (error: any) {
+    console.error('[Companion Chat] Error:', error)
+    return NextResponse.json(
+      {
+        error: 'Companion chat failed',
+        message: error.message,
+        helpMessage: 'Please check AI_GATEWAY_API_KEY in Settings → Vars'
+      },
+      { status: 500 }
+    )
   }
 }

@@ -131,7 +131,7 @@ export default function ResetPasswordPage() {
                   className="bg-slate-800 border-slate-700 text-white"
                 />
               </div>
-              {error && <p className="text-red-400 text-sm">{error}</p>}
+              {error && <p className="text-destructive-foreground text-sm">{error}</p>}
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"
@@ -142,8 +142,8 @@ export default function ResetPasswordPage() {
             </form>
           ) : (
             <div className="space-y-4">
-              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <p className="text-red-400 text-sm text-center">{error}</p>
+              <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-destructive-foreground text-sm text-center">{error}</p>
               </div>
               <Button
                 onClick={() => router.push("/auth/forgot-password")}

@@ -114,6 +114,15 @@ export default function SettingsPage() {
   const [isRateLimited, setIsRateLimited] = useState(false)
   const MIN_REQUEST_DELAY = 2000 // 2 seconds between requests
 
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+  const [updatingPassword, setUpdatingPassword] = useState(false)
+
   const [spotifyStatus, setSpotifyStatus] = useState<{
     connected: boolean
     isExpired?: boolean
@@ -374,11 +383,11 @@ export default function SettingsPage() {
   const getImpactBadge = (level: string) => {
     switch (level) {
       case 'low':
-        return 'bg-green-500/20 text-green-400 border-green-500/30'
+        return 'bg-primary/20 text-primary-foreground border-primary/30'
       case 'medium':
-        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+        return 'bg-accent/20 text-accent-foreground border-accent/30'
       case 'high':
-        return 'bg-red-500/20 text-red-400 border-red-500/30'
+        return 'bg-destructive/20 text-destructive-foreground border-destructive/30'
       default:
         return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
     }
@@ -414,6 +423,82 @@ export default function SettingsPage() {
     await new Promise((resolve) => setTimeout(resolve, 500))
     setSaveStatus("saved")
     setTimeout(() => setSaveStatus(null), 2000)
+  }
+
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    // Validation
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordError('All fields are required')
+      return
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters')
+      return
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('New passwords do not match')
+      return
+    }
+
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      setPasswordError('New password must be different from current password')
+      return
+    }
+
+    setUpdatingPassword(true)
+
+    try {
+      const supabase = createClient()
+      
+      // First verify current password by attempting to sign in
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user?.email) {
+        throw new Error('Not authenticated')
+      }
+
+      // Attempt sign in with current password to verify it
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: passwordForm.currentPassword,
+      })
+
+      if (signInError) {
+        throw new Error('Current password is incorrect')
+      }
+
+      // Update to new password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword,
+      })
+
+      if (updateError) throw updateError
+
+      setPasswordSuccess('Password updated successfully!')
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      })
+      
+      setSaveStatus('Password updated successfully!')
+      setTimeout(() => {
+        setPasswordSuccess('')
+        setSaveStatus(null)
+      }, 5000)
+    } catch (err: any) {
+      console.error('[v0] Password update error:', err)
+      setPasswordError(err.message || 'Failed to update password')
+      setSaveStatus(`Failed to update password: ${err.message}`)
+      setTimeout(() => setSaveStatus(null), 5000)
+    } finally {
+      setUpdatingPassword(false)
+    }
   }
 
   if (isAuthLoading) {
@@ -837,8 +922,8 @@ export default function SettingsPage() {
               <div className="space-y-6">
                 {/* Password Section */}
                 <div className="bg-slate-900/30 rounded-lg p-5 border border-slate-700/50">
-                  <h3 className="text-lg font-semibold text-white mb-4">Password</h3>
-                  <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white mb-4">Update Password</h3>
+                  <form onSubmit={handlePasswordUpdate} className="space-y-4">
                     <div>
                       <Label htmlFor="current-password" className="text-gray-300">
                         Current Password
@@ -847,7 +932,10 @@ export default function SettingsPage() {
                         id="current-password"
                         type="password"
                         placeholder="Enter current password"
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                         className="bg-slate-900/50 border-slate-600 text-white"
+                        required
                       />
                     </div>
                     <div>
@@ -858,10 +946,14 @@ export default function SettingsPage() {
                         id="new-password"
                         type="password"
                         placeholder="Enter new password"
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                         className="bg-slate-900/50 border-slate-600 text-white"
+                        required
+                        minLength={6}
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Must be at least 12 characters with mixed case, numbers, and symbols
+                        Must be at least 6 characters
                       </p>
                     </div>
                     <div>
@@ -872,13 +964,47 @@ export default function SettingsPage() {
                         id="confirm-password"
                         type="password"
                         placeholder="Confirm new password"
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                         className="bg-slate-900/50 border-slate-600 text-white"
+                        required
+                        minLength={6}
                       />
                     </div>
-                    <Button className="bg-gradient-to-r from-cyan-500 to-purple-500">
-                      Update Password
+                    
+                    {passwordError && (
+                      <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                        <p className="text-destructive-foreground text-sm flex items-center gap-2">
+                          <XCircle className="w-4 h-4" />
+                          {passwordError}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {passwordSuccess && (
+                      <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <p className="text-primary-foreground text-sm flex items-center gap-2">
+                          <Check className="w-4 h-4" />
+                          {passwordSuccess}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      type="submit"
+                      disabled={updatingPassword}
+                      className="bg-gradient-to-r from-cyan-500 to-purple-500 disabled:opacity-50"
+                    >
+                      {updatingPassword ? (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                          Updating Password...
+                        </>
+                      ) : (
+                        'Update Password'
+                      )}
                     </Button>
-                  </div>
+                  </form>
                 </div>
 
                 {/* Two-Factor Authentication */}
@@ -922,13 +1048,13 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Danger Zone */}
-                <div className="border-2 border-red-500/30 rounded-lg p-5 bg-red-500/5">
-                  <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
+                <div className="border-2 border-destructive/30 rounded-lg p-5 bg-destructive/5">
+                  <h3 className="text-lg font-semibold text-destructive-foreground mb-2">Danger Zone</h3>
                   <p className="text-sm text-gray-400 mb-4">
                     These actions are permanent and cannot be undone
                   </p>
                   <div className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start border-red-500/30 text-red-400 hover:bg-red-500/10">
+                    <Button variant="outline" className="w-full justify-start border-destructive/30 text-destructive-foreground hover:bg-destructive/10">
                       Delete My Account
                     </Button>
                   </div>
@@ -1094,7 +1220,7 @@ export default function SettingsPage() {
                         onClick={handleDisconnectSpotify}
                         disabled={loadingSpotify}
                         variant="outline"
-                        className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                        className="border-destructive/30 text-destructive-foreground hover:bg-destructive/10"
                       >
                         {loadingSpotify ? 'Disconnecting...' : 'Disconnect'}
                       </Button>
@@ -1206,12 +1332,12 @@ export default function SettingsPage() {
               </div>
 
               {isRateLimited && (
-                <div className="mb-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                <div className="mb-4 p-4 rounded-lg bg-accent/10 border border-accent/30">
                   <div className="flex items-center gap-3">
-                    <Info className="w-5 h-5 text-yellow-400" />
+                    <Info className="w-5 h-5 text-accent" />
                     <div>
-                      <p className="text-yellow-400 font-semibold">Rate Limit Active</p>
-                      <p className="text-sm text-yellow-300/80">
+                      <p className="text-accent-foreground font-semibold">Rate Limit Active</p>
+                      <p className="text-sm text-accent-foreground/80">
                         Please wait 30 seconds before reviewing more proposals. This prevents overwhelming the system.
                       </p>
                     </div>
@@ -1279,7 +1405,7 @@ export default function SettingsPage() {
                         <Button
                           onClick={() => approveProposal(proposal.id)}
                           disabled={processingProposal !== null || isRateLimited}
-                          className="bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-600 hover:to-cyan-600 text-white flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 text-white flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {processingProposal === proposal.id ? (
                             <>
@@ -1297,7 +1423,7 @@ export default function SettingsPage() {
                           onClick={() => rejectProposal(proposal.id)}
                           disabled={processingProposal !== null || isRateLimited}
                           variant="outline"
-                          className="border-red-500/30 text-red-400 hover:bg-red-500/10 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="border-destructive/30 text-destructive-foreground hover:bg-destructive/10 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {processingProposal === proposal.id ? (
                             <>

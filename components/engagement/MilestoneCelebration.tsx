@@ -35,7 +35,7 @@ export function MilestoneCelebration({ type, title, description, xpGained, show,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div className="animate-in zoom-in-50 duration-500">
+      <div className="animate-cosmic-enter">
         <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-8 shadow-2xl max-w-md">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mb-4 cosmic-glow">

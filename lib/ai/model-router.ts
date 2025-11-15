@@ -253,6 +253,7 @@ export async function routedGenerateText(
 
 /**
  * Stream text with automatic model routing
+ * Returns the raw StreamTextResult without modification to preserve all AI SDK methods
  */
 export async function routedStreamText(
   prompt: string,
@@ -266,84 +267,116 @@ export async function routedStreamText(
   const start = Date.now()
   const correlationId = generateCorrelationId()
   
-  const provider = context.preferredProvider || 'groq'
-  const breaker = circuitBreakers[provider as keyof typeof circuitBreakers]
-  
-  if (!breaker) {
-    throw new Error(`No circuit breaker for provider: ${provider}`)
-  }
-  
   try {
-    const result = await breaker.execute(async () => {
-      const decision = await routeModel(context)
-      
-      log.info('Streaming text', {
-        correlationId,
+    console.log('[v0] routedStreamText: Starting', {
+      promptLength: prompt.length,
+      hasSystem: !!options?.system,
+      userAccessLevel: context.userAccessLevel,
+    })
+    
+    let decision
+    try {
+      decision = await routeModel(context)
+      console.log('[v0] Route decision:', {
         provider: decision.provider,
-        model: decision.modelId,
-        promptLength: prompt.length,
+        modelId: decision.modelId,
+        reasoning: decision.reasoning,
       })
-      
-      // Map provider to actual model instance
-      let modelInstance
+    } catch (routingError: any) {
+      console.error('[v0] Routing failed:', {
+        message: routingError.message,
+        stack: routingError.stack,
+      })
+      throw routingError
+    }
+    
+    log.info('Streaming text', {
+      correlationId,
+      provider: decision.provider,
+      model: decision.modelId,
+    })
+    
+    let modelInstance
+    try {
       if (decision.provider === 'groq') {
-        modelInstance = groq(decision.modelId.replace('groq/', ''))
+        const modelName = decision.modelId.startsWith('groq/') 
+          ? decision.modelId.slice(5) 
+          : decision.modelId
+        console.log('[v0] Creating Groq model:', modelName)
+        modelInstance = groq(modelName)
       } else if (decision.provider === 'vercel-gateway') {
+        console.log('[v0] Using Gateway model:', decision.modelId)
         modelInstance = decision.modelId
       } else {
-        throw new Error(`Provider ${decision.provider} not yet implemented`)
+        throw new Error(`Provider ${decision.provider} not implemented`)
       }
+    } catch (modelError: any) {
+      console.error('[v0] Model instance creation failed:', {
+        message: modelError.message,
+        provider: decision.provider,
+      })
+      throw modelError
+    }
 
-      const streamResult = await streamText({
+    console.log('[v0] Calling streamText with:', {
+      hasModel: !!modelInstance,
+      hasPrompt: !!prompt,
+      hasSystem: !!options?.system,
+      temperature: options?.temperature,
+      maxTokens: options?.maxTokens,
+    })
+    
+    let result
+    try {
+      result = streamText({
         model: modelInstance,
         prompt,
         system: options?.system,
         temperature: options?.temperature ?? 0.7,
         maxTokens: options?.maxTokens
       })
-
-      const latencyMs = Date.now() - start
       
-      log.info('Text streamed successfully', {
-        correlationId,
-        provider: decision.provider,
-        latencyMs,
-        tokenEstimate: streamResult.text.length / 4, // rough estimate
+      console.log('[v0] streamText returned:', {
+        hasResult: !!result,
+        resultType: typeof result,
+        hasToUIMethod: typeof result?.toUIMessageStreamResponse === 'function',
+        resultKeys: result ? Object.keys(result).slice(0, 10) : [],
       })
-      
-      metrics.recordLatency(`ai.${decision.provider}.latency`, latencyMs)
-      metrics.increment(`ai.${decision.provider}.success`)
-      
-      const sloViolated = checkSloViolation('playground.chat.latency', latencyMs)
-      if (sloViolated) {
-        log.warn('SLO violation detected', {
-          correlationId,
-          metric: 'playground.chat.latency',
-          value: latencyMs,
-          threshold: 3000,
-        })
-      }
+    } catch (streamError: any) {
+      console.error('[v0] streamText call failed:', {
+        message: streamError.message,
+        stack: streamError.stack,
+      })
+      throw streamError
+    }
 
-      return {
-        ...streamResult,
-        routingDecision: decision
-      }
-    })
-    
-    return result
-  } catch (error: any) {
     const latencyMs = Date.now() - start
     
-    log.error('Text streaming failed', {
+    console.log('[v0] Stream initialized successfully, returning result')
+    
+    log.info('Stream initialized', {
       correlationId,
-      provider,
+      provider: decision.provider,
       latencyMs,
-      errorMessage: error.message,
     })
     
-    metrics.increment(`ai.${provider}.error`)
+    metrics.recordLatency(`ai.${decision.provider}.latency`, latencyMs)
+    metrics.increment(`ai.${decision.provider}.success`)
     
-    throw error
+    // Return the result directly
+    return result
+  } catch (error: any) {
+    console.error('[v0] routedStreamText: Fatal error:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack?.split('\n').slice(0, 5),
+    })
+    
+    // Re-throw with more context
+    const enhancedError = new Error(`Stream routing failed: ${error.message}`)
+    enhancedError.name = error.name || 'STREAM_ROUTING_ERROR'
+    enhancedError.stack = error.stack
+    throw enhancedError
   }
 }
 

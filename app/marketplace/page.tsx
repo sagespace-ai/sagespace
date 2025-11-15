@@ -70,8 +70,8 @@ export default function MarketplacePage() {
             size="sm"
             className={
               selectedDomain === null
-                ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 border-0 shadow-lg shadow-cyan-500/50"
-                : "border-2 border-cyan-400/50 text-cyan-300 hover:border-cyan-400 hover:bg-cyan-400/10 bg-slate-800/50 backdrop-blur-sm"
+                ? "bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 border-0 shadow-lg shadow-primary/50"
+                : "border-2 border-primary/50 text-primary hover:border-primary hover:bg-primary/10 bg-card/50 backdrop-blur-sm"
             }
           >
             All ({SAGE_TEMPLATES.length})
@@ -105,14 +105,14 @@ export default function MarketplacePage() {
                 <div className="flex items-start gap-3">
                   <div className="text-4xl group-hover:scale-110 transition-transform">{sage.avatar}</div>
                   <div className="flex-1">
-                    <h3 className="text-white font-semibold group-hover:text-purple-400 transition-colors">
+                    <h3 className="text-white font-semibold group-hover:text-accent transition-colors">
                       {sage.name}
                     </h3>
                     <p className="text-xs text-cyan-400 mb-1">{sage.role}</p>
                     <p className="text-sm text-slate-400 mb-2 line-clamp-2">{sage.description}</p>
                     <div className="flex flex-wrap gap-1">
                       {sage.capabilities.slice(0, 3).map((cap, idx) => (
-                        <span key={idx} className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full">
+                        <span key={idx} className="text-xs px-2 py-0.5 bg-accent/20 text-accent-foreground rounded-full">
                           {cap}
                         </span>
                       ))}

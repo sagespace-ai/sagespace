@@ -36,6 +36,8 @@ export interface GenerateChatOptions {
   maxTokens?: number
   temperature?: number
   userAccessLevel?: AccessLevel
+  sage?: any
+  mode?: string
 }
 
 export const ai = {
@@ -186,60 +188,110 @@ export async function generateChatResponse({
   maxTokens = 2000,
   temperature = 0.7,
   userAccessLevel = 'free',
-}: GenerateChatOptions) {
+  sage,
+  mode,
+}: GenerateChatOptions & { sage?: any; mode?: string }) {
   const start = Date.now()
   const correlationId = generateCorrelationId()
   
-  log.info('Chat response started', {
-    correlationId,
-    route: 'chat',
-    messageCount: messages.length,
-    userAccessLevel,
-  })
-
   try {
+    console.log('[v0] generateChatResponse: Starting', {
+      messageCount: messages.length,
+      hasSage: !!sage,
+      mode,
+      userAccessLevel,
+    })
+    
+    const apiKey = process.env.API_KEY_GROQ_API_KEY || process.env.GROQ_API_KEY
+    if (!apiKey) {
+      console.error('[v0] API key missing:', {
+        hasAPIKeyGroq: !!process.env.API_KEY_GROQ_API_KEY,
+        hasGroqApiKey: !!process.env.GROQ_API_KEY,
+        envKeys: Object.keys(process.env).filter(k => k.includes('GROQ')),
+      })
+      const error = new Error(
+        'GROQ_API_KEY is not configured. Add API_KEY_GROQ_API_KEY or GROQ_API_KEY in environment variables.'
+      )
+      error.name = 'GROQ_API_KEY_MISSING'
+      throw error
+    }
+
+    // Build system prompt
+    let finalSystemPrompt = systemPrompt
+    if (sage && !systemPrompt) {
+      finalSystemPrompt = `You are ${sage.name}, ${sage.description}\n\nPersonality: ${sage.personality}\n\nRespond in character with helpful guidance.`
+    }
+
     const prompt = messages.map(m => `${m.role}: ${m.content}`).join('\n\n')
     
-    const result = await routedStreamText(
-      prompt,
-      {
-        userAccessLevel,
-        capability: 'chat',
-        costLimit: 0,
-      },
-      {
-        system: systemPrompt,
-        maxTokens,
-        temperature
-      }
-    )
+    console.log('[v0] Prepared prompt:', {
+      promptLength: prompt.length,
+      hasSystemPrompt: !!finalSystemPrompt,
+      systemPromptLength: finalSystemPrompt?.length,
+    })
+    
+    console.log('[v0] Calling routedStreamText')
+    
+    let result
+    try {
+      result = await routedStreamText(
+        prompt,
+        {
+          userAccessLevel,
+          capability: 'chat',
+          costLimit: 0,
+        },
+        {
+          system: finalSystemPrompt,
+          maxTokens,
+          temperature
+        }
+      )
+    } catch (routingError: any) {
+      console.error('[v0] routedStreamText failed:', {
+        name: routingError.name,
+        message: routingError.message,
+        stack: routingError.stack?.split('\n').slice(0, 5),
+      })
+      throw routingError
+    }
 
     const latencyMs = Date.now() - start
     
-    log.info('Chat response generated', {
-      correlationId,
-      provider: result.routingDecision.provider,
+    console.log('[v0] routedStreamText completed:', {
       latencyMs,
+      hasResult: !!result,
+      resultType: typeof result,
+      hasToUIMethod: typeof result?.toUIMessageStreamResponse === 'function',
+      methodType: typeof result?.toUIMessageStreamResponse,
     })
     
-    metrics.recordLatency('chat.response.latency', latencyMs)
-    metrics.increment('chat.success')
+    if (typeof result?.toUIMessageStreamResponse !== 'function') {
+      console.error('[v0] CRITICAL: Missing toUIMessageStreamResponse method!', {
+        result: result,
+        resultKeys: result ? Object.keys(result) : 'null',
+        resultPrototype: result ? Object.getPrototypeOf(result) : 'null',
+      })
+      throw new Error('Invalid response from routedStreamText - missing toUIMessageStreamResponse method')
+    }
     
+    log.info('Chat response generated', { correlationId, latencyMs })
+    metrics.recordLatency('chat.response.latency', latencyMs)
+    
+    console.log('[v0] Returning result with preserved methods')
     return result
   } catch (error: any) {
-    const latencyMs = Date.now() - start
-    
-    log.error('Chat response failed', {
-      correlationId,
-      route: 'chat',
-      latencyMs,
-      errorMessage: error.message,
-      errorCode: 'LLM_GATEWAY_ERROR',
+    console.error('[v0] generateChatResponse: Fatal error:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack?.split('\n').slice(0, 5),
     })
     
-    metrics.increment('chat.error')
-    
-    throw new Error(`LLM request failed: ${error.message}`)
+    // Re-throw with enhanced context
+    const enhancedError = new Error(`Chat generation failed: ${error.message}`)
+    enhancedError.name = error.name || 'CHAT_GENERATION_ERROR'
+    enhancedError.stack = error.stack
+    throw enhancedError
   }
 }
 

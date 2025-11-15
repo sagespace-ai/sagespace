@@ -42,61 +42,113 @@ export default function CouncilPage() {
   const handleStartDeliberation = async () => {
     if (!question.trim()) return
 
-    setStage("deliberating")
+    console.log('[v0] Starting council deliberation')
+
+    setStage('deliberating')
     setSelectedSages(councilSages.map((s) => s.id))
     setResponses({})
     setActiveSages([])
 
-    for (let i = 0; i < councilSages.length; i++) {
-      const sage = councilSages[i]
-
+    councilSages.forEach((sage, i) => {
       setTimeout(() => {
         setActiveSages((prev) => [...prev, sage.id])
-      }, i * 800)
+      }, i * 300)
+    })
 
-      setTimeout(async () => {
+    try {
+      console.log('[v0] Calling council API with', councilSages.length, 'sages')
+      
+      const response = await fetch('/api/council/deliberate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: question,
+          agentIds: councilSages.map((s) => s.id),
+        }),
+      })
+
+      console.log('[v0] Council API response status:', response.status)
+
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type')
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        
         try {
-          const response = await fetch("/api/council/deliberate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              question,
-              sage: sage,
-            }),
-          })
-
-          const data = await response.json()
-
-          setResponses((prev) => ({
-            ...prev,
-            [sage.id]: data.response || `From ${sage.name}: Contemplating your question with wisdom...`,
-          }))
-
-          if (i === councilSages.length - 1) {
-            setTimeout(() => {
-              setStage("insight")
-              setUnifiedInsight(
-                `After deep deliberation among the council, we have reached a unified understanding:\n\n` +
-                  `The diverse perspectives of ${councilSages.map((s) => s.name).join(", ")} converge on this insight: ` +
-                  `Your question touches upon fundamental aspects of ${sage.domain.toLowerCase()}. The wisdom gathered suggests a balanced approach that honors both innovation and tradition, logic and creativity, individual growth and collective harmony.`,
-              )
-            }, 2000)
+          if (contentType?.includes('application/json')) {
+            const errorData = await response.json()
+            console.error('[v0] Council API error:', errorData)
+            errorMessage = errorData.message || errorData.details || errorData.error || errorMessage
+            if (errorData.helpMessage) {
+              errorMessage += `\n\n${errorData.helpMessage}`
+            }
+          } else {
+            const errorText = await response.text()
+            console.error('[v0] Council API error (text):', errorText)
+            errorMessage = errorText || errorMessage
           }
-        } catch (error) {
-          console.error("[v0] Error fetching sage response:", error)
-          setResponses((prev) => ({
-            ...prev,
-            [sage.id]: `${sage.name} is contemplating deeply...`,
-          }))
+        } catch (parseError) {
+          console.error('[v0] Error parsing response:', parseError)
         }
-      }, i * 1500)
+        
+        setStage('insight')
+        setUnifiedInsight(`⚠️ Council deliberation failed:\n\n${errorMessage}`)
+        return
+      }
+
+      const data = await response.json()
+      console.log('[v0] Council API data received')
+
+      if (data.response) {
+        setUnifiedInsight(data.response)
+        
+        councilSages.forEach((sage, i) => {
+          setTimeout(() => {
+            setResponses((prev) => ({
+              ...prev,
+              [sage.id]: `${sage.name} contributed to the council discussion...`,
+            }))
+          }, i * 400)
+        })
+
+        setTimeout(() => {
+          setStage('insight')
+        }, councilSages.length * 400 + 1000)
+      } else {
+        throw new Error('No response from council')
+      }
+    } catch (error: any) {
+      console.error('[v0] Council deliberation error:', error)
+      
+      setStage('insight')
+      setUnifiedInsight(`⚠️ Council deliberation failed: ${error.message}\n\nPlease check your configuration or try again.`)
     }
   }
 
-  const handleSaveToMemory = () => {
+  const handleSaveToMemory = async () => {
     console.log("[v0] Saving unified insight to memory...")
-    // TODO: Implement save to memory lane
-    alert("Insight saved to Memory Lane!")
+    try {
+      const response = await fetch("/api/council/save-insight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question,
+          insight: unifiedInsight,
+          sages: councilSages,
+          sessionId: `council-${Date.now()}`,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to save insight")
+      }
+
+      const data = await response.json()
+      console.log("[v0] Council insight saved successfully:", data)
+      alert("✨ Wisdom saved to Memory Lane! +200 XP earned")
+    } catch (error) {
+      console.error("[v0] Error saving to memory:", error)
+      alert("Failed to save insight. Please try again.")
+    }
   }
 
   const handleNewQuestion = () => {
@@ -111,12 +163,12 @@ export default function CouncilPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Cosmic background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-cyan-900/20" />
+      <div className="fixed inset-0 bg-gradient-to-br from-accent-900/20 via-black to-primary-900/20" />
 
       {/* Animated orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -128,7 +180,7 @@ export default function CouncilPage() {
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.5, 0.3, 0.5],
@@ -147,18 +199,18 @@ export default function CouncilPage() {
         <header className="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl">
           <div className="container mx-auto px-6 py-4 flex items-center justify-between">
             <Link href="/demo">
-              <Button variant="ghost" size="sm" className="text-slate-400 hover:text-cyan-400">
+              <Button variant="ghost" size="sm" className="text-slate-400 hover:text-primary-400">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Hub
               </Button>
             </Link>
             <div className="flex items-center gap-3">
-              <Sparkles className="w-6 h-6 text-purple-400" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+              <Sparkles className="w-6 h-6 text-accent" />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-accent via-primary to-primary bg-clip-text text-transparent">
                 Council
               </h1>
             </div>
-            <Badge variant="outline" className="border-purple-500/50 text-purple-400">
+            <Badge variant="outline" className="border-accent/50 text-accent">
               {councilSages.length} Sages
             </Badge>
           </div>
@@ -195,7 +247,7 @@ export default function CouncilPage() {
                     onClick={handleStartDeliberation}
                     disabled={!question.trim()}
                     size="lg"
-                    className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500"
+                    className="w-full bg-gradient-to-r from-accent to-primary hover:from-accent hover:to-primary"
                   >
                     <Sparkles className="w-5 h-5 mr-2" />
                     Begin Deliberation

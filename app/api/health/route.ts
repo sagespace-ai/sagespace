@@ -1,6 +1,6 @@
 /**
  * Overall App Health Check
- * Returns DB, auth, router, and Groq connectivity status
+ * Returns DB, auth, router, and AI Gateway connectivity status
  */
 
 import { NextResponse } from 'next/server'
@@ -14,6 +14,7 @@ export async function GET() {
       database: { ok: false, latencyMs: 0 },
       auth: { ok: false },
       router: { ok: true }, // Router is always ok if app is running
+      aiGateway: { ok: false, configured: false },
     },
   }
 
@@ -38,6 +39,15 @@ export async function GET() {
     checks.checks.auth = { ok: true }
   } catch (error) {
     checks.checks.auth = { ok: false }
+    checks.status = 'degraded'
+  }
+
+  checks.checks.aiGateway = {
+    ok: !!process.env.AI_GATEWAY_API_KEY,
+    configured: !!process.env.AI_GATEWAY_API_KEY,
+  }
+  
+  if (!checks.checks.aiGateway.ok) {
     checks.status = 'degraded'
   }
 

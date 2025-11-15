@@ -157,7 +157,7 @@ export default function PlaygroundPage() {
 
     if (isMusicQuery) {
       try {
-        console.log("[v0] Music query detected, searching Spotify via API")
+        console.log("[v0] Music query detected, searching Spotify")
         const searchQuery = input.replace(/play|music|song|find/gi, "").trim()
         const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=5`)
         
@@ -180,106 +180,78 @@ export default function PlaygroundPage() {
         }
       } catch (error: any) {
         console.error("[v0] Spotify search failed:", error.message)
-        // Fall through to normal AI response
       }
     }
 
-    const assistantMessageIndex = messages.length
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        content: "",
-        timestamp: new Date(),
-        sageId: selectedSages[0].id,
-      },
-    ])
-
     try {
       console.log("[v0] Sending chat request to /api/chat")
+
+      const sage = selectedSages[0]
+      const systemPrompt = `You are ${sage.name}, ${sage.role}. ${sage.description}\n\nYour expertise: ${sage.domain}\nYour perspective: ${sage.perspective}`
 
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map((m) => ({ role: m.role, content: m.content })),
-          agentId: selectedSages[0].id,
-          conversationId,
+          messages: [...messages, userMessage].map((m) => ({ 
+            role: m.role, 
+            content: m.content 
+          })),
+          systemPrompt,
+          sageId: sage.id,
         }),
       })
 
+      console.log("[v0] Chat API response status:", response.status)
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        console.error("[v0] Chat API error:", errorData)
-        throw new Error(errorData.message || `HTTP ${response.status}`)
-      }
-
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-      let accumulatedContent = ""
-
-      if (!reader) {
-        throw new Error("No response body")
-      }
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value, { stream: true })
-        const lines = chunk.split("\n")
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6).trim()
-            if (data === "[DONE]") continue
-
-            try {
-              const parsed = JSON.parse(data)
-              console.log("[v0] Parsed SSE data:", parsed.type)
-
-              if (parsed.type === "text-delta" && parsed.textDelta) {
-                accumulatedContent += parsed.textDelta
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  updated[assistantMessageIndex] = {
-                    ...updated[assistantMessageIndex],
-                    content: accumulatedContent,
-                  }
-                  return updated
-                })
-              }
-            } catch (e) {
-              console.error("[v0] Failed to parse SSE data:", data, e)
-            }
-          }
+        let errorData
+        try {
+          errorData = await response.json()
+        } catch {
+          errorData = { error: 'Server error', message: `HTTP ${response.status}` }
         }
+        
+        console.error("[v0] Chat API error:", errorData)
+        
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `⚠️ ${errorData.message || errorData.error}\n\n${errorData.helpMessage || 'Please try again or contact support.'}`,
+            timestamp: new Date(),
+            sageId: selectedSages[0].id,
+          },
+        ])
+        setLoading(false)
+        return
       }
 
-      if (!accumulatedContent) {
-        console.warn("[v0] No content received from LLM")
-        setMessages((prev) => {
-          const updated = [...prev]
-          updated[assistantMessageIndex] = {
-            ...updated[assistantMessageIndex],
-            content: "I apologize, but I didn't receive a response from the AI service. Please try again.",
-          }
-          return updated
-        })
-      } else {
-        console.log("[v0] Successfully received", accumulatedContent.length, "characters")
-      }
+      const data = await response.json()
+      
+      console.log("[v0] Received response from AI")
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.reply || data.message,
+          timestamp: new Date(),
+          sageId: selectedSages[0].id,
+        },
+      ])
     } catch (error: any) {
       console.error("[v0] Chat error:", error.message)
 
-      setMessages((prev) => {
-        const updated = [...prev]
-        updated[assistantMessageIndex] = {
-          ...updated[assistantMessageIndex],
-          content: `⚠️ Error: ${error.message}\n\nPlease check your connection and try again. If the problem persists, contact support.`,
-        }
-        return updated
-      })
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `⚠️ Connection error: ${error.message}\n\nPlease check your internet connection and try again.`,
+          timestamp: new Date(),
+          sageId: selectedSages[0].id,
+        },
+      ])
     } finally {
       setLoading(false)
     }

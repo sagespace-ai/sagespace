@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { SageOrb } from "./SageOrb"
-import { getToneGradient } from "@/lib/councilLogic"
+import { getToneGradient } from "@/lib/councilTone"
 
 interface Sage {
   id: string

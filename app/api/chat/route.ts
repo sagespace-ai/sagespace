@@ -1,86 +1,89 @@
-import { NextResponse } from "next/server"
-import { generateChatResponse } from "@/lib/ai-client"
-import { SAGE_TEMPLATES } from "@/lib/sage-templates"
-import { createPlaygroundGraph } from "@/lib/ai/orchestration/playground-graph"
-import { createServerClient } from "@/lib/supabase/server"
-import { monitoredAPIRoute } from "@/lib/self-healing/middleware"
+/**
+ * Unified Chat API Route
+ * 
+ * Single endpoint for all chat interactions in SageSpace.
+ * Used by: Playground, Council, Companion, and all other chat UIs.
+ */
 
-async function chatHandler(request: Request) {
+import { NextResponse } from "next/server";
+import { runChat, ChatMessage } from "@/lib/ai/chatClient";
+import { createServerClient } from "@/lib/supabase/server";
+import { SAGE_TEMPLATES } from "@/lib/sage-templates";
+
+export async function POST(request: Request) {
   try {
-    const { messages, agentId, conversationId, sageId, useOrchestration } = await request.json()
+    console.log("[v0] [Chat API] Starting request");
+    
+    const body = await request.json();
+    const { messages, sageId, conversationId, systemPrompt: customSystemPrompt } = body;
 
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: "Invalid request: messages array required" }, { status: 400 })
-    }
-
-    console.log("[Chat API] Processing request:", {
-      messageCount: messages.length,
-      agentId,
+    console.log("[v0] [Chat API] Request data:", {
+      messageCount: messages?.length,
       sageId,
       conversationId,
-      useOrchestration,
-    })
+    });
 
-    if (useOrchestration && sageId && conversationId) {
-      const supabase = await createServerClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        const sage = SAGE_TEMPLATES.find((s) => s.id === sageId)
-        
-        if (sage) {
-          const graph = createPlaygroundGraph(sageId, user.id)
-          
-          const result = await graph.execute({
-            messages,
-            context: {
-              sage,
-              conversationId,
-              userId: user.id,
-            },
-          })
+    // Validate request
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        { error: "Invalid request: messages array required and must not be empty" },
+        { status: 400 }
+      );
+    }
 
-          const lastMessage = result.messages[result.messages.length - 1]
-          
-          return NextResponse.json({
-            message: lastMessage,
-            metadata: {
-              errors: result.errors,
-              steps: result.metadata,
-            },
-          })
-        }
+    // Get authenticated user (optional)
+    let userId: string | null = null;
+    try {
+      const supabase = await createServerClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      userId = user?.id || null;
+    } catch (authError) {
+      console.log("[v0] [Chat API] No authenticated user");
+    }
+
+    // Build system prompt if sage is specified
+    let systemPrompt: string | undefined = customSystemPrompt;
+    if (!systemPrompt && sageId) {
+      const sage = SAGE_TEMPLATES.find((s) => s.id === sageId);
+      if (sage) {
+        systemPrompt = `You are ${sage.name}, ${sage.description}\n\nPersonality: ${sage.personality}\n\nRespond in character with helpful guidance.`;
       }
     }
 
-    // Fallback to simple mode
-    const sage = sageId ? SAGE_TEMPLATES.find((s) => s.id === sageId) : undefined
+    console.log("[v0] [Chat API] Calling runChat");
+    const response = await runChat({
+      messages,
+      systemPrompt,
+    });
 
-    const result = await generateChatResponse({
-      messages: messages.map((m: any) => ({
-        role: m.role,
-        content: m.content,
-      })),
-      sage: sage as any,
-      mode: "single",
-    })
+    console.log("[v0] [Chat API] Response generated successfully");
 
-    return result.toUIMessageStreamResponse()
+    return NextResponse.json({
+      message: response.content,
+      reply: response.content, // Alias for consistency
+      model: response.model,
+    });
   } catch (error: any) {
-    console.error("[Chat API] LLM request failed:", {
-      error: error.message,
-      stack: error.stack,
-    })
+    console.error("[v0] [Chat API] Error:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack?.split("\n").slice(0, 3),
+    });
+
+    const aiGatewayKeyPresent = !!process.env.AI_GATEWAY_API_KEY;
 
     return NextResponse.json(
       {
-        error: "LLM_GATEWAY_ERROR",
-        message: error.message || "Failed to generate response",
-        details: "The AI service encountered an error. Please try again.",
+        error: "CHAT_ERROR",
+        message: error.message || "Chat service unavailable",
+        envStatus: {
+          aiGatewayKeyPresent,
+        },
+        helpMessage: !aiGatewayKeyPresent
+          ? "AI_GATEWAY_API_KEY is not configured. Please add it in the Vars section (Settings → Vars)."
+          : "The AI service encountered an error. Please try again.",
       },
-      { status: 500 },
-    )
+      { status: 500 }
+    );
   }
 }
-
-export const POST = monitoredAPIRoute(chatHandler, 'chat')

@@ -35,7 +35,34 @@ export default function RootLayout({
       >
         <SkipToContent />
         <AppearanceProvider>
-          <main id="main-content">{children}</main>
+          <div className="relative min-h-screen">
+            {/* Cosmic starfield background on all pages */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+              {[...Array(150)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute bg-white rounded-full animate-pulse"
+                  style={{
+                    width: `${Math.random() * 2 + 1}px`,
+                    height: `${Math.random() * 2 + 1}px`,
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${2 + Math.random() * 3}s`,
+                    opacity: Math.random() * 0.7 + 0.3,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Purple/cyan cosmic gradient overlay */}
+            <div className="fixed inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-cyan-900/10 pointer-events-none z-0" />
+
+            {/* Content with relative positioning */}
+            <div className="relative z-10">
+              <main id="main-content">{children}</main>
+            </div>
+          </div>
           <Toaster />
         </AppearanceProvider>
       </body>

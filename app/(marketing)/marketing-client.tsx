@@ -114,7 +114,7 @@ export default function MarketingPageClient() {
               <SimpleLogo size="xl" showText={false} />
             </div>
 
-            <div className="inline-block px-6 py-2 bg-purple-500/20 border border-purple-500/50 rounded-full text-purple-300 text-sm font-medium mb-4 animate-slide-down">
+            <div className="inline-block px-6 py-2 bg-accent/20 border border-accent/50 rounded-full text-accent-foreground text-sm font-medium mb-4 animate-slide-down">
               🚀 300+ Specialized AI Sages Ready to Assist
             </div>
 
@@ -134,9 +134,9 @@ export default function MarketingPageClient() {
             </h1>
 
             <p className="text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto leading-relaxed animate-slide-up">
-              Where <span className="text-cyan-400 font-semibold">300 specialized AI sages</span> collaborate,
+              Where <span className="text-primary font-semibold">300 specialized AI sages</span> collaborate,
               deliberate, and evolve—guided by the{" "}
-              <span className="text-purple-400 font-semibold">Five Laws of AI Harmony</span>
+              <span className="text-accent font-semibold">Five Laws of AI Harmony</span>
             </p>
 
             <div
@@ -175,15 +175,15 @@ export default function MarketingPageClient() {
               style={{ animationDelay: "0.4s" }}
             >
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                 <span>300+ Active Sages</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                 <span>Real-time Collaboration</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
                 <span>Ethical by Design</span>
               </div>
             </div>
@@ -216,11 +216,11 @@ export default function MarketingPageClient() {
                   <h3 className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-300">
                     {sage.name}
                   </h3>
-                  <p className="text-sm font-medium text-purple-400 uppercase tracking-wide">{sage.role}</p>
+                  <p className="text-sm font-medium text-accent uppercase tracking-wide">{sage.role}</p>
                   <p className="text-slate-400 leading-relaxed">{sage.description}</p>
 
                   <div className="pt-4">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-full text-purple-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/20 border border-accent/50 rounded-full text-accent-foreground text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <span>Chat Now</span>
                       <span>→</span>
                     </div>

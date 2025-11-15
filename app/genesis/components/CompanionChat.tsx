@@ -52,7 +52,7 @@ export function CompanionChat({ onClose }: CompanionChatProps) {
     setSending(true)
 
     try {
-      const res = await fetch('/api/genesis/companion-chat', {
+      const res = await fetch('/api/companion/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -67,9 +67,21 @@ export function CompanionChat({ onClose }: CompanionChatProps) {
           content: data.response,
           created_at: new Date().toISOString(),
         }])
+      } else {
+        console.error('[Companion Chat] API error:', res.status)
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.',
+          created_at: new Date().toISOString(),
+        }])
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again.',
+        created_at: new Date().toISOString(),
+      }])
     } finally {
       setSending(false)
     }

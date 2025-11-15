@@ -278,123 +278,21 @@ export default function AgentUniverseHub() {
   ]
 
   return (
-    <div className="min-h-screen bg-black overflow-hidden relative">
-      <div
-        className="fixed pointer-events-none opacity-5 blur-3xl z-0"
-        style={{
-          width: "600px",
-          height: "600px",
-          background: "radial-gradient(circle, rgba(139,92,246,0.4) 0%, rgba(6,182,212,0.2) 50%, transparent 100%)",
-          transform: `translate(${mousePosition.x - 300}px, ${mousePosition.y - 300}px)`,
-          transition: "transform 0.3s ease-out",
-        }}
-      />
-      {/* </CHANGE> */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {[...Array(150)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute bg-white rounded-full animate-pulse"
-            style={{
-              width: `${Math.random() * 3}px`,
-              height: `${Math.random() * 3}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`,
-              opacity: Math.random() * 0.7 + 0.3,
-            }}
-          />
-        ))}
-      </div>
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-10 z-0">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 border border-cyan-500/50 rounded-full animate-spin-slow" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 border-2 border-purple-500/50 rotate-45 animate-pulse" />
-        <div
-          className="absolute top-1/2 right-1/3 w-72 h-72 border border-pink-500/30 animate-spin-slow"
-          style={{ animationDirection: "reverse", animationDuration: "25s" }}
-        />
-      </div>
+    <div className="min-h-screen relative">
       <div className="relative z-10">
-        <header className="border-b border-white/10 backdrop-blur-md bg-black/50 sticky top-0 z-50">
+        <header className="border-b border-white/10 backdrop-blur-md bg-black/30 sticky top-16 z-40">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <Link href="/" className="group flex items-center gap-3">
-                  <Button variant="ghost" size="sm" className="text-slate-300 hover:text-cyan-400 transition-colors">
-                    <HomeIcon className="w-4 h-4 mr-2" />
-                    Home
-                  </Button>
-                </Link>
-                <div className="h-8 w-px bg-white/10" />
-                <h1 className="text-2xl md:text-3xl font-bold relative hidden md:block group">
-                  <span
-                    className="relative inline-block bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient"
-                    style={{ backgroundSize: "300% 300%" }}
-                  >
-                    Hub
-                    <span className="absolute -top-1 left-0 w-1 h-1 bg-cyan-400 rounded-full animate-ping opacity-75"></span>
-                    <span
-                      className="absolute -top-1 right-2 w-1 h-1 bg-purple-400 rounded-full animate-ping opacity-75"
-                      style={{ animationDelay: "0.5s" }}
-                    ></span>
-                    <span
-                      className="absolute -bottom-1 left-6 w-1 h-1 bg-pink-400 rounded-full animate-ping opacity-75"
-                      style={{ animationDelay: "1s" }}
-                    ></span>
-                    <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 rounded-full animate-pulse-slow blur-sm"></span>
-                  </span>
-                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 pointer-events-none">
-                    <span
-                      className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full blur-sm animate-spin-slow"
-                      style={{ transformOrigin: "0 40px" }}
-                    ></span>
-                    <span
-                      className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-purple-400 rounded-full blur-sm animate-spin-slow"
-                      style={{ transformOrigin: "0 40px", animationDirection: "reverse", animationDelay: "1s" }}
-                    ></span>
-                    <span
-                      className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-pink-400 rounded-full blur-sm animate-spin-slow"
-                      style={{ transformOrigin: "0 40px", animationDelay: "0.5s" }}
-                    ></span>
-                  </span>
-                </h1>
-              </div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Welcome to SageSpace Hub
+              </h1>
               <div className="flex items-center gap-4">
-                <div className="hidden lg:flex items-center gap-6 px-6 py-2 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 border border-purple-500/30 rounded-full backdrop-blur">
-                  <div className="flex items-center gap-2">
-                    <AwardIcon className="w-4 h-4 text-yellow-400" />
-                    <span className="text-sm font-medium text-white">Level {stats.userLevel}</span>
-                  </div>
-                  <div className="h-4 w-px bg-white/20" />
-                  <div className="flex items-center gap-2">
-                    <ZapIcon className="w-4 h-4 text-cyan-400" />
-                    <span className="text-sm font-medium text-white">{stats.userXP.toLocaleString()} XP</span>
-                  </div>
-                  <div className="h-4 w-px bg-white/20" />
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-sm text-slate-300">{stats.activeNow} Active</span>
-                  </div>
-                </div>
-                <Link href="/settings">
-                  <Button size="sm" variant="ghost" className="text-slate-300 hover:text-cyan-400 transition-colors">
-                    Settings
-                  </Button>
-                </Link>
-                <Link href="/auth/login">
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 border-0 shadow-lg shadow-purple-500/50"
-                  >
-                    <UserIcon className="w-4 h-4 mr-2" />
-                    Profile
-                  </Button>
-                </Link>
+                {/* Stats moved to floating widget */}
               </div>
             </div>
           </div>
         </header>
+
         <main className="container mx-auto px-4 py-12">
           <section className="mb-16 text-center animate-fade-in">
             <div className="inline-block px-6 py-2 bg-green-500/20 border border-green-500/50 rounded-full text-green-300 text-sm font-medium mb-6 animate-pulse">

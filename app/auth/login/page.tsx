@@ -41,17 +41,18 @@ export default function LoginPage() {
       console.log("[v0] Attempting login for email:", email.trim())
 
       const supabase = createClient()
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       })
 
       if (error) {
-        console.error("[v0] Login error:", error)
+        console.error("[v0] Supabase auth error:", error.message)
         
         if (error.message.includes("Invalid login credentials")) {
           throw new Error(
-            "Invalid email or password. If you don't have an account yet, please sign up first."
+            "Invalid email or password. If you don't have an account yet, please sign up."
           )
         }
         if (error.message.includes("Email not confirmed")) {
@@ -68,11 +69,23 @@ export default function LoginPage() {
 
       console.log("[v0] Login successful for user:", data.user.id)
       
-      // Successful login - redirect to demo
       router.push("/demo")
     } catch (err: any) {
-      console.error("[v0] Login error:", err)
+      console.error("[v0] Login error:", err.message)
       setError(err.message || "Failed to log in. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDemoMode = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      // For demo, redirect to demo page without auth
+      router.push("/demo")
+    } catch (err: any) {
+      setError("Failed to enter demo mode")
     } finally {
       setLoading(false)
     }
@@ -80,7 +93,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-900 to-black flex items-center justify-center p-4">
-      {/* Animated stars */}
       {[...Array(50)].map((_, i) => (
         <div
           key={i}
@@ -143,11 +155,11 @@ export default function LoginPage() {
               />
             </div>
             {successMessage && (
-              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <p className="text-green-400 text-sm">{successMessage}</p>
+              <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                <p className="text-primary-foreground text-sm">{successMessage}</p>
               </div>
             )}
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+            {error && <p className="text-destructive-foreground text-sm">{error}</p>}
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"
@@ -163,10 +175,25 @@ export default function LoginPage() {
             </Link>
           </div>
           
-          <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-            <p className="text-cyan-300 text-xs text-center">
-              💡 New to SageSpace? Create an account by clicking "Sign up" above.
-            </p>
+          <div className="mt-4 space-y-3">
+            <Button
+              type="button"
+              onClick={handleDemoMode}
+              variant="outline"
+              className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+            >
+              Try Demo Mode
+            </Button>
+            
+            <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+              <p className="text-cyan-300 text-xs text-center font-medium mb-1">
+                Test Account Available
+              </p>
+              <p className="text-cyan-300/70 text-xs text-center">
+                Email: test@sagespace.ai<br/>
+                Password: TestPassword123!
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
